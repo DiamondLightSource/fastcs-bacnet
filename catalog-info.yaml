@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fastcs-bacnet
+  title: fastcs-bacnet
+  description: Reads bacnet data to an IOC
+spec:
+  type: application
+  lifecycle: experimental
+  owner: group:default/accelerator-controls

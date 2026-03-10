@@ -1,0 +1,20 @@
+# Changes here will be overwritten by Copier
+_commit: 5.0.2
+_src_path: https://github.com/DiamondLightSource/python-copier-template.git
+author_email: oliver.jones@diamond.ac.uk
+author_name: Oli Jones
+component_lifecycle: experimental
+component_owner: group:default/accelerator-controls
+component_type: application
+description: Reads bacnet data to an IOC
+distribution_name: fastcs-bacnet
+docker: true
+docker_debug: false
+docs_type: README
+git_platform: github.com
+github_org: DiamondLightSource
+package_name: fastcs_bacnet
+pypi: true
+repo_name: fastcs-bacnet
+strict_typing: false
+type_checker: pyright
