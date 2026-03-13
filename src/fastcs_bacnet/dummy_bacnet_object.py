@@ -7,16 +7,15 @@ from BAC0.core.devices.local.factory import analog_output
 
 
 class DummyBACnetObject:
-    def __init__(self, device, name, description):
-
-        ref = analog_output(name=name, description=description)
+    def __init__(self, device, name, description, instance):
+        ref = analog_output(name=name, description=description, instance=instance)
         ref.add_objects_to_application(device)
         ref.clear_objects()
 
 
 class DummyConstantObject(DummyBACnetObject):
-    def __init__(self, device, name, description, value):
-        super().__init__(device, name, description)
+    def __init__(self, device, name, description, value, instance=0):
+        super().__init__(device, name, description, instance)
 
         device[name].presentValue = value
 
@@ -27,13 +26,14 @@ class DummyOscillatingObject(DummyBACnetObject):
         device,
         name,
         description,
+        instance=0,
         amplitude=1.0,
         offset=0.0,
         frequency=1.0,
         refresh_rate=0.1,
         debug=False,
     ):
-        super().__init__(device, name, description)
+        super().__init__(device, name, description, instance)
 
         self.device = device
         self.name = name
@@ -68,13 +68,14 @@ class DummyRandomChangeObject(DummyBACnetObject):
         device,
         name,
         description,
+        instance=0,
         min_change_time=0.0,
         max_change_time=1.0,
         min_value=0.0,
         max_value=1.0,
         debug=False,
     ):
-        super().__init__(device, name, description)
+        super().__init__(device, name, description, instance)
 
         self.device = device
         self.name = name
