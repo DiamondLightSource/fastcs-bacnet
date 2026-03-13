@@ -32,7 +32,7 @@ async def _a_get_object_values():
 
         # 2 ways of doing this: from a controller or directly from the client
         # TODO: Make these cli arguments
-        use_controller = True
+        use_controller = False
         query_time = 1.1
 
         if use_controller:
@@ -45,8 +45,8 @@ async def _a_get_object_values():
 
             while True:
                 # very simple to get object values using a controller
-                # WARNING: there seems to be a strange bug where only every other
-                # query works
+                # WARNING: there seems to be a strange bug where sometimes the value
+                # just doesnt update?? Better off using the network client directly
                 os1_value = await device_controller["OS1"].value
                 print("OS1 value recorded from controller: ", os1_value)
                 await asyncio.sleep(query_time)
@@ -67,6 +67,7 @@ async def _a_get_object_values():
                 )
                 os1_value = await bacnet.read(read_argument)
                 print("OS1 value recorded from client read: ", os1_value)
+                await asyncio.sleep(query_time)
 
     finally:
         for device in bac0_devices:
