@@ -57,16 +57,31 @@ async def start_bacnet():
     try:
         DummyRandomChangeObject(dummy_device_1, "OB1", "Dummy Object 1")
 
-        read_argument = "127.0.0.1:47809 analog-output 0 presentValue"
-        print("read argument: ", read_argument)
-        value = await bacnet.read(read_argument)
-        print("returned value: ", value)
+        def callback(property_identifier, property_value, **_):
+            print(property_identifier, ": ", property_value)
 
-        await asyncio.sleep(10)
+        use_controller = True
 
-        print("read argument: ", read_argument)
-        value = await bacnet.read(read_argument)
-        print("returned value: ", value)
+        # two methods of starting a change of value subscription
+        # one with a controller and one without
+        # sometimes they miss a change if it happens too quickly??
+        if use_controller:
+            dummy_device_1_controller = await BAC0.device(
+                f"{address}:{dummy_device_1_port}", dummy_device_1_id, bacnet
+            )
+
+            await dummy_device_1_controller["OB1"].subscribe_cov(
+                lifetime=1000, callback=callback
+            )
+        else:
+            bacnet.cov(
+                f"{address}:{dummy_device_1_port}",
+                ("analog-output", 0),
+                lifetime=1000,
+                callback=callback,
+            )
+
+        await asyncio.sleep(5)
 
     finally:
         for device in bac0_devices:
