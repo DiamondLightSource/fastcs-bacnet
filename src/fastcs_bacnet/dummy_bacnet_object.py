@@ -31,6 +31,7 @@ class DummyOscillatingObject(DummyBACnetObject):
         offset=0.0,
         frequency=1.0,
         refresh_rate=0.1,
+        debug=False,
     ):
         super().__init__(device, name, description)
 
@@ -40,6 +41,7 @@ class DummyOscillatingObject(DummyBACnetObject):
         self.offset = offset
         self.frequency = frequency
         self.refresh_rate = refresh_rate
+        self.debug = debug
 
         asyncio.create_task(self.start_update_loop())
 
@@ -49,13 +51,13 @@ class DummyOscillatingObject(DummyBACnetObject):
             self.update()
             await asyncio.sleep(self.refresh_rate)
 
-    def update(self, debug=False):
+    def update(self):
         current_time = datetime.datetime.now()
         dif_time = current_time - self.start_time
         new_dummy_value = self.offset + (
             self.amplitude * math.sin(self.frequency * dif_time.total_seconds())
         )
-        if debug:
+        if self.debug:
             print("current value of ", self.name, ": ", new_dummy_value)
         self.device[self.name].presentValue = new_dummy_value
 
@@ -70,6 +72,7 @@ class DummyRandomChangeObject(DummyBACnetObject):
         max_change_time=1.0,
         min_value=0.0,
         max_value=1.0,
+        debug=False,
     ):
         super().__init__(device, name, description)
 
@@ -79,6 +82,7 @@ class DummyRandomChangeObject(DummyBACnetObject):
         self.max_change_time = max_change_time
         self.min_value = min_value
         self.max_value = max_value
+        self.debug = debug
 
         asyncio.create_task(self.start_update_loop())
 
@@ -90,10 +94,10 @@ class DummyRandomChangeObject(DummyBACnetObject):
             )
             await asyncio.sleep(change_time)
 
-    def update(self, debug=False):
+    def update(self):
         new_dummy_value = self.min_value + (
             random.random() * (self.max_value - self.min_value)
         )
-        if debug:
+        if self.debug:
             print("current value of ", self.name, ": ", new_dummy_value)
         self.device[self.name].presentValue = new_dummy_value
