@@ -35,12 +35,17 @@ async def _a_cov_subscription():
 
         use_controller = True
 
+        # NOTE: BOTH methods miss value changes if there is another value change
+        # soon after. Luckily, both methods still get an update with the most recent
+        # values in these cases
+        # TODO: Investigate the average time between updates that are skipped
+        # and any other patterns
         if use_controller:
             dummy_device_1_controller = await BAC0.device(
                 f"{address}:{dummy_device_1_port}", dummy_device_1_id, bacnet
             )
 
-            await dummy_device_1_controller["OB1"].subscribe_cov(
+            await dummy_device_1_controller["OS1"].subscribe_cov(
                 lifetime=30, callback=callback
             )
 
