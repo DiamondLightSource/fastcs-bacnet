@@ -32,6 +32,9 @@ dev = [
 
 [project.scripts]
 fastcs-bacnet = "fastcs_bacnet.__main__:main"
+dummy-devices-example = "fastcs_bacnet.examples.BAC0.dummy_devices_with_objects:dummy_devices_with_objects"
+get-values-example = "fastcs_bacnet.examples.BAC0.get_object_values:get_object_values"
+subscription-example = "fastcs_bacnet.examples.BAC0.CoV_subscription:cov_subscription"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/fastcs-bacnet"
@@ -45,7 +48,7 @@ version_file = "src/fastcs_bacnet/_version.py"
 
 [tool.pyright]
 typeCheckingMode = "standard"
-reportMissingImports = false # Ignore missing stubs in imported modules
+reportMissingImports = false  # Ignore missing stubs in imported modules
 
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
