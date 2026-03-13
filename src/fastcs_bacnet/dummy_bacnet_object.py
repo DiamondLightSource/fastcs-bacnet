@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import math
+import random
 
 from BAC0.core.devices.local.factory import analog_output
 
@@ -53,6 +54,45 @@ class DummyOscillatingObject(DummyBACnetObject):
         dif_time = current_time - self.start_time
         new_dummy_value = self.offset + (
             self.amplitude * math.sin(self.frequency * dif_time.total_seconds())
+        )
+        if debug:
+            print("current value of ", self.name, ": ", new_dummy_value)
+        self.device[self.name].presentValue = new_dummy_value
+
+
+class DummyRandomChangeObject(DummyBACnetObject):
+    def __init__(
+        self,
+        device,
+        name,
+        description,
+        min_change_time=0.0,
+        max_change_time=1.0,
+        min_value=0.0,
+        max_value=1.0,
+    ):
+        super().__init__(device, name, description)
+
+        self.device = device
+        self.name = name
+        self.min_change_time = min_change_time
+        self.max_change_time = max_change_time
+        self.min_value = min_value
+        self.max_value = max_value
+
+        asyncio.create_task(self.start_update_loop())
+
+    async def start_update_loop(self):
+        while True:
+            self.update()
+            change_time = self.min_change_time + (
+                random.random() * (self.max_change_time - self.min_change_time)
+            )
+            await asyncio.sleep(change_time)
+
+    def update(self, debug=False):
+        new_dummy_value = self.min_value + (
+            random.random() * (self.max_value - self.min_value)
         )
         if debug:
             print("current value of ", self.name, ": ", new_dummy_value)

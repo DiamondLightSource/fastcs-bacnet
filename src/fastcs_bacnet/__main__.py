@@ -6,7 +6,9 @@ from collections.abc import Sequence
 
 import BAC0
 
-from fastcs_bacnet.dummy_bacnet_object import DummyOscillatingObject
+from fastcs_bacnet.dummy_bacnet_object import (
+    DummyRandomChangeObject,
+)
 
 from . import __version__
 
@@ -53,14 +55,14 @@ async def start_bacnet():
     bac0_devices.append(dummy_device_2)
 
     try:
-        DummyOscillatingObject(dummy_device_1, "OB1", "Dummy Object 1")
+        DummyRandomChangeObject(dummy_device_1, "OB1", "Dummy Object 1")
 
         read_argument = "127.0.0.1:47809 analog-output 0 presentValue"
         print("read argument: ", read_argument)
         value = await bacnet.read(read_argument)
         print("returned value: ", value)
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(10)
 
         print("read argument: ", read_argument)
         value = await bacnet.read(read_argument)
