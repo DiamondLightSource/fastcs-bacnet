@@ -57,7 +57,7 @@ async def _a_dummy_devices_with_objects():
         # refresh rate is how frequently the object changes its value
         # The debug option can be used to output the new value every time it changes
         DummyOscillatingObject(
-            dummy_device_1, "OS1", "Dummy Oscillating Object 1", debug=True
+            dummy_device_1, "OS1", "Dummy Oscillating Object 1", instance=1
         )
         DummyOscillatingObject(
             dummy_device_2,
@@ -65,25 +65,33 @@ async def _a_dummy_devices_with_objects():
             "Dummy Oscillating Object 2",
             amplitude=5.0,
             offset=2.0,
-            frequency=4.0,
-            refresh_rate=0.2,
+            frequency=0.3,
+            refresh_rate=0.7,
+            debug=True,
         )
+        # ALSO worth noting that you have to specify an instance number if multiple
+        # objects are added to a device, they must be unique
+        # technically the object type and instance pair have to be unique per device
 
         # Random change objects change to a random value in a uniform distribution
         # between min_value and max_value at a random time interval (also a
         # uniform distribution) between min_change_time and max_change_time
         DummyRandomChangeObject(
-            dummy_device_2, "RN1", "Dummy Random Object 1", 10.0, debug=True
+            dummy_device_2, "RN1", "Dummy Random Object 1", instance=1
         )
         DummyRandomChangeObject(
             dummy_device_2,
-            "RN2Dummy Random Object 2",
-            10.0,
-            min_change_time=0.3,
-            max_change_time=2.0,
+            "RN2",
+            "Dummy Random Object 2",
+            min_change_time=1.0,
+            max_change_time=1.5,
             min_value=1.0,
             max_value=5.0,
+            instance=2,
+            debug=True,
         )
+
+        await asyncio.sleep(20)
 
     # Cleans up all devices even if main code errors
     # If you put async code in an object deconstructor (I did originally)
