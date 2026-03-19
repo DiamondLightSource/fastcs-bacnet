@@ -34,7 +34,12 @@ class DummyDeviceController(Controller):
         for i in range(len(dummy_device.constant_fields)):
             self.add_attribute(
                 "constant_field_" + str(i),
-                AttrR(Float(), io_ref=DummyAttributeIORef(FieldType.CONSTANT, i)),
+                AttrR(
+                    Float(),
+                    io_ref=DummyAttributeIORef(
+                        FieldType.CONSTANT, i, update_period=0.2
+                    ),
+                ),
             )
 
         for i in range(len(dummy_device.oscillating_fields)):
