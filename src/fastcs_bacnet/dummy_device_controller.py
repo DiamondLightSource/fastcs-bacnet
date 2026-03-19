@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from fastcs.attributes import AttributeIO, AttributeIORef, AttrR, AttrRW
+from fastcs.attributes import AttributeIO, AttributeIORef, AttrR, AttrRW, AttrW
 from fastcs.controllers import Controller
 from fastcs.datatypes import Float
 
@@ -24,6 +24,9 @@ class IndexAttributeIO(AttributeIO[float, DummyAttributeIORef]):
         await attr.update(
             self.device.get_value(attr.io_ref.field_type, attr.io_ref.index)
         )
+
+    async def send(self, attr: AttrW[float, DummyAttributeIORef], value: float):
+        self.device.set_value(attr.io_ref.index, value)
 
 
 class DummyDeviceController(Controller):

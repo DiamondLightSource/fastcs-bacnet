@@ -66,6 +66,9 @@ class DummyDevice:
 
         return 0.0
 
+    def set_value(self, index, value):
+        self.rw_fields[index].set_value(value)
+
 
 class Field:
     def __init__(self):
