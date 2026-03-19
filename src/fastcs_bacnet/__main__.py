@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from collections.abc import Sequence
 
 from fastcs_bacnet.examples.FastCS.CA_for_dummy_device import (
-    single_controller_multi_oscillating,
+    single_controller_multi_random,
 )
 
 from . import __version__
@@ -24,7 +24,7 @@ def main(args: Sequence[str] | None = None) -> None:
     parser.parse_args(args)
 
     print("hello world!!")
-    single_controller_multi_oscillating()
+    single_controller_multi_random()
 
 
 if __name__ == "__main__":
