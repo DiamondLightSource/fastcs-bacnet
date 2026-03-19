@@ -27,9 +27,8 @@ class IndexAttributeIO(AttributeIO[float, DummyAttributeIORef]):
 
 
 class DummyDeviceController(Controller):
-    def __init__(self, dummy_device: DummyDevice):
+    def __init__(self, dummy_device: DummyDevice, update_period: float = 0.2):
         super().__init__(ios=[IndexAttributeIO(dummy_device)])
-        update_period = 1.5
 
         # this could be looped maybe?
         for i in range(len(dummy_device.constant_fields)):

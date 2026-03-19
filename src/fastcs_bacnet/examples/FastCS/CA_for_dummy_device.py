@@ -27,6 +27,6 @@ def single_controller_multi_constants():
 
 def single_controller_multi_oscillating():
     dummy_device = DummyDevice(number_of_oscillating_fields=15000)
-    dummy_controller = DummyDeviceController(dummy_device)
+    dummy_controller = DummyDeviceController(dummy_device, update_period=1.5)
 
     start_fastcs_ca_with_controller(dummy_controller)
