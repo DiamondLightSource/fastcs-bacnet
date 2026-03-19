@@ -45,17 +45,30 @@ class DummyDeviceController(Controller):
         for i in range(len(dummy_device.oscillating_fields)):
             self.add_attribute(
                 "oscillating_field_" + str(i),
-                AttrR(Float(), io_ref=DummyAttributeIORef(FieldType.OSCILLATING, i)),
+                AttrR(
+                    Float(),
+                    io_ref=DummyAttributeIORef(
+                        FieldType.OSCILLATING, i, update_period=0.2
+                    ),
+                ),
             )
 
         for i in range(len(dummy_device.random_fields)):
             self.add_attribute(
                 "random_field_" + str(i),
-                AttrR(Float(), io_ref=DummyAttributeIORef(FieldType.RANDOM, i)),
+                AttrR(
+                    Float(),
+                    io_ref=DummyAttributeIORef(FieldType.RANDOM, i, update_period=0.2),
+                ),
             )
 
         for i in range(len(dummy_device.rw_fields)):
             self.add_attribute(
                 "rw_field_" + str(i),
-                AttrRW(Float(), io_ref=DummyAttributeIORef(FieldType.WRITABLE, i)),
+                AttrRW(
+                    Float(),
+                    io_ref=DummyAttributeIORef(
+                        FieldType.WRITABLE, i, update_period=0.2
+                    ),
+                ),
             )
