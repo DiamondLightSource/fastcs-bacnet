@@ -44,3 +44,15 @@ def single_controller_multi_read_write():
     dummy_controller = DummyDeviceController(dummy_device, update_period=0.2)
 
     start_fastcs_ca_with_controller(dummy_controller)
+
+
+def single_controller_multi_variable():
+    dummy_device = DummyDevice(
+        number_of_constant_fields=5000,
+        number_of_oscillating_fields=5000,
+        number_of_random_fields=5000,
+        number_of_read_write_fields=5000,
+    )
+    dummy_controller = DummyDeviceController(dummy_device, update_period=2.0)
+
+    start_fastcs_ca_with_controller(dummy_controller, callback_queue_size=21000)
