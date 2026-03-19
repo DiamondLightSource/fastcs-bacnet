@@ -29,6 +29,7 @@ class IndexAttributeIO(AttributeIO[float, DummyAttributeIORef]):
 class DummyDeviceController(Controller):
     def __init__(self, dummy_device: DummyDevice):
         super().__init__(ios=[IndexAttributeIO(dummy_device)])
+        update_period = 1.5
 
         # this could be looped maybe?
         for i in range(len(dummy_device.constant_fields)):
@@ -37,7 +38,7 @@ class DummyDeviceController(Controller):
                 AttrR(
                     Float(),
                     io_ref=DummyAttributeIORef(
-                        FieldType.CONSTANT, i, update_period=0.2
+                        FieldType.CONSTANT, i, update_period=update_period
                     ),
                 ),
             )
@@ -48,7 +49,7 @@ class DummyDeviceController(Controller):
                 AttrR(
                     Float(),
                     io_ref=DummyAttributeIORef(
-                        FieldType.OSCILLATING, i, update_period=0.2
+                        FieldType.OSCILLATING, i, update_period=update_period
                     ),
                 ),
             )
@@ -58,7 +59,9 @@ class DummyDeviceController(Controller):
                 "random_field_" + str(i),
                 AttrR(
                     Float(),
-                    io_ref=DummyAttributeIORef(FieldType.RANDOM, i, update_period=0.2),
+                    io_ref=DummyAttributeIORef(
+                        FieldType.RANDOM, i, update_period=update_period
+                    ),
                 ),
             )
 
@@ -68,7 +71,7 @@ class DummyDeviceController(Controller):
                 AttrRW(
                     Float(),
                     io_ref=DummyAttributeIORef(
-                        FieldType.WRITABLE, i, update_period=0.2
+                        FieldType.WRITABLE, i, update_period=update_period
                     ),
                 ),
             )
