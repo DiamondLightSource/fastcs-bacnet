@@ -22,10 +22,10 @@ class DummyDevice:
         number_of_random_fields=0,
         number_of_read_write_fields=0,
     ):
-        self.constant_fields = []
-        self.oscillating_fields = []
-        self.random_fields = []
-        self.rw_fields = []
+        self.constant_fields: list[ConstantField] = []
+        self.oscillating_fields: list[OscillatingField] = []
+        self.random_fields: list[RandomField] = []
+        self.rw_fields: list[ReadWriteField] = []
 
         for _ in range(number_of_constant_fields):
             self.constant_fields.append(ConstantField(random.random()))
@@ -50,19 +50,21 @@ class DummyDevice:
         for _ in range(number_of_read_write_fields):
             self.rw_fields.append(ReadWriteField(random.random()))
 
-    def get_value(self, field_type, index):
+    def get_value(self, field_type, index) -> float:
 
         if field_type == FieldType.CONSTANT:
-            return self.constant_fields[index]
+            return self.constant_fields[index].get_value()
 
         if field_type == FieldType.OSCILLATING:
-            return self.oscillating_fields[index]
+            return self.oscillating_fields[index].get_value()
 
         if field_type == FieldType.RANDOM:
-            return self.random_fields[index]
+            return self.random_fields[index].get_value()
 
         if field_type == FieldType.WRITABLE:
-            return self.rw_fields[index]
+            return self.rw_fields[index].get_value()
+
+        return 0.0
 
 
 class Field:
