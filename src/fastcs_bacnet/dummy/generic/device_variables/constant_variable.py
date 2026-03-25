@@ -4,6 +4,13 @@ from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceV
 
 
 class ConstantVariable(DeviceVariable):
+    """
+    A constant device variable
+    Value is set on initialisation and cannot change
+    Can be queried
+    update callback is included for consistency but does nothing
+    """
+
     def __init__(
         self,
         name: str,
