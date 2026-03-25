@@ -4,6 +4,12 @@ from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceV
 
 
 class ReadWriteVariable(DeviceVariable):
+    """
+    Writable device variable
+    Callback is called when value is written
+        (even if the new value is the same)
+    """
+
     def __init__(
         self,
         name: str,
@@ -15,6 +21,9 @@ class ReadWriteVariable(DeviceVariable):
         self._value = initial_value
 
     def set_value(self, value: float):
+        """
+        Writes a new value to the variable
+        """
         self._value = value
 
         if self.update_callback is not None:
