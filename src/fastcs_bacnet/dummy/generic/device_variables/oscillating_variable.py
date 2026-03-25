@@ -1,5 +1,7 @@
 import asyncio
+import math
 from collections.abc import Callable
+from datetime import datetime as dt
 
 from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
 
@@ -24,7 +26,18 @@ class OscillatingVariable(DeviceVariable):
         asyncio.create_task(self.start_update_loop())
 
     async def start_update_loop(self):
-        pass
+        self.start_time = dt.now()
+        while True:
+            self.update()
+            await asyncio.sleep(self.value_refresh_rate)
 
     def update(self):
-        pass
+        current_time = dt.now()
+        dif_time = current_time - self.start_time
+
+        self._value = self.offset + (
+            self.amplitude * math.sin(self.frequency * dif_time.total_seconds())
+        )
+
+        if self.update_callback is not None:
+            self.update_callback(self._value)
