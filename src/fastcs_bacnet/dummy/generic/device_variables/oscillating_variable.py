@@ -7,6 +7,12 @@ from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceV
 
 
 class OscillatingVariable(DeviceVariable):
+    """
+    A device variable whose value oscillates over time (sinosodial pattern)
+    Since the value is technically always changing it is only updated periodically
+    Callback is called on value updates
+    """
+
     def __init__(
         self,
         name: str,
@@ -16,6 +22,16 @@ class OscillatingVariable(DeviceVariable):
         value_refresh_period: float = 0.2,
         update_callback: Callable[[float], None] | None = None,
     ):
+        """
+        amplitude: Amplitude of the sin wave
+            (half of hte difference between its maximum and minimum)
+        offset: The y difference between the centre of the waves oscillation
+            and the y axis
+        frequency: The number of oscillations per second
+        value_refresh_period: The time between updating the variables value
+
+        update loop is started automatically after initialisation
+        """
         super().__init__(name, update_callback=update_callback)
 
         self.amplitude = amplitude
@@ -26,12 +42,21 @@ class OscillatingVariable(DeviceVariable):
         asyncio.create_task(self.start_update_loop())
 
     async def start_update_loop(self):
+        """
+        The loop that periodically updates the variable's value
+        Records start time and calls update() every value_refresh_period seconds
+        """
         self.start_time = dt.now()
         while True:
             self.update()
             await asyncio.sleep(self.value_refresh_period)
 
     def update(self):
+        """
+        Updates the variable's value based on the current time and wave attributes
+        Value = offset + (amplitude * sin(frequency * t * 2PI))
+        Where t is time since update loop started
+        """
         current_time = dt.now()
         dif_time = current_time - self.start_time
 
