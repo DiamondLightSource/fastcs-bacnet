@@ -61,7 +61,8 @@ class OscillatingVariable(DeviceVariable):
         dif_time = current_time - self.start_time
 
         self._value = self.offset + (
-            self.amplitude * math.sin(self.frequency * dif_time.total_seconds())
+            self.amplitude
+            * math.sin(self.frequency * dif_time.total_seconds() * math.pi * 2)
         )
 
         if self.update_callback is not None:
