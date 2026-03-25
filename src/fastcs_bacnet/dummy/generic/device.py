@@ -14,6 +14,11 @@ from fastcs_bacnet.dummy.generic.device_variables.read_write_variable import (
 
 
 class Device:
+    """
+    A generic dummy device for FastCS to interact with
+    Stores all its "variables" (equivalent to FastCS attribtues) in one list
+    """
+
     def __init__(
         self,
         device_name: str,
@@ -22,6 +27,11 @@ class Device:
         number_of_random_fields: int = 0,
         number_of_read_write_fields: int = 0,
     ):
+        """
+        Creates numbers of variables specified by arguments
+        Stores them all in one list of device variables
+        naming convention is: [device name]_[variable type]_[variable number]
+        """
         self.variables: list[DeviceVariable] = []
 
         for i in range(number_of_constant_fields):
@@ -54,3 +64,7 @@ class Device:
             self.variables.append(
                 ReadWriteVariable(f"{device_name}_oscillating_{i}", random.random())
             )
+
+    # there is no method to add variables or it would be
+    # too easy to create variables with duplicate names
+    # OR share variables between devices
