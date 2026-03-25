@@ -32,17 +32,18 @@ class Device:
         Stores them all in one list of device variables
         naming convention is: [device name]_[variable type]_[variable number]
         """
+        self.name = device_name
         self.variables: list[DeviceVariable] = []
 
         for i in range(number_of_constant_fields):
             self.variables.append(
-                ConstantVariable(f"{device_name}_constant_{i}", random.random())
+                ConstantVariable(f"{self.name}_constant_{i}", random.random())
             )
 
         for i in range(number_of_oscillating_fields):
             self.variables.append(
                 OscillatingVariable(
-                    f"{device_name}_oscillating_{i}",
+                    f"{self.name}_oscillating_{i}",
                     random.random(),
                     random.random(),
                     random.random() + 0.5,
@@ -52,7 +53,7 @@ class Device:
         for i in range(number_of_random_fields):
             self.variables.append(
                 RandomVariable(
-                    f"{device_name}_random_{i}",
+                    f"{self.name}_random_{i}",
                     random.random(),
                     random.random() + 1,
                     random.random(),
@@ -62,7 +63,7 @@ class Device:
 
         for i in range(number_of_read_write_fields):
             self.variables.append(
-                ReadWriteVariable(f"{device_name}_oscillating_{i}", random.random())
+                ReadWriteVariable(f"{self.name}_oscillating_{i}", random.random())
             )
 
     # there is no method to add variables or it would be
