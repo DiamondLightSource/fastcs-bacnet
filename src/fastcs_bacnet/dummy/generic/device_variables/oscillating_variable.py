@@ -13,7 +13,7 @@ class OscillatingVariable(DeviceVariable):
         amplitude: float = 1.0,
         offset: float = 0.0,
         frequency: float = 1.0,
-        value_refresh_rate: float = 0.2,
+        value_refresh_period: float = 0.2,
         update_callback: Callable[[float], None] | None = None,
     ):
         super().__init__(name, update_callback=update_callback)
@@ -21,7 +21,7 @@ class OscillatingVariable(DeviceVariable):
         self.amplitude = amplitude
         self.offset = offset
         self.frequency = frequency
-        self.value_refresh_rate = value_refresh_rate
+        self.value_refresh_period = value_refresh_period
 
         asyncio.create_task(self.start_update_loop())
 
@@ -29,7 +29,7 @@ class OscillatingVariable(DeviceVariable):
         self.start_time = dt.now()
         while True:
             self.update()
-            await asyncio.sleep(self.value_refresh_rate)
+            await asyncio.sleep(self.value_refresh_period)
 
     def update(self):
         current_time = dt.now()
