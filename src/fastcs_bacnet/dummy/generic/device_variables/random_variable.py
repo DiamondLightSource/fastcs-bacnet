@@ -35,9 +35,9 @@ class RandomVariable(DeviceVariable):
         self.min_value = min_value
         self.max_value = max_value
 
-        asyncio.create_task(self.start_update_loop())
+        asyncio.create_task(self._start_update_loop())
 
-    async def start_update_loop(self):
+    async def _start_update_loop(self):
         """
         The loop that updates the variable's value after random intervals
         After each update a random time is decided
@@ -45,13 +45,13 @@ class RandomVariable(DeviceVariable):
         The loop waits for that time period and updates again
         """
         while True:
-            self.update()
+            self._update()
             change_time = self.min_change_time + (
                 random.random() * (self.max_change_time - self.min_change_time)
             )
             await asyncio.sleep(change_time)
 
-    def update(self):
+    def _update(self):
         """
         Randomly assigns a new value to the variable
             (uniform distribution between min and max value)

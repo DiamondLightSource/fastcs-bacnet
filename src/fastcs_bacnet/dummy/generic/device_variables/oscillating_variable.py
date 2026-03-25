@@ -39,19 +39,19 @@ class OscillatingVariable(DeviceVariable):
         self.frequency = frequency
         self.value_refresh_period = value_refresh_period
 
-        asyncio.create_task(self.start_update_loop())
+        asyncio.create_task(self._start_update_loop())
 
-    async def start_update_loop(self):
+    async def _start_update_loop(self):
         """
         The loop that periodically updates the variable's value
         Records start time and calls update() every value_refresh_period seconds
         """
         self.start_time = dt.now()
         while True:
-            self.update()
+            self._update()
             await asyncio.sleep(self.value_refresh_period)
 
-    def update(self):
+    def _update(self):
         """
         Updates the variable's value based on the current time and wave attributes
         Value = offset + (amplitude * sin(frequency * t * 2PI))
