@@ -91,3 +91,13 @@ class ObjectSubscription:
             callback(property_indentifier, property_value)
 
         return decorated_callback
+
+    def get_last_subscription(self) -> dt:
+        return self._last_subscription
+
+    def get_last_update(self) -> dt:
+        return self._last_update
+
+    def set_callback(self, callback: Callable[[str, float], None]):
+        self._callback = callback
+        self.subscribe()
