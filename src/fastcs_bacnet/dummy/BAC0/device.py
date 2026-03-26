@@ -14,6 +14,10 @@ from fastcs_bacnet.dummy.generic.device_variables.random_variable import RandomV
 
 
 class Device:
+    """
+    A dummy bacnet device a bacnet client can talk to
+    """
+
     def __init__(
         self,
         ip_address: str,
@@ -23,6 +27,10 @@ class Device:
         number_of_oscillating_fields: int = 0,
         number_of_random_fields: int = 0,
     ):
+        """
+        Creates a new bacnet device instance (BAC0.lite)
+        And adds objects to it according to parameters
+        """
 
         self.ip_address = ip_address
         self.port = port
@@ -43,6 +51,14 @@ class Device:
             self.add_object(RandomVariable, i)
 
     def add_object(self, variable_class: type[DeviceVariable], index: int):
+        """
+        variable_class: type of a device variable
+            intentionally not an instance
+            otherwise one variable could belong to 2 devices
+        index: index of the variable type on this object
+            doesnt have to be consecutive, just for naming purposes
+        Adds an object of a given type to the bacnet device
+        """
 
         variable_string: str = ""
         object_variable: DeviceVariable | None = None
