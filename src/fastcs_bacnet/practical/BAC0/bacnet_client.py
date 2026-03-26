@@ -115,8 +115,12 @@ class BacnetClient:
         (bacnet_client = None on object creation)
         You should run this method when you are done with the python object
         The python object will essentially be useless after this
+        Also stops all subscriptions
         """
 
         if self._borrowed_device:
             return
+
+        for subscription_id in self.get_subscription_ids():
+            self.remove_subscription(subscription_id=subscription_id)
         await self._bacnet_client.disconnect()
