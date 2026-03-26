@@ -14,6 +14,7 @@ class ObjectSubscription:
 
     _last_subscription: dt
     _last_update: dt
+    _subscription_stopped: bool = False
 
     def __init__(
         self,
@@ -52,12 +53,12 @@ class ObjectSubscription:
         Restarts the subscription to the bacnet object
         Records time this method was called
         """
+        if self._subscription_stopped:
+            return
         if self.tracking:
             self._last_subscription = dt.now()
 
-        callback = self._callback
-        if self.tracking and self._callback is not None:
-            callback = self._decorate_callback(self._callback)
+        callback = self._decorate_callback(self._callback)
 
         self._bacnet_client.cov(
             f"{self._subscription_id.address}:{self._subscription_id.port}",
@@ -79,7 +80,7 @@ class ObjectSubscription:
         self.subscribe()
 
     def _decorate_callback(
-        self, callback: Callable[[str, float], None]
+        self, callback: Callable[[str, float], None] | None
     ) -> Callable[[str, float], None]:
         """
         Decorates the argument function manually
@@ -89,8 +90,12 @@ class ObjectSubscription:
         """
 
         def decorated_callback(property_indentifier: str, property_value: float):
-            self._last_update = dt.now()
-            callback(property_indentifier, property_value)
+            if self._subscription_stopped:
+                return
+            if self.tracking:
+                self._last_update = dt.now()
+            if callback is not None:
+                callback(property_indentifier, property_value)
 
         return decorated_callback
 
