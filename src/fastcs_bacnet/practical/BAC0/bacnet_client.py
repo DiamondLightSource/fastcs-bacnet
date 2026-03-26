@@ -70,5 +70,8 @@ class BacnetClient:
 
         return self.subscriptions[subscription_id]
 
-    def disconnect(self):
-        pass
+    async def disconnect(self):
+
+        if self.borrowed_deivce:
+            return
+        await self.bacnet_client.disconnect()
