@@ -36,19 +36,19 @@ class BacnetClient:
             This will be used as a defualt for added subscriptions
             If None nothing happens when a new value is recieved
         """
-        self.subscription_lifetime = subscription_lifetime
-        self.default_generic_callback = default_generic_callback
+        self._subscription_lifetime = subscription_lifetime
+        self._default_generic_callback = default_generic_callback
 
         if bacnet_client is not None:
-            self.bacnet_client = bacnet_client
-            self.borrowed_deivce = False
+            self._bacnet_client = bacnet_client
+            self._borrowed_device = False
         else:
             # these are not good forced parameters
             # maybe its just better to force users to give a bacnet_client??
-            self.bacnet_client = start("127.0.0.1", 47808, deviceId=1)
-            self.borrowed_deivce = True
+            self._bacnet_client = start("127.0.0.1", 47808, deviceId=1)
+            self._borrowed_device = True
 
-        self.subscriptions: dict[SubscriptionID, ObjectSubscription] = {}
+        self._subscriptions: dict[SubscriptionID, ObjectSubscription] = {}
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
@@ -70,17 +70,17 @@ class BacnetClient:
         if callback is None:
 
             def default_callback(property_indentifier: str, property_value: float):
-                if self.default_generic_callback is not None:
-                    self.default_generic_callback(
+                if self._default_generic_callback is not None:
+                    self._default_generic_callback(
                         subscription_id, property_indentifier, property_value
                     )
 
             callback = default_callback
 
-        self.subscriptions[subscription_id] = ObjectSubscription(
-            self.bacnet_client,
+        self._subscriptions[subscription_id] = ObjectSubscription(
+            self._bacnet_client,
             subscription_id,
-            lifetime=self.subscription_lifetime,
+            lifetime=self._subscription_lifetime,
             callback=callback,
         )
 
@@ -95,13 +95,13 @@ class BacnetClient:
             ObjectSubscription that you are still using
         """
         subscription = self.get_subscription(subscription_id)
-        self.subscriptions.pop(subscription_id)
+        self._subscriptions.pop(subscription_id)
 
         if stop_subscription:
             subscription.stop_subscription()
 
     def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
-        return self.subscriptions[subscription_id]
+        return self._subscriptions[subscription_id]
 
     async def disconnect(self):
         """
@@ -111,6 +111,6 @@ class BacnetClient:
         The python object will essentially be useless after this
         """
 
-        if self.borrowed_deivce:
+        if self._borrowed_device:
             return
-        await self.bacnet_client.disconnect()
+        await self._bacnet_client.disconnect()
