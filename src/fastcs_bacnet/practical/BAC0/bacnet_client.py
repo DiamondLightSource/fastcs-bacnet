@@ -16,7 +16,7 @@ class BacnetClient:
         | None = None,
     ):
         self.subscription_lifetime = subscription_lifetime
-        self.defualt_generic_callback = default_generic_callback
+        self.default_generic_callback = default_generic_callback
 
         if bacnet_client is not None:
             self.bacnet_client = bacnet_client
@@ -43,8 +43,8 @@ class BacnetClient:
         if callback is None:
 
             def default_callback(property_indentifier: str, property_value: float):
-                if self.defualt_generic_callback is not None:
-                    self.defualt_generic_callback(
+                if self.default_generic_callback is not None:
+                    self.default_generic_callback(
                         subscription_id, property_indentifier, property_value
                     )
 
