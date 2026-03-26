@@ -103,6 +103,12 @@ class BacnetClient:
     def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
         return self._subscriptions[subscription_id]
 
+    def get_subscription_ids(self) -> list[SubscriptionID]:
+        return list(self._subscriptions.keys())
+
+    def is_device_borrowed(self) -> bool:
+        return self._borrowed_device
+
     async def disconnect(self):
         """
         If a bacnet client was made on the initialisation of this class
