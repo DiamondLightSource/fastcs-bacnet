@@ -32,16 +32,16 @@ class Device:
         And adds objects to it according to parameters
         """
 
-        self.ip_address = ip_address
-        self.port = port
-        self.bac0_device = BAC0.start(ip=ip_address, port=port, device_id=device_id)
+        self._ip_address = ip_address
+        self._port = port
+        self._bac0_device = BAC0.start(ip=ip_address, port=port, device_id=device_id)
 
-        self.device_objects: list[AnalogOutputObject] = []
+        self._device_objects: list[AnalogOutputObject] = []
 
         # Tracks the number of analog outputs that have been made for this object
         # so object ids dont clash
         # TODO: Change this to be a dictionary so it can track all object types
-        self.current_analog_output_index: int = 0
+        self._current_analog_output_index: int = 0
 
         for i in range(number_of_constant_fields):
             self.add_object(ConstantVariable, i)
@@ -76,16 +76,19 @@ class Device:
             object_variable = RandomVariable(variable_string)
         object_name = f"{variable_string}_object_{index}"
         object_description = (
-            f"{variable_string} object of device {self.ip_address}:{self.port}"
+            f"{variable_string} object of device {self._ip_address}:{self._port}"
         )
 
         if object_variable is not None:
             new_analog_output_object = AnalogOutputObject(
-                self.bac0_device,
+                self._bac0_device,
                 object_name,
                 object_description,
-                self.current_analog_output_index,
+                self._current_analog_output_index,
                 object_variable,
             )
-            self.device_objects.append(new_analog_output_object)
-            self.current_analog_output_index += 1
+            self._device_objects.append(new_analog_output_object)
+            self._current_analog_output_index += 1
+
+    # TODO: add methods to get necessary class properties
+    # remember to copy lists and thier objects so they cant be manipulated
