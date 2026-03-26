@@ -99,6 +99,20 @@ class ObjectSubscription:
 
         return decorated_callback
 
+    def stop_subscription(self):
+        """
+        Stops the subscription from restarting or running a callback function
+        Can't restart a subscription after its been stopped
+        Create a new ObjectSubscription instead
+        """
+        # I dont think its possible to actually send a stop
+        # subscription message to a device??
+        # The best we can do is wait out the last subscription
+        self._subscription_stopped = True
+
+    def is_subscription_stopped(self):
+        return self._subscription_stopped
+
     def get_last_subscription(self) -> dt:
         return self._last_subscription
 
