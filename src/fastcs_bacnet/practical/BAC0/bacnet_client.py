@@ -38,13 +38,37 @@ class BacnetClient:
         subscription_id: SubscriptionID,
         callback: Callable[[str, float]] | None = None,
     ):
-        pass
+        # cant do the check for default_generic_callback being none here
+        # because it could change
+        if callback is None:
 
-    def remove_subscription(self, subscription_id: SubscriptionID):
-        pass
+            def default_callback(property_indentifier: str, property_value: float):
+                if self.defualt_generic_callback is not None:
+                    self.defualt_generic_callback(
+                        subscription_id, property_indentifier, property_value
+                    )
 
-    def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:  # type: ignore
-        pass
+            callback = default_callback
+
+        self.subscriptions[subscription_id] = ObjectSubscription(
+            self.bacnet_client,
+            subscription_id,
+            lifetime=self.subscription_lifetime,
+            callback=callback,
+        )
+
+    def remove_subscription(
+        self, subscription_id: SubscriptionID, stop_subscription=True
+    ):
+        subscription = self.get_subscription(subscription_id)
+        self.subscriptions.pop(subscription_id)
+
+        if stop_subscription:
+            subscription.stop_subscription()
+
+    def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
+
+        return self.subscriptions[subscription_id]
 
     def disconnect(self):
         pass
