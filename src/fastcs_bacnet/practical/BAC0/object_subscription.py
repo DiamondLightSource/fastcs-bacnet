@@ -12,8 +12,8 @@ class ObjectSubscription:
     Handles and tracks subscriptions to bacnet objects
     """
 
-    last_subscription: dt
-    last_update: dt
+    _last_subscription: dt
+    _last_update: dt
 
     def __init__(
         self,
@@ -38,12 +38,12 @@ class ObjectSubscription:
             update from the device
             Parameters are the objects property identifier and the new value
         """
-        self.bacnet_client = bacnet_client
-        self.subscription_id = subscription_id
-        self.lifetime = lifetime
+        self._bacnet_client = bacnet_client
+        self._subscription_id = subscription_id
+        self._lifetime = lifetime
         self.auto_renew = auto_renew
         self.tracking = tracking
-        self.callback = callback
+        self._callback = callback
 
         self.subscribe()
 
@@ -53,22 +53,22 @@ class ObjectSubscription:
         Records time this method was called
         """
         if self.tracking:
-            self.last_subscription = dt.now()
+            self._last_subscription = dt.now()
 
-        callback = self.callback
+        callback = self._callback
         if self.tracking:
-            callback = self._decorate_callback(self.callback)
+            callback = self._decorate_callback(self._callback)
 
-        self.bacnet_client.cov(
-            f"{self.subscription_id.address}:{self.subscription_id.port}",
-            (self.subscription_id.object_type, self.subscription_id.object_id),
-            lifetime=self.lifetime,
+        self._bacnet_client.cov(
+            f"{self._subscription_id.address}:{self._subscription_id.port}",
+            (self._subscription_id.object_type, self._subscription_id.object_id),
+            lifetime=self._lifetime,
             callback=callback,
         )
 
         # is it bad to do this recursively rather than in a while loop??
         if self.auto_renew:
-            asyncio.create_task(self._queue_subscription(self.lifetime // 2))
+            asyncio.create_task(self._queue_subscription(self._lifetime // 2))
 
     async def _queue_subscription(self, queue_time):
         """
@@ -87,7 +87,7 @@ class ObjectSubscription:
         """
 
         def decorated_callback(property_indentifier: str, property_value: float):
-            self.last_update = dt.now()
+            self._last_update = dt.now()
             callback(property_indentifier, property_value)
 
         return decorated_callback
