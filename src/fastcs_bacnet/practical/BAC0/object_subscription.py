@@ -8,6 +8,10 @@ from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
 
 class ObjectSubscription:
+    """
+    Handles and tracks subscriptions to bacnet objects
+    """
+
     last_subscription: dt
     last_update: dt
 
@@ -20,6 +24,20 @@ class ObjectSubscription:
         tracking: bool = False,
         callback: Callable[[str, float], None] | None = None,
     ):
+        """
+        bacnet_client: python bacnet device that can interact with bacnet objects
+        subscription_id: dataclass used to identify an object on a bacnet device
+        lifetime: length of subscription (in seconds)
+        auto_renew: whether the object automatically restarts its subscription
+            This will happen half way through the subscriptions lifetime
+            You can still use the subscribe method to restart the subscription manually
+        tracking: whether the object tracks:
+            last subscription time
+            last update from device subscription
+        callback: procedure to run when subscription object recieves an
+            update from the device
+            Parameters are the objects property identifier and the new value
+        """
         self.bacnet_client = bacnet_client
         self.subscription_id = subscription_id
         self.lifetime = lifetime
@@ -30,6 +48,10 @@ class ObjectSubscription:
         self.subscribe()
 
     def subscribe(self):
+        """
+        Restarts the subscription to the bacnet object
+        Records time this method was called
+        """
         if self.tracking:
             self.last_subscription = dt.now()
 
@@ -49,11 +71,20 @@ class ObjectSubscription:
             asyncio.create_task(self._queue_subscription(self.lifetime // 2))
 
     async def _queue_subscription(self, queue_time):
+        """
+        Calls subscription in [queue time] seconds
+        """
 
         await asyncio.sleep(queue_time)
         self.subscribe()
 
     def _decorate_callback(self, callback) -> Callable[[str, float], None]:
+        """
+        Decorates the argument function manually
+        Returns a new function that does 2 things:
+            Sets this object's last_update field to the current time (when its called)
+            Calls the callback argument function
+        """
 
         def decorated_callback(property_indentifier: str, property_value: float):
             self.last_update = dt.now()
