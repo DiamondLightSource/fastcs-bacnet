@@ -56,7 +56,7 @@ class ObjectSubscription:
             self._last_subscription = dt.now()
 
         callback = self._callback
-        if self.tracking:
+        if self.tracking and self._callback is not None:
             callback = self._decorate_callback(self._callback)
 
         self._bacnet_client.cov(
@@ -70,7 +70,7 @@ class ObjectSubscription:
         if self.auto_renew:
             asyncio.create_task(self._queue_subscription(self._lifetime // 2))
 
-    async def _queue_subscription(self, queue_time):
+    async def _queue_subscription(self, queue_time: int):
         """
         Calls subscription in [queue time] seconds
         """
@@ -78,7 +78,9 @@ class ObjectSubscription:
         await asyncio.sleep(queue_time)
         self.subscribe()
 
-    def _decorate_callback(self, callback) -> Callable[[str, float], None]:
+    def _decorate_callback(
+        self, callback: Callable[[str, float], None]
+    ) -> Callable[[str, float], None]:
         """
         Decorates the argument function manually
         Returns a new function that does 2 things:
