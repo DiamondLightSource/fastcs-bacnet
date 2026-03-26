@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import Callable
 from datetime import datetime as dt
 
@@ -29,10 +30,33 @@ class ObjectSubscription:
         self.subscribe()
 
     def subscribe(self):
-        pass
+        if self.tracking:
+            self.last_subscription = dt.now()
+
+        callback = self.callback
+        if self.tracking:
+            callback = self._decorate_callback(self.callback)
+
+        self.bacnet_client.cov(
+            f"{self.subscription_id.address}:{self.subscription_id.port}",
+            (self.subscription_id.object_type, self.subscription_id.object_id),
+            lifetime=self.lifetime,
+            callback=callback,
+        )
+
+        # is it bad to do this recursively rather than in a while loop??
+        if self.auto_renew:
+            asyncio.create_task(self._queue_subscription(self.lifetime // 2))
 
     async def _queue_subscription(self, queue_time):
-        pass
 
-    def _decorated_callback(self, callback):
-        pass
+        await asyncio.sleep(queue_time)
+        self.subscribe()
+
+    def _decorate_callback(self, callback) -> Callable[[str, float], None]:
+
+        def decorated_callback(property_indentifier: str, property_value: float):
+            self.last_update = dt.now()
+            callback(property_indentifier, property_value)
+
+        return decorated_callback
