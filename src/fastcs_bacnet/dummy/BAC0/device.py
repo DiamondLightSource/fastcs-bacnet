@@ -36,7 +36,7 @@ class Device:
         self._port = port
         self._bac0_device = BAC0.start(ip=ip_address, port=port, device_id=device_id)
 
-        self._device_objects: list[AnalogOutputObject] = []
+        self._device_objects: dict[str, AnalogOutputObject] = {}
 
         # Tracks the number of analog outputs that have been made for this object
         # so object ids dont clash
@@ -87,7 +87,7 @@ class Device:
                 self._current_analog_output_index,
                 object_variable,
             )
-            self._device_objects.append(new_analog_output_object)
+            self._device_objects[object_name] = new_analog_output_object
             self._current_analog_output_index += 1
 
     # TODO: add methods to get necessary class properties
