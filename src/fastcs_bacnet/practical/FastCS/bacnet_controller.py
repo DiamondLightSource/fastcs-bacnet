@@ -35,6 +35,16 @@ class BacnetController(Controller):
 
     @staticmethod
     def _sort_subscriptions(
-        subscriptions: list[SubscriptionID],
-    ) -> dict[(str, int), list[SubscriptionID]]:  # type: ignore
-        pass
+        subscription_ids: list[SubscriptionID],
+    ) -> dict[tuple[str, int], list[SubscriptionID]]:
+
+        location_subscription_pairs: dict[tuple[str, int], list[SubscriptionID]] = {}
+
+        for subscription_id in subscription_ids:
+            location = (subscription_id.address, subscription_id.port)
+            if location in location_subscription_pairs:
+                location_subscription_pairs[location].append(subscription_id)
+            else:
+                location_subscription_pairs[location] = [subscription_id]
+
+        return location_subscription_pairs
