@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 
 from fastcs.attributes import AttributeIO, AttributeIORef, AttrR
 from fastcs.controllers import Controller
@@ -8,6 +9,7 @@ from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
 
+@dataclass
 class AnalogOutputAttributeIORef(AttributeIORef):
     update_period: float | None = ONCE
     subscription_id: SubscriptionID | None = None
