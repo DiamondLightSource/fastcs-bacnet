@@ -3,6 +3,9 @@ from fastcs.controllers.controller import Controller
 
 from fastcs_bacnet.dummy.generic.device import Device as GenericDevice
 from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
+from fastcs_bacnet.dummy.generic.device_variables.read_write_variable import (
+    ReadWriteVariable,
+)
 
 
 class GenericVariableAttributeIORef(AttributeIORef):
@@ -12,15 +15,18 @@ class GenericVariableAttributeIORef(AttributeIORef):
 
 class GenericVariableAttributeIO(AttributeIO[float, GenericVariableAttributeIORef]):
     def __init__(self, device: GenericDevice):
-        pass
+        self.device = device
 
     async def update(self, attr: AttrR[float, GenericVariableAttributeIORef]):
-        pass
+
+        await attr.update(self.device.get_variable(attr.io_ref.name).get_value())
 
     async def send(
         self, attr: AttrW[float, GenericVariableAttributeIORef], value: float
     ):
-        pass
+        variable = self.device.get_variable(attr.io_ref.name)
+        if type(variable) is ReadWriteVariable:
+            variable.set_value(value)
 
 
 class PollingDeviceController(Controller):
