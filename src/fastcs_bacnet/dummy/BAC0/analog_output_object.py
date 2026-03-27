@@ -35,8 +35,9 @@ class AnalogOutputObject:
         self.device = device
         self.name = name
         self.device_variable = device_variable
+        self.instance = instance
 
-        ref = analog_output(name=name, description=description, instance=instance)
+        ref = analog_output(name=name, description=description, instance=self.instance)
         ref.add_objects_to_application(device)
         ref.clear_objects()
 
