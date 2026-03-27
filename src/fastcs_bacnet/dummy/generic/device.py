@@ -33,38 +33,34 @@ class Device:
         naming convention is: [device name]_[variable type]_[variable number]
         """
         self._name = device_name
-        self._variables: list[DeviceVariable] = []
+        self._variables: dict[str, DeviceVariable] = {}
 
         for i in range(number_of_constant_fields):
-            self._variables.append(
-                ConstantVariable(f"{self._name}_constant_{i}", random.random())
-            )
+            name = f"{self._name}_constant_{i}"
+            self._variables[name] = ConstantVariable(name, random.random())
 
         for i in range(number_of_oscillating_fields):
-            self._variables.append(
-                OscillatingVariable(
-                    f"{self._name}_oscillating_{i}",
-                    random.random(),
-                    random.random(),
-                    random.random() + 0.5,
-                )
+            name = f"{self._name}_oscillating_{i}"
+            self._variables[name] = OscillatingVariable(
+                name,
+                random.random(),
+                random.random(),
+                random.random() + 0.5,
             )
 
         for i in range(number_of_random_fields):
-            self._variables.append(
-                RandomVariable(
-                    f"{self._name}_random_{i}",
-                    random.random(),
-                    random.random() + 1,
-                    random.random(),
-                    random.random() + 1,
-                )
+            name = f"{self._name}_random_{i}"
+            self._variables[name] = RandomVariable(
+                name,
+                random.random(),
+                random.random() + 1,
+                random.random(),
+                random.random() + 1,
             )
 
         for i in range(number_of_read_write_fields):
-            self._variables.append(
-                ReadWriteVariable(f"{self._name}_oscillating_{i}", random.random())
-            )
+            name = f"{self._name}_oscillating_{i}"
+            self._variables[name] = ReadWriteVariable(name, random.random())
 
     def get_name(self):
         return self._name
