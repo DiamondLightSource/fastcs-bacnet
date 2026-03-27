@@ -32,18 +32,18 @@ class Device:
         Stores them all in one list of device variables
         naming convention is: [device name]_[variable type]_[variable number]
         """
-        self.name = device_name
-        self.variables: list[DeviceVariable] = []
+        self._name = device_name
+        self._variables: list[DeviceVariable] = []
 
         for i in range(number_of_constant_fields):
-            self.variables.append(
-                ConstantVariable(f"{self.name}_constant_{i}", random.random())
+            self._variables.append(
+                ConstantVariable(f"{self._name}_constant_{i}", random.random())
             )
 
         for i in range(number_of_oscillating_fields):
-            self.variables.append(
+            self._variables.append(
                 OscillatingVariable(
-                    f"{self.name}_oscillating_{i}",
+                    f"{self._name}_oscillating_{i}",
                     random.random(),
                     random.random(),
                     random.random() + 0.5,
@@ -51,9 +51,9 @@ class Device:
             )
 
         for i in range(number_of_random_fields):
-            self.variables.append(
+            self._variables.append(
                 RandomVariable(
-                    f"{self.name}_random_{i}",
+                    f"{self._name}_random_{i}",
                     random.random(),
                     random.random() + 1,
                     random.random(),
@@ -62,9 +62,12 @@ class Device:
             )
 
         for i in range(number_of_read_write_fields):
-            self.variables.append(
-                ReadWriteVariable(f"{self.name}_oscillating_{i}", random.random())
+            self._variables.append(
+                ReadWriteVariable(f"{self._name}_oscillating_{i}", random.random())
             )
+
+    def get_name(self):
+        return self._name
 
     # there is no method to add variables or it would be
     # too easy to create variables with duplicate names
