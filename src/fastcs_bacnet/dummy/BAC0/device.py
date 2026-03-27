@@ -90,5 +90,12 @@ class Device:
             self._device_objects[object_name] = new_analog_output_object
             self._current_analog_output_index += 1
 
+    def object_identifier_from_name(self, object_name: str) -> tuple[str, int]:
+        """
+        Gets identifying information (type of object and instance) from an object name
+        """
+        # this will need to change as more object types are used
+        return ("analog-output", self._device_objects[object_name].instance)
+
     # TODO: add methods to get necessary class properties
     # remember to copy lists and thier objects so they cant be manipulated
