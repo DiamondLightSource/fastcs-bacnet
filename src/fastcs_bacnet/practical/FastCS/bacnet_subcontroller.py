@@ -12,17 +12,40 @@ from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
 @dataclass
 class AnalogOutputAttributeIORef(AttributeIORef):
+    """
+    Dataclass for referencing and analog output subscription
+    Basically just uses subscription id dataclass
+    Update period must be once as this sets the attribute update callback
+    """
+
     update_period: float | None = ONCE
     subscription_id: SubscriptionID | None = None
 
 
 class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
+    """
+    Handler for analog output attributes
+    """
+
     def __init__(self, bacnet_client: BacnetClient):
+        """
+        bacnet_client: NOT a BAC0.lite object but a BacnetClient object
+            This is used to get ObjectSubscriptions using SubscriptionIDs
+            You cant just pass the object susbscriptions in, you need to
+            use the reference to get the object subscription from the bacnet_client
+        """
         super().__init__()
 
         self.bacnet_client = bacnet_client
 
     async def update(self, attr: AttrR[float, AnalogOutputAttributeIORef]):
+        """
+        Misnomer, does not actually update the variable in this case
+        It doesnt start the subscription either
+        It changes the callback on the subscription to update the attribute
+        (this is the actual_update procedure)
+        This is why it only needs to be run once
+        """
 
         # subscription_id should never be none
         # finicky with default arguments
@@ -41,6 +64,10 @@ class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
 
 
 class BacnetSubController(Controller):
+    """
+    A controller for a single device (IP-port pair)
+    """
+
     def __init__(
         self,
         bacnet_client: BacnetClient,
@@ -48,6 +75,15 @@ class BacnetSubController(Controller):
         port: int,
         subscription_ids: list[SubscriptionID],
     ):
+        """
+        Creates attributes for each subscription id given in the list
+        Makes sure the ip address and the port matches each subscription
+        bacnet_client: NOT a BAC0.lite object but a BacnetClient object
+        ip_address: ip address of the device this controls
+        port: the port number the device uses for bacnet communication (default 47808)
+        subscription_ids: list of subscriptions to make attributes for
+            must be objects on the device (same ip and port)
+        """
         super().__init__(ios=[AnalogOutputAttributeIO(bacnet_client)])
 
         for subscription_id in subscription_ids:
