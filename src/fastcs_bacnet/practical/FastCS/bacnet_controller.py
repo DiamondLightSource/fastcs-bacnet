@@ -6,11 +6,9 @@ from fastcs_bacnet.practical.FastCS.bacnet_subcontroller import BacnetSubControl
 
 
 class BacnetController(Controller):
-    def __init__(
-        self, bacnet_client: BacnetClient, subscription_ids: list[SubscriptionID]
-    ):
+    def __init__(self, bacnet_client: BacnetClient):
         location_subscription_pairs = BacnetController._sort_subscriptions(
-            subscription_ids
+            bacnet_client.get_subscription_ids()
         )
 
         subcontroller_index = 0
