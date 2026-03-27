@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from fastcs.attributes import AttributeIO, AttributeIORef, AttrR, AttrW
 from fastcs.controllers.controller import Controller
 
@@ -8,6 +10,7 @@ from fastcs_bacnet.dummy.generic.device_variables.read_write_variable import (
 )
 
 
+@dataclass
 class GenericVariableAttributeIORef(AttributeIORef):
     name: str
     variable_type: type[DeviceVariable]
