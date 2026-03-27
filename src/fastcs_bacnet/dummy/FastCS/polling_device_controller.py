@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
-from fastcs.attributes import AttributeIO, AttributeIORef, AttrR, AttrW
+from fastcs.attributes import AttributeIO, AttributeIORef, AttrR, AttrRW, AttrW
 from fastcs.controllers.controller import Controller
+from fastcs.datatypes import Float
 
 from fastcs_bacnet.dummy.generic.device import Device as GenericDevice
 from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
@@ -34,4 +35,16 @@ class GenericVariableAttributeIO(AttributeIO[float, GenericVariableAttributeIORe
 
 class PollingDeviceController(Controller):
     def __init__(self, device: GenericDevice):
-        super().__init__(ios=[])
+        super().__init__(ios=[GenericVariableAttributeIO(device)])
+
+        for variable_name, variable_type in device.get_variable_summary():
+            variable_reference = GenericVariableAttributeIORef(
+                variable_name, variable_type
+            )
+
+            if variable_type is ReadWriteVariable:
+                attribute = AttrRW(Float(), variable_reference)
+            else:
+                attribute = AttrR(Float(), variable_reference)
+
+            self.add_attribute(variable_name, attribute)
