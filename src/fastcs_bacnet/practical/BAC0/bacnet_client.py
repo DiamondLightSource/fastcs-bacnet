@@ -57,7 +57,7 @@ class BacnetClient:
     def add_subscription(
         self,
         subscription_id: SubscriptionID,
-        callback: Callable[[str, float]] | None = None,
+        callback: Callable[[str, float], None] | None = None,
     ):
         """
         Adds a new subscription object to the dictionary
