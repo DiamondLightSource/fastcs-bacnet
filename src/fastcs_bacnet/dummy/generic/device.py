@@ -65,6 +65,12 @@ class Device:
     def get_name(self):
         return self._name
 
+    def get_variable_summary(self) -> list[tuple[str, type[DeviceVariable]]]:
+        return [(name, type(self._variables[name])) for name in self._variables.keys()]
+
+    def get_variable(self, variable_name) -> DeviceVariable:
+        return self._variables[variable_name]
+
     # there is no method to add variables or it would be
     # too easy to create variables with duplicate names
     # OR share variables between devices
