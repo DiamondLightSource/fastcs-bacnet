@@ -35,3 +35,7 @@ asyncio.run(async_function())
 # Variable name convention: Dummy<Type><Instance number>
 # Example: DummyOscillating18
 # Types: Constant, Oscillating, Random, ReadWrite
+
+# NOTE: To write to ReadWrite variables through channel access use command:
+# caput DEMO:DummyReadWrite<instance number> <new value>
+# Where <new value> is a float
