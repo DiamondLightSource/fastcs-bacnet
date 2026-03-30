@@ -1,0 +1,71 @@
+import asyncio
+from datetime import datetime as dt
+
+from BAC0 import start
+from bacpypes3.primitivedata import PropertyIdentifier
+
+from fastcs_bacnet.dummy.BAC0.device import Device
+from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
+from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+
+ip_address = "127.0.0.1"
+dummy_device_port = 47810
+dummy_device_id = 123
+
+
+async def asyc_function():
+
+    ### Create dummy bacnet devices (setting up environment) ###
+    Device(
+        ip_address,
+        dummy_device_port,
+        dummy_device_id,
+        number_of_oscillating_fields=1,
+    )
+
+    ### Create bacnet client device ###
+    bac0_client = start(ip=ip_address, port=47808, deviceId=0)
+
+    bacnet_client = BacnetClient(
+        bac0_client,
+        initial_subscriptions=[],
+    )
+
+    ### Subscription argument set up ###
+    # Locate device using address and port
+    # Specify object to subscribe to ("analog-output" instance 0)
+    # All dummy device objects are CURRENTLY analog-output s
+    dummy_device_subscription = SubscriptionID(
+        ip_address, dummy_device_port, "analog-output", 0
+    )
+
+    # Function that runs when any object value is changed
+    # This is usually where you would update local state, this one just prints data
+    def callback(property_identifier: str, property_value: float):
+        # we only care about the actual value of the object
+
+        # NOTE: The typing of callback is technically ?wrong? in BAC0 and my code
+        # property_identifier is an enum (PropertyIdentifier)
+        # where the values are integers
+        if property_identifier == PropertyIdentifier.presentValue:
+            time = dt.now()
+            print(f"""
+                Value changed!
+                Time: {time}
+                Location: {dummy_device_subscription.address} :
+                {dummy_device_subscription.port}
+                Object type: {dummy_device_subscription.object_type}
+                Object id number: {dummy_device_subscription.object_id}
+                Property Identifier: {property_identifier}
+                New value: {property_value}
+            """)
+
+    ### Actually adds (and starts) the subscription ###
+    bacnet_client.add_subscription(dummy_device_subscription, callback=callback)
+
+    ### Keep async thread alive ###
+    while True:
+        await asyncio.sleep(10)
+
+
+asyncio.run(asyc_function())
