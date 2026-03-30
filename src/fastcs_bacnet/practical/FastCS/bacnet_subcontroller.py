@@ -101,8 +101,10 @@ class BacnetSubController(Controller):
                     Subscription port: {subscription_id.port}
                 """)
 
+            object_type_snake_case = subscription_id.object_type.replace("-", "_")
+            attribute_name = f"{object_type_snake_case}_{subscription_id.object_id}"
             self.add_attribute(
-                f"{subscription_id.object_type}_{subscription_id.object_id}",
+                attribute_name,
                 AttrR(
                     Float(),
                     io_ref=AnalogOutputAttributeIORef(subscription_id=subscription_id),
