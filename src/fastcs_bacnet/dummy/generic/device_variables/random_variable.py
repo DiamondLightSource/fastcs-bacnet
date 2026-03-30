@@ -62,3 +62,5 @@ class RandomVariable(DeviceVariable):
 
         if self.update_callback is not None:
             self.update_callback(self._value)
+        if self.diagnostic_callback is not None:
+            self.diagnostic_callback(self._value)
