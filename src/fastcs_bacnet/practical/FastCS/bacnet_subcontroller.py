@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 
+from bacpypes3.primitivedata import PropertyIdentifier
 from fastcs.attributes import AttributeIO, AttributeIORef, AttrR
 from fastcs.controllers import Controller
 from fastcs.datatypes import Float
@@ -57,8 +58,9 @@ class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
         )
 
         def actual_update(property_indentifier: str, property_value: float):
-            # could add tracking data here
-            asyncio.create_task(attr.update(property_value))
+            if property_indentifier == PropertyIdentifier.presentValue:
+                # could add tracking data here
+                asyncio.create_task(attr.update(property_value))
 
         subscription_object.set_callback(actual_update)
 
