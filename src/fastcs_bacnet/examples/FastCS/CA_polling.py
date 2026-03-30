@@ -29,3 +29,9 @@ async def async_function():
 
 
 asyncio.run(async_function())
+
+# NOTE: To access variables through channel access use command:
+# caget DEMO:<variable name>
+# Variable name convention: Dummy<Type><Instance number>
+# Example: DummyOscillating18
+# Types: Constant, Oscillating, Random, ReadWrite
