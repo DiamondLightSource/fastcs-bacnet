@@ -1,0 +1,82 @@
+import asyncio
+
+from fastcs.launch import FastCS
+from fastcs.transports.epics import EpicsIOCOptions
+from fastcs.transports.epics.ca import EpicsCATransport
+
+from fastcs_bacnet.dummy.BAC0.device import Device
+from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
+from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.FastCS.bacnet_controller import BacnetController
+
+ip_address = "127.0.0.1"
+dummy_device_ports = [47900, 47970, 47985]
+dummy_device_ids = [543, 78, 34]
+
+
+async def async_function():
+
+    ### Create dummy bacnet devices (setting up environment) ###
+    Device(
+        ip_address,
+        dummy_device_ports[0],
+        dummy_device_ids[0],
+        number_of_constant_fields=5,
+    )
+    Device(
+        ip_address,
+        dummy_device_ports[1],
+        dummy_device_ids[1],
+        number_of_oscillating_fields=5,
+    )
+    named_dummy_device = Device(
+        ip_address,
+        dummy_device_ports[2],
+        dummy_device_ids[2],
+        number_of_oscillating_fields=6,
+        number_of_random_fields=7,
+    )
+
+    ### Subscriptions argument set up ###
+    # Specify objects to subscribe to for bacnet client
+    subscription_ids = [
+        # how you would have to specify objects on a real network
+        SubscriptionID(ip_address, dummy_device_ports[0], "analog-output", 4),
+        SubscriptionID(ip_address, dummy_device_ports[1], "analog-output", 1),
+        # for dummy bacnet objects we can use names
+        SubscriptionID(
+            ip_address,
+            dummy_device_ports[2],
+            named_dummy_device.object_identifier_from_name("random_object_4")[0],
+            named_dummy_device.object_identifier_from_name("random_object_4")[1],
+        ),
+    ]
+
+    bacnet_client = BacnetClient(
+        initial_subscriptions=subscription_ids,
+    )
+
+    epics_ca = EpicsCATransport(epicsca=EpicsIOCOptions(pv_prefix="DEMO"))
+    controller = BacnetController(bacnet_client)
+
+    fastcs = FastCS(controller, [epics_ca])
+
+    asyncio.create_task(fastcs.serve())
+
+    while True:
+        await asyncio.sleep(10)
+
+
+asyncio.run(async_function())
+
+# NOTE: To acess variables through chanel access use command:
+# caget DEMO:<subcontroller name>:<attribute name>
+# ONLY SUBSCRIBED TO ATTRIBUTES WILL BE AVAILABLE
+# caget DEMO:Subcontroller0:AnalogOutput4
+# Subcontroller naming convention: Subcontroller<Instance Number>
+# Attribute naming convention: AnalogOuput<Instance number>
+
+# NOTE: All variables are currently analog outputs
+# It is not possible to pick up the variable name from a device?
+# You have to address them by variable type (analog-output) and instance number
+# TODO: Add names susbcriptions. Can specify the attribute name for the object
