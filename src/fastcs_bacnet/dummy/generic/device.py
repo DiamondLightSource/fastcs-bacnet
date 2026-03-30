@@ -59,7 +59,7 @@ class Device:
             )
 
         for i in range(number_of_read_write_fields):
-            name = f"{self._name}_oscillating_{i}"
+            name = f"{self._name}_read_write_{i}"
             self._variables[name] = ReadWriteVariable(name, random.random())
 
     def get_name(self):
