@@ -15,6 +15,7 @@ class ObjectSubscription:
     _last_subscription: dt
     _last_update: dt
     _subscription_stopped: bool = False
+    _diagnostic_callback: Callable[[str, float], None] | None
 
     def __init__(
         self,
@@ -58,7 +59,7 @@ class ObjectSubscription:
         if self.tracking:
             self._last_subscription = dt.now()
 
-        callback = self._decorate_callback(self._callback)
+        callback = self._decorate_callback()
 
         # typing of cov's callback is TECHNICALLY [PropertyIdentifier, Any]
         # But it puts string for the first argument even though PropertyIdentifier
@@ -82,9 +83,7 @@ class ObjectSubscription:
         await asyncio.sleep(queue_time)
         self.subscribe()
 
-    def _decorate_callback(
-        self, callback: Callable[[str, float], None] | None
-    ) -> Callable[[str, float], None]:
+    def _decorate_callback(self) -> Callable[[str, float], None]:
         """
         Decorates the argument function manually
         Returns a new function that does 2 things:
@@ -97,8 +96,10 @@ class ObjectSubscription:
                 return
             if self.tracking:
                 self._last_update = dt.now()
-            if callback is not None:
-                callback(property_identifier, property_value)
+            if self._callback is not None:
+                self._callback(property_identifier, property_value)
+            if self._diagnostic_callback is not None:
+                self._diagnostic_callback(property_identifier, property_value)
 
         return decorated_callback
 
@@ -124,4 +125,10 @@ class ObjectSubscription:
 
     def set_callback(self, callback: Callable[[str, float], None]):
         self._callback = callback
+        self.subscribe()
+
+    def set_diagnostic_callback(
+        self, diagnostic_callback: Callable[[str, float], None] | None
+    ):
+        self._diagnostic_callback = diagnostic_callback
         self.subscribe()
