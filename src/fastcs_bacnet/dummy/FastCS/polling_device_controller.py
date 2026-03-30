@@ -39,7 +39,7 @@ class PollingDeviceController(Controller):
 
         for variable_name, variable_type in device.get_variable_summary():
             variable_reference = GenericVariableAttributeIORef(
-                variable_name, variable_type
+                variable_name, variable_type, update_period=0.2
             )
 
             if variable_type is ReadWriteVariable:
