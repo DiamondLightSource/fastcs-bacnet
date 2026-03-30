@@ -39,3 +39,6 @@ asyncio.run(async_function())
 # NOTE: To write to ReadWrite variables through channel access use command:
 # caput DEMO:DummyReadWrite<instance number> <new value>
 # Where <new value> is a float
+
+# COMMANDS MUST BE USED ON A TERMINAL FROM A MACHINE THAT HAS EPICS INSTALLED
+# CONTAINER DOES NOT HAVE EPICS INSTALLED
