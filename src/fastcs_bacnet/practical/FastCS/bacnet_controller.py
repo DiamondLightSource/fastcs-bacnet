@@ -19,8 +19,12 @@ class BacnetController(Controller):
             Subcontroller naming convention: subcontroller_[index]
             Where [index] increments from 0 for each device in no particular order
         """
+        super().__init__(ios=[])
+
+        self.bacnet_client = bacnet_client
+
         location_subscription_list_pairs = BacnetController._sort_subscriptions(
-            bacnet_client.get_subscription_ids()
+            self.bacnet_client.get_subscription_ids()
         )
 
         subcontroller_index = 0
@@ -31,7 +35,7 @@ class BacnetController(Controller):
             device_subscription_ids = location_subscription_list_pairs[location]
 
             device_controller = BacnetSubController(
-                bacnet_client,
+                self.bacnet_client,
                 device_ip_address,
                 device_bacnet_port,
                 device_subscription_ids,
