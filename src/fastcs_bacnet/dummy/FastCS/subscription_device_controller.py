@@ -18,6 +18,9 @@ from fastcs_bacnet.dummy.generic.device_variables.read_write_variable import (
 class GenericVariableSubscriptionAttributeIO(GenericVariableAttributeIO):
     async def update(self, attr: AttrR[float, GenericVariableAttributeIORef]):
 
+        # set initial value
+        await attr.update(self.device.get_variable(attr.io_ref.name).get_value())
+
         def actual_update(value):
             asyncio.create_task(attr.update(value))
 
