@@ -89,13 +89,13 @@ class ObjectSubscription:
             Calls the callback argument function
         """
 
-        def decorated_callback(property_indentifier: str, property_value: float):
+        def decorated_callback(property_identifier: str, property_value: float):
             if self._subscription_stopped:
                 return
             if self.tracking:
                 self._last_update = dt.now()
             if callback is not None:
-                callback(property_indentifier, property_value)
+                callback(property_identifier, property_value)
 
         return decorated_callback
 
