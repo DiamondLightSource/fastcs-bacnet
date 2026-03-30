@@ -34,7 +34,7 @@ class Device:
 
         self._ip_address = ip_address
         self._port = port
-        self._bac0_device = BAC0.start(ip=ip_address, port=port, device_id=device_id)
+        self._bac0_device = BAC0.start(ip=ip_address, port=port, deviceId=device_id)
 
         self._device_objects: dict[str, AnalogOutputObject] = {}
 
