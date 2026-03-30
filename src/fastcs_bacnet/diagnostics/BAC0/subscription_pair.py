@@ -7,6 +7,11 @@ from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 
 
 class SubscriptionPair:
+    """
+    A class to track the time between an AnalogOutputObject being updated and its
+    corresponding ObjectSubscription recieving the update and related statistics
+    """
+
     # subscription messages that have been sent but not recieved yet
     _sent_buffer: list[tuple[float, datetime]] = []
 
@@ -31,6 +36,16 @@ class SubscriptionPair:
         object_subscription: ObjectSubscription,
         recent_times_buffer_length: int = 20,
     ):
+        """
+        analog_output_object: analog object of a dummy bacnet device
+            (cannot replicate this for real devices)
+        object_subscription: subscription object of a bacnet client device that
+            subscribes to the analog output object
+        recent_times_buffer_length: The number of send-recieve time differences to hold
+            at once. List would quickly get very large if this was not capped
+        Changes the diagnostic callback function of both objects to _on_send
+        and _on_recieve respectively
+        """
         self._recent_times_buffer_length = recent_times_buffer_length
         self._total_update_wait_time = timedelta(0)
 
@@ -40,9 +55,20 @@ class SubscriptionPair:
         object_subscription.set_diagnostic_callback(self._on_recieve)
 
     def _on_send(self, new_value: float):
+        """
+        Callback to run when an update is sent by the device output object
+        Adds the update value and the current time to the _sent_buffer list
+        """
         self._sent_buffer.append((new_value, datetime.now()))
 
     def _on_recieve(self, property_identifier: str, property_value: float):
+        """
+        Callback to run when an update is recieved by the subscription object
+        Matches the recieved value to one that was sent by the device object
+        Values sent before the matched send value are marked as missed
+        Records the time between the update being sent and recieved
+        Adds recorded time as well as missed values to the _recent_recieval_times
+        """
         if property_identifier is not PropertyIdentifier.presentValue:
             return
 
@@ -66,6 +92,11 @@ class SubscriptionPair:
         self._add_recieval_time(recieved_time - sent_time)
 
     def _match(self, recieved_value: float) -> int | None:
+        """
+        Matches a recieved update value to the most recent matching value from the
+        sent updates list
+        Returns the index of the matching value
+        """
 
         for i in range(len(self._sent_buffer)):
             sent_value_i = self._sent_buffer[i][0]
@@ -75,6 +106,12 @@ class SubscriptionPair:
         return None
 
     def _add_recieval_time(self, receival_time: timedelta | None):
+        """
+        Adds a time difference (between sending and recieving)
+        to the _recent_receival_times list
+        Also handles changing of total missed updates, recieved updates and wait time
+        As well as keepin gthe list below its maximum length
+        """
 
         if receival_time is None:
             self._total_missed_updates += 1
@@ -88,6 +125,9 @@ class SubscriptionPair:
             self._recent_receival_times.pop(0)
 
     def get_recent_recieval_times(self) -> list[timedelta | None]:
+        """
+        Returns a deep copy of _recent_receival_times list
+        """
         # cant even use a shallow copy because timedeltas could be changed
         list_copy: list[timedelta | None] = []
         for time in self._recent_receival_times:
