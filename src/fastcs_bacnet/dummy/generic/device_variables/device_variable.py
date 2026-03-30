@@ -20,6 +20,7 @@ class DeviceVariable(ABC):
         name: name of variable, should be unique per device
         update_callback: procedure that runs when variable value is updated
         """
+        self._value = None
         self.name = name
         self.update_callback = update_callback
 
