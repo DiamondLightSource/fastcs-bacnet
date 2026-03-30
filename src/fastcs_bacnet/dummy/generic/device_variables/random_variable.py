@@ -14,8 +14,8 @@ class RandomVariable(DeviceVariable):
     def __init__(
         self,
         name: str,
-        min_change_time: float = 0.0,
-        max_change_time: float = 1.0,
+        min_change_time: float = 0.5,
+        max_change_time: float = 2.0,
         min_value: float = 0.0,
         max_value: float = 1.0,
         update_callback: Callable[[float], None] | None = None,
