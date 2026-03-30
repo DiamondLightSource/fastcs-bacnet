@@ -130,5 +130,9 @@ class ObjectSubscription:
     def set_diagnostic_callback(
         self, diagnostic_callback: Callable[[str, float], None] | None
     ):
+        """
+        Called the same as a normal callback
+        Having 2 variables makes setting and removing them easier
+        """
         self._diagnostic_callback = diagnostic_callback
         self.subscribe()
