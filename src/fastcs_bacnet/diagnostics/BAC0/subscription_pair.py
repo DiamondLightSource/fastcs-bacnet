@@ -86,3 +86,20 @@ class SubscriptionPair:
 
         while len(self._recent_receival_times) > self._recent_times_buffer_length:
             self._recent_receival_times.pop(0)
+
+    def get_recent_recieval_times(self) -> list[timedelta | None]:
+        # cant even use a shallow copy because timedeltas could be changed
+        list_copy: list[timedelta | None] = []
+        for time in self._recent_receival_times:
+            if time is None:
+                list_copy.append(None)
+            else:
+                # this might not be the correct way to copy a timedelta
+                list_copy.append(timedelta(time.total_seconds()))
+        return list_copy
+
+    def get_total_missed_updates(self) -> int:
+        return self._total_missed_updates
+
+    def get_average_update_time(self) -> timedelta:
+        return self._total_update_wait_time / self._total_updates_recieved
