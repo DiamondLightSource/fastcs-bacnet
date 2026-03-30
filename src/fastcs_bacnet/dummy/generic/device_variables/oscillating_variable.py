@@ -19,7 +19,7 @@ class OscillatingVariable(DeviceVariable):
         amplitude: float = 1.0,
         offset: float = 0.0,
         frequency: float = 1.0,
-        value_refresh_period: float = 0.2,
+        value_refresh_period: float = 1.2,
         update_callback: Callable[[float], None] | None = None,
     ):
         """
