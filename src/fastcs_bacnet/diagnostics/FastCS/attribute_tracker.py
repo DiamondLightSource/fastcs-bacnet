@@ -38,3 +38,12 @@ class AttributeTracker:
         if self._first_update is None:
             self._first_update = start_time
         self._last_update = start_time
+
+    def get_first_update_time(self) -> datetime | None:
+        return self._first_update
+
+    def get_last_update_time(self) -> datetime | None:
+        return self._last_update
+
+    def get_recent_times(self) -> list[timedelta]:
+        return list(self._recent_times)
