@@ -11,7 +11,7 @@ class ResponseTimer:
     # May want to change to a dictionary??
     # Most of the operations invlolve iterating through it
     # But getting a specific value using keys is also used
-    subscription_pairs: list[SubscriptionPair] = []
+    _subscription_pairs: list[SubscriptionPair] = []
 
     def __init__(self, recent_times_buffer_length: int = 20):
         self._recent_times_buffer_length = recent_times_buffer_length
@@ -24,7 +24,7 @@ class ResponseTimer:
         """
         Creates a subscription pair from the input objects and adds it to the list
         """
-        self.subscription_pairs.append(
+        self._subscription_pairs.append(
             SubscriptionPair(
                 analog_output_object,
                 object_subscription,
@@ -38,7 +38,7 @@ class ResponseTimer:
         Stops the subscription
         Find index of a pair using index_from methods
         """
-        subscription_pair = self.subscription_pairs.pop(index)
+        subscription_pair = self._subscription_pairs.pop(index)
         subscription_pair.stop_recording()
 
     def index_from_device_object(
@@ -47,8 +47,8 @@ class ResponseTimer:
         """
         Gets index of a subscription pair from its analog_output_object
         """
-        for index in range(len(self.subscription_pairs)):
-            index_analog_output_object = self.subscription_pairs[
+        for index in range(len(self._subscription_pairs)):
+            index_analog_output_object = self._subscription_pairs[
                 index
             ].get_analog_output_object()
             if analog_output_object == index_analog_output_object:
@@ -61,8 +61,8 @@ class ResponseTimer:
         """
         Gets index of a subscription pair from its object_subscription
         """
-        for index in range(len(self.subscription_pairs)):
-            index_object_subscription = self.subscription_pairs[
+        for index in range(len(self._subscription_pairs)):
+            index_object_subscription = self._subscription_pairs[
                 index
             ].get_object_subscription()
             if object_subscription == index_object_subscription:
