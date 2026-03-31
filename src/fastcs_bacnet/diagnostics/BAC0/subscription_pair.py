@@ -148,6 +148,12 @@ class SubscriptionPair:
     def get_average_update_time(self) -> timedelta:
         return self._total_update_wait_time / self._total_updates_recieved
 
+    def get_analog_output_object(self) -> AnalogOutputObject:
+        return self._analog_output_object
+
+    def get_object_subscription(self) -> ObjectSubscription:
+        return self._object_subscription
+
     def stop_recording(self):
         self._analog_output_object.device_variable.set_diagnostic_callback(None)
         self._object_subscription.set_diagnostic_callback(None)
