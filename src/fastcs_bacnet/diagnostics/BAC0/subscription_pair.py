@@ -48,11 +48,15 @@ class SubscriptionPair:
         """
         self._recent_times_buffer_length = recent_times_buffer_length
         self._total_update_wait_time = timedelta(0)
+        self._analog_output_object = analog_output_object
+        self._object_subscription = object_subscription
 
         # maybe a bit cheeky to acess the analog_ouput_object underlying
         # device variable directly. Should be with a getter??
-        analog_output_object.device_variable.set_diagnostic_callback(self._on_send)
-        object_subscription.set_diagnostic_callback(self._on_recieve)
+        self._analog_output_object.device_variable.set_diagnostic_callback(
+            self._on_send
+        )
+        self._object_subscription.set_diagnostic_callback(self._on_recieve)
 
     def _on_send(self, new_value: float):
         """
@@ -143,3 +147,7 @@ class SubscriptionPair:
 
     def get_average_update_time(self) -> timedelta:
         return self._total_update_wait_time / self._total_updates_recieved
+
+    def stop_recording(self):
+        self._analog_output_object.device_variable.set_diagnostic_callback(None)
+        self._object_subscription.set_diagnostic_callback(None)
