@@ -12,7 +12,7 @@ class DeviceVariable(ABC):
     """
 
     _value: float | None
-    diagnostic_callback: Callable[[float], None] | None
+    diagnostic_callback: Callable[[float], None] | None = None
 
     def __init__(
         self, name: str, update_callback: Callable[[float], None] | None = None
