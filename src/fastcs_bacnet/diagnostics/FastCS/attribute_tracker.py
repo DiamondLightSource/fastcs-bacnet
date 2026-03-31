@@ -8,9 +8,9 @@ class AttributeTracker:
     Records and stores updates times from a TrackedAttrR
     """
 
-    recent_times: list[timedelta]
-    first_update: datetime | None
-    last_update: datetime | None
+    _recent_times: list[timedelta]
+    _first_update: datetime | None
+    _last_update: datetime | None
 
     def __init__(self, tracked_attribute: TrackedAttrR, history_size: int = 20):
         """
@@ -18,10 +18,10 @@ class AttributeTracker:
         history_size: Maximum number of update times to store in the recent_times queue
         """
 
-        self.tracked_attribute = tracked_attribute
-        self.history_size = history_size
+        self._tracked_attribute = tracked_attribute
+        self._history_size = history_size
 
-        self.tracked_attribute.set_diagnostic_callback(self.update_callback)
+        self._tracked_attribute.set_diagnostic_callback(self.update_callback)
 
     def update_callback(self, start_time: datetime, end_time: datetime):
         """
@@ -31,10 +31,10 @@ class AttributeTracker:
         end_time is after the original update method has been resolved
         """
 
-        self.recent_times.append(end_time - start_time)
-        while len(self.recent_times) > self.history_size:
-            self.recent_times.pop(0)
+        self._recent_times.append(end_time - start_time)
+        while len(self._recent_times) > self._history_size:
+            self._recent_times.pop(0)
 
-        if self.first_update is None:
-            self.first_update = start_time
-        self.last_update = start_time
+        if self._first_update is None:
+            self._first_update = start_time
+        self._last_update = start_time
