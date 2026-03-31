@@ -16,4 +16,11 @@ class AttributeTracker:
         self.tracked_attribute.set_diagnostic_callback(self.update_callback)
 
     def update_callback(self, start_time: datetime, end_time: datetime):
-        pass
+
+        self.recent_times.append(end_time - start_time)
+        while len(self.recent_times) > self.history_size:
+            self.recent_times.pop(0)
+
+        if self.first_update is None:
+            self.first_update = start_time
+        self.last_update = start_time
