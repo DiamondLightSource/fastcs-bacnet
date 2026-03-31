@@ -16,10 +16,10 @@ class QueueTracker:
     total_lost_requests: int = 0
 
     def __init__(
-        self, fastcs_coroutine=None, poll_rate: float = 1.0, history_size: int = 20
+        self, fastcs_coroutine=None, poll_peroid: float = 1.0, history_size: int = 20
     ):
         self.fastcs_coroutine = fastcs_coroutine
-        self.poll_period = poll_rate
+        self.poll_period = poll_peroid
         self.history_size = history_size
         self.probe = QueueStatsProbe()
 
