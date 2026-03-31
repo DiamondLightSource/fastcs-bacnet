@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastcs_bacnet.diagnostics.FastCS.queue_probe import QueueStatsProbe
 
@@ -99,3 +99,20 @@ class QueueTracker:
             print("start time already set")
             return
         self._fastcs_start_time = fastcs_start_time
+
+    def get_startup_time(self) -> timedelta | None:
+        if self._first_queue_time is None or self._fastcs_start_time is None:
+            return None
+        return self._first_queue_time - self._fastcs_start_time
+
+    def get_overflow_time(self) -> timedelta | None:
+        if self._first_overflow_time is None or self._first_queue_time is None:
+            return None
+        return self._first_overflow_time - self._first_queue_time
+
+    def get_total_lost_requests(self) -> int:
+        return self._total_lost_requests
+
+    def get_recent_queue_history(self) -> list[tuple[int, datetime]]:
+        # dont need to deep copy list as datetimes are immutable
+        return list(self._recent_queue_history)
