@@ -5,6 +5,13 @@ from fastcs_bacnet.diagnostics.FastCS.queue_probe import QueueStatsProbe
 
 
 class QueueTracker:
+    """
+    Tracks the EPICS CA request queue whilst a fastcs function is running
+    Used to get diagnostic data
+    Stores a list of the recent queue lengths
+    Can alsp give start up time and time to queue overflow
+    """
+
     fastcs_start_time: datetime | None = None
     first_queue_time: datetime | None = None
     first_overflow_time: datetime | None = None
@@ -18,12 +25,29 @@ class QueueTracker:
     def __init__(
         self, fastcs_coroutine=None, poll_peroid: float = 1.0, history_size: int = 20
     ):
+        """
+        fastcs_coroutine: the coroutine that starts the fastcs application
+            This can be left as None if you dont want to start the
+            application in this class, the tracker can be run separetely
+            If the coroutine is set the fastcs application will be started when
+            this objects start() method is run
+            this will also record the fastcs start time
+            If the fastcs application is run separately, set its start time using
+            the set_fastcs_start_time() method
+        poll_period: Time between polling the EPICS CA queue
+        history_size: maximum length of the recent_queue_history list
+            Number of queue length values to store at once
+        """
         self.fastcs_coroutine = fastcs_coroutine
         self.poll_period = poll_peroid
         self.history_size = history_size
         self.probe = QueueStatsProbe()
 
     async def start(self):
+        """
+        Starts the polling loop
+        If a fastcs coroutine is given it starts this too and records the time
+        """
 
         if self.fastcs_coroutine is not None:
             self.fastcs_start_time = datetime.now()
@@ -34,6 +58,11 @@ class QueueTracker:
             await asyncio.sleep(self.poll_period)
 
     def poll(self):
+        """
+        Checks the EPICS CA queue length and records the value
+        (as well as the time of recording) and prunes the queue to size
+        Checks if this was the first non-zero queue size and checks for overflows
+        """
         queue_stats_data = self.probe.get_stats()
         stats_time = datetime.now()
 
@@ -55,6 +84,12 @@ class QueueTracker:
                 self.first_overflow_time = stats_time
 
     def set_fastcs_start_time(self, fastcs_start_time: datetime):
+        """
+        If no fastcs coroutine is given in the constructor we assume a
+        fastcs application is being run outside of this object
+        If you still want start heuristics (e.g. start up time)
+        you can set the fastcs_start_time using this method
+        """
         if self.fastcs_coroutine is not None:
             print("start time will be set when start method is run")
             return
