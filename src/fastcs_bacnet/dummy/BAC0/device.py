@@ -26,6 +26,7 @@ class Device:
         number_of_constant_fields: int = 0,
         number_of_oscillating_fields: int = 0,
         number_of_random_fields: int = 0,
+        **kwargs,
     ):
         """
         Creates a new bacnet device instance (BAC0.lite)
@@ -44,13 +45,13 @@ class Device:
         self._current_analog_output_index: int = 0
 
         for i in range(number_of_constant_fields):
-            self.add_object(ConstantVariable, i)
+            self.add_object(ConstantVariable, i, **kwargs)
         for i in range(number_of_oscillating_fields):
-            self.add_object(OscillatingVariable, i)
+            self.add_object(OscillatingVariable, i, **kwargs)
         for i in range(number_of_random_fields):
-            self.add_object(RandomVariable, i)
+            self.add_object(RandomVariable, i, **kwargs)
 
-    def add_object(self, variable_class: type[DeviceVariable], index: int):
+    def add_object(self, variable_class: type[DeviceVariable], index: int, **kwargs):
         """
         variable_class: type of a device variable
             intentionally not an instance
@@ -67,13 +68,42 @@ class Device:
         # this could also potentially be automated in other ways
         if variable_class == ConstantVariable:
             variable_string = "constant"
-            object_variable = ConstantVariable(variable_string, random.random())
+            constant_kwargs = {
+                k: kwargs[k] for k in kwargs.keys() if k in {"update_callback"}
+            }
+            object_variable = ConstantVariable(
+                variable_string, random.random(), **constant_kwargs
+            )
         elif variable_class == OscillatingVariable:
             variable_string = "oscillating"
-            object_variable = OscillatingVariable(variable_string)
+            oscillating_kwargs = {
+                k: kwargs[k]
+                for k in kwargs.keys()
+                if k
+                in {
+                    "amplitude",
+                    "offset",
+                    "frequency",
+                    "value_refresh_period",
+                    "update_callback",
+                }
+            }
+            object_variable = OscillatingVariable(variable_string, **oscillating_kwargs)
         elif variable_class == RandomVariable:
             variable_string = "random"
-            object_variable = RandomVariable(variable_string)
+            random_kwargs = {
+                k: kwargs[k]
+                for k in kwargs.keys()
+                if k
+                in {
+                    "min_change_time",
+                    "max_change_time",
+                    "min_value",
+                    "max_value",
+                    "update_callback",
+                }
+            }
+            object_variable = RandomVariable(variable_string, **random_kwargs)
         object_name = f"{variable_string}_object_{index}"
         object_description = (
             f"{variable_string} object of device {self._ip_address}:{self._port}"
