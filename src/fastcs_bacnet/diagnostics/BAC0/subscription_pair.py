@@ -59,7 +59,7 @@ class SubscriptionPair:
         )
         self._object_subscription.set_diagnostic_callback(self._on_recieve)
 
-    def _on_send(self, new_value: float):
+    def _on_send(self, old_value: float | None, new_value: float):
         """
         Callback to run when an update is sent by the device output object
         Adds the update value and the current time to the _sent_buffer list

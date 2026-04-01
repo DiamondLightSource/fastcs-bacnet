@@ -12,7 +12,7 @@ class DeviceVariable(ABC):
     """
 
     _value: float | None
-    diagnostic_callback: Callable[[float], None] | None = None
+    diagnostic_callback: Callable[[float | None, float], None] | None = None
 
     def __init__(
         self, name: str, update_callback: Callable[[float], None] | None = None
@@ -40,7 +40,7 @@ class DeviceVariable(ABC):
         self.update_callback = update_callback
 
     def set_diagnostic_callback(
-        self, diagnostic_callback: Callable[[float], None] | None
+        self, diagnostic_callback: Callable[[float | None, float], None] | None
     ):
         """
         Changes the diagnostic callback procedure of this variable

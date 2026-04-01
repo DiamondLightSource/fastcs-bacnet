@@ -56,6 +56,7 @@ class RandomVariable(DeviceVariable):
         Randomly assigns a new value to the variable
             (uniform distribution between min and max value)
         """
+        previous_value = self._value
         self._value = self.min_value + (
             random.random() * (self.max_value - self.min_value)
         )
@@ -63,4 +64,4 @@ class RandomVariable(DeviceVariable):
         if self.update_callback is not None:
             self.update_callback(self._value)
         if self.diagnostic_callback is not None:
-            self.diagnostic_callback(self._value)
+            self.diagnostic_callback(previous_value, self._value)

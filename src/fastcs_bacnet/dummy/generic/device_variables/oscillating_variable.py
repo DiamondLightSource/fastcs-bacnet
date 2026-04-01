@@ -60,6 +60,8 @@ class OscillatingVariable(DeviceVariable):
         current_time = dt.now()
         dif_time = current_time - self.start_time
 
+        previous_value = self._value
+
         self._value = self.offset + (
             self.amplitude
             * math.sin(self.frequency * dif_time.total_seconds() * math.pi * 2)
@@ -68,4 +70,4 @@ class OscillatingVariable(DeviceVariable):
         if self.update_callback is not None:
             self.update_callback(self._value)
         if self.diagnostic_callback is not None:
-            self.diagnostic_callback(self._value)
+            self.diagnostic_callback(previous_value, self._value)
