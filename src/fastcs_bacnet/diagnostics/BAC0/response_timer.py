@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from fastcs_bacnet.diagnostics.BAC0.subscription_pair import SubscriptionPair
 from fastcs_bacnet.dummy.BAC0.analog_output_object import AnalogOutputObject
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
@@ -68,3 +70,13 @@ class ResponseTimer:
             if object_subscription == index_object_subscription:
                 return index
         return None
+
+    def get_average_response_time(self) -> timedelta:
+        total_average_wait_times = timedelta(0)
+
+        for pair in self._subscription_pairs:
+            total_average_wait_times += pair.get_average_update_time()
+
+        total_average_wait_times /= len(self._subscription_pairs)
+
+        return total_average_wait_times
