@@ -127,5 +127,8 @@ class Device:
         # this will need to change as more object types are used
         return ("analog-output", self._device_objects[object_name].instance)
 
+    def get_object_from_name(self, object_name: str) -> AnalogOutputObject:
+        return self._device_objects[object_name]
+
     # TODO: add methods to get necessary class properties
     # remember to copy lists and thier objects so they cant be manipulated
