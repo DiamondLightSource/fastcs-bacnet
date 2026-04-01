@@ -15,7 +15,7 @@ class ObjectSubscription:
     _last_subscription: dt
     _last_update: dt
     _subscription_stopped: bool = False
-    _diagnostic_callback: Callable[[str, float], None] | None
+    _diagnostic_callback: Callable[[str, float], None] | None = None
 
     def __init__(
         self,
