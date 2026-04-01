@@ -75,7 +75,9 @@ class ResponseTimer:
         total_average_wait_times = timedelta(0)
 
         for pair in self._subscription_pairs:
-            total_average_wait_times += pair.get_average_update_time()
+            pair_average_time = pair.get_average_update_time()
+            if pair_average_time is not None:
+                total_average_wait_times += pair_average_time
 
         total_average_wait_times /= len(self._subscription_pairs)
 

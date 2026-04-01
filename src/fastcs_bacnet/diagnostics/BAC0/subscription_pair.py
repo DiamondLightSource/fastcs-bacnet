@@ -145,16 +145,21 @@ class SubscriptionPair:
     def get_total_missed_updates(self) -> int:
         return self._total_missed_updates + len(self._sent_buffer)
 
-    def get_average_update_time(self) -> timedelta:
+    def get_average_update_time(self) -> timedelta | None:
+        if self._total_updates_recieved == 0:
+            return None
         return self._total_update_wait_time / self._total_updates_recieved
 
     def get_reliability(self) -> float:
         """
         Total messages recieved / total messages sent
         """
-        return self._total_updates_recieved / (
+        total_updates_sent = (
             self._total_updates_recieved + self.get_total_missed_updates()
         )
+        if total_updates_sent == 0:
+            return 0
+        return self._total_updates_recieved / (total_updates_sent)
 
     def get_analog_output_object(self) -> AnalogOutputObject:
         return self._analog_output_object
