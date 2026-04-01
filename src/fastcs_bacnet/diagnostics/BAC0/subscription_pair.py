@@ -73,7 +73,7 @@ class SubscriptionPair:
         Records the time between the update being sent and recieved
         Adds recorded time as well as missed values to the _recent_recieval_times
         """
-        if property_identifier is not PropertyIdentifier.presentValue:
+        if property_identifier != PropertyIdentifier.presentValue:
             return
 
         recieved_time = datetime.now()
