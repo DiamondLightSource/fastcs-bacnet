@@ -150,7 +150,7 @@ class SubscriptionPair:
         Total messages recieved / total messages sent
         """
         return self._total_updates_recieved / (
-            self._total_updates_recieved + self._total_missed_updates
+            self._total_updates_recieved + self.get_total_missed_updates()
         )
 
     def get_analog_output_object(self) -> AnalogOutputObject:
