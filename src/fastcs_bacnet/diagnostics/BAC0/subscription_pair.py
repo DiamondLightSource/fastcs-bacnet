@@ -64,7 +64,10 @@ class SubscriptionPair:
         Callback to run when an update is sent by the device output object
         Adds the update value and the current time to the _sent_buffer list
         """
-        self._sent_buffer.append((new_value, datetime.now()))
+        if old_value is None or abs(old_value - new_value) > 0.1:
+            self._sent_buffer.append((new_value, datetime.now()))
+        else:
+            print("updated value in dead zone")
 
     def _on_recieve(self, property_identifier: str, property_value: float):
         """
