@@ -61,6 +61,8 @@ class ObjectSubscription:
 
         callback = self._decorate_callback()
 
+        print("subscribing!!")
+
         # typing of cov's callback is TECHNICALLY [PropertyIdentifier, Any]
         # But it puts string for the first argument even though PropertyIdentifier
         # is an enum thats values are integers
@@ -125,7 +127,7 @@ class ObjectSubscription:
 
     def set_callback(self, callback: Callable[[str, float], None]):
         self._callback = callback
-        self.subscribe()
+        # dont need to resubscribe as the subscription has a pointer to self
 
     def set_diagnostic_callback(
         self, diagnostic_callback: Callable[[str, float], None] | None
@@ -135,4 +137,4 @@ class ObjectSubscription:
         Having 2 variables makes setting and removing them easier
         """
         self._diagnostic_callback = diagnostic_callback
-        self.subscribe()
+        # dont need to resubscribe as the subscription has a pointer to self
