@@ -12,14 +12,15 @@ dummy_device_id = 123
 
 
 async def get_subscription_data(
-    fields: int, update_period: float, sample_time: int = 60
+    fields: int, min_change_time: float, max_change_time: float, sample_time: int = 60
 ) -> timedelta:
     dummy_device = Device(
         ip_address,
         dummy_device_port,
         dummy_device_id,
         number_of_random_fields=fields,
-        value_refresh_period=update_period,
+        min_change_time=min_change_time,
+        max_change_time=max_change_time,
     )
 
     subscription_ids: list[SubscriptionID] = [
@@ -34,7 +35,7 @@ async def get_subscription_data(
     )
 
     response_timer = ResponseTimer(
-        recent_times_buffer_length=int(sample_time / update_period)
+        recent_times_buffer_length=int(sample_time / min_change_time)
     )
 
     for subscription_id in bacnet_client.get_subscription_ids():
@@ -55,4 +56,10 @@ async def get_subscription_data(
     return response_timer.get_average_response_time()
 
 
-print(asyncio.run(get_subscription_data(10, 2.0, sample_time=20)))
+print(
+    asyncio.run(
+        get_subscription_data(
+            100, min_change_time=10.0, max_change_time=30.0, sample_time=60
+        )
+    )
+)
