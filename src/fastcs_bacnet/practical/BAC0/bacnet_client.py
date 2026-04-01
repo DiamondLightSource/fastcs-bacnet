@@ -17,6 +17,7 @@ class BacnetClient:
         bacnet_client: lite | None = None,
         initial_subscriptions: list[SubscriptionID] | None = None,
         subscription_lifetime: int = 60,
+        auto_renew_subscriptions: bool = False,
         default_generic_callback: Callable[[SubscriptionID, str, float], None]
         | None = None,
     ):
@@ -37,6 +38,7 @@ class BacnetClient:
             If None nothing happens when a new value is recieved
         """
         self._subscription_lifetime = subscription_lifetime
+        self._auto_renew_subscriptions = auto_renew_subscriptions
         self._default_generic_callback = default_generic_callback
 
         if bacnet_client is not None:
@@ -81,6 +83,7 @@ class BacnetClient:
             self._bacnet_client,
             subscription_id,
             lifetime=self._subscription_lifetime,
+            auto_renew=self._auto_renew_subscriptions,
             callback=callback,
         )
 
