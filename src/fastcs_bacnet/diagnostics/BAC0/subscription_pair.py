@@ -137,7 +137,7 @@ class SubscriptionPair:
         return list(self._recent_receival_times)
 
     def get_total_missed_updates(self) -> int:
-        return self._total_missed_updates
+        return self._total_missed_updates + len(self._sent_buffer)
 
     def get_average_update_time(self) -> timedelta:
         return self._total_update_wait_time / self._total_updates_recieved
