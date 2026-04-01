@@ -81,6 +81,7 @@ class SubscriptionPair:
 
         sent_index = self._match(property_value)
         if sent_index is None:
+            print("mystery update")
             self._total_mystery_updates += 1
             return
 
@@ -119,8 +120,10 @@ class SubscriptionPair:
         """
 
         if receival_time is None:
+            print("missed message")
             self._total_missed_updates += 1
         else:
+            print("valid receival")
             self._total_updates_recieved += 1
             self._total_update_wait_time += receival_time
 
@@ -141,6 +144,14 @@ class SubscriptionPair:
 
     def get_average_update_time(self) -> timedelta:
         return self._total_update_wait_time / self._total_updates_recieved
+
+    def get_reliability(self) -> float:
+        """
+        Total messages recieved / total messages sent
+        """
+        return self._total_updates_recieved / (
+            self._total_updates_recieved + self._total_missed_updates
+        )
 
     def get_analog_output_object(self) -> AnalogOutputObject:
         return self._analog_output_object
