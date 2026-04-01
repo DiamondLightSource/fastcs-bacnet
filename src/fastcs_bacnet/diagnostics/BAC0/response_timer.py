@@ -80,3 +80,13 @@ class ResponseTimer:
         total_average_wait_times /= len(self._subscription_pairs)
 
         return total_average_wait_times
+
+    def get_average_reliability(self) -> float:
+        total_reliability = 0.0
+
+        for pair in self._subscription_pairs:
+            total_reliability += pair.get_reliability()
+
+        total_reliability /= len(self._subscription_pairs)
+
+        return total_reliability
