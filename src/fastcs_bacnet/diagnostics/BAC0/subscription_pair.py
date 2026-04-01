@@ -130,17 +130,10 @@ class SubscriptionPair:
 
     def get_recent_recieval_times(self) -> list[timedelta | None]:
         """
-        Returns a deep copy of _recent_receival_times list
+        Returns a copy of recent_recieval_times
+        Dont have to deep copy as timedeltas are immutable
         """
-        # cant even use a shallow copy because timedeltas could be changed
-        list_copy: list[timedelta | None] = []
-        for time in self._recent_receival_times:
-            if time is None:
-                list_copy.append(None)
-            else:
-                # this might not be the correct way to copy a timedelta
-                list_copy.append(timedelta(time.total_seconds()))
-        return list_copy
+        return list(self._recent_receival_times)
 
     def get_total_missed_updates(self) -> int:
         return self._total_missed_updates
