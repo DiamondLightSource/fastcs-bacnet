@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timedelta
 
 from bacpypes3.primitivedata import PropertyIdentifier
@@ -104,7 +105,7 @@ class SubscriptionPair:
 
         for i in range(len(self._sent_buffer)):
             sent_value_i = self._sent_buffer[i][0]
-            if sent_value_i == recieved_value:
+            if math.isclose(sent_value_i, recieved_value, rel_tol=0.0001):
                 return i
 
         return None
