@@ -1,4 +1,5 @@
 import random
+from datetime import datetime as dt
 
 from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_variable import (  # noqa: E501
     PuppetVariable,
@@ -29,6 +30,7 @@ class PuppetController:
         self.variables = []
         self.update_loops_started = False
         self.update_loop_count = update_loops
+        self.random_variable_args = kwargs
 
         for puppet_variable in initial_variables:
             self.add_puppet_variable(puppet_variable)
@@ -36,7 +38,7 @@ class PuppetController:
     def add_puppet_variable(self, puppet_variable: PuppetVariable):
         self.variables.append(puppet_variable)
 
-    def start_update_loops(self, **kwargs):
+    def start_update_loops(self):
         """
         Creates update_loops s RandomVariables
         Sets the callback to _update_random_variable
@@ -50,7 +52,7 @@ class PuppetController:
             RandomVariable(
                 "puppet_random_" + str(i),
                 update_callback=self._update_random_variable,
-                **kwargs,
+                **self.random_variable_args,
             )
 
     def _update_random_variable(self, new_value: float):
@@ -59,5 +61,8 @@ class PuppetController:
         """
 
         variable_index: int = int(len(self.variables) * random.random())
+
+        print("updating index: ", variable_index, " to value: ", new_value)
+        print("time: ", dt.now())
 
         self.variables[variable_index].puppet_set_value(new_value)

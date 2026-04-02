@@ -22,7 +22,7 @@ async def get_subscription_data(
     sample_time: int = 60,
 ) -> timedelta:
 
-    dummy_devices = {}
+    dummy_devices: dict[int, Device] = {}
     subscription_ids = []
 
     puppet_controller = PuppetController(
@@ -71,13 +71,17 @@ async def get_subscription_data(
     print("average response time: ", response_timer.get_average_response_time())
     print("reliability score: ", response_timer.get_average_reliability())
 
+    await bacnet_client.disconnect()
+    for device_key in dummy_devices.keys():
+        await dummy_devices[device_key].disconnect()
+
     return response_timer.get_average_response_time()
 
 
 print(
     asyncio.run(
         get_subscription_data(
-            1, 2, min_change_time=1.0, max_change_time=5.0, sample_time=300
+            10, 2, min_change_time=1.0, max_change_time=5.0, sample_time=30
         )
     )
 )

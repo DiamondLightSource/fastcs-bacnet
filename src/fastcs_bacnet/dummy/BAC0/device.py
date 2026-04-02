@@ -150,5 +150,8 @@ class Device:
     def get_object_from_name(self, object_name: str) -> AnalogOutputObject:
         return self._device_objects[object_name]
 
+    async def disconnect(self):
+        await self._bac0_device.disconnect()
+
     # TODO: add methods to get necessary class properties
     # remember to copy lists and thier objects so they cant be manipulated
