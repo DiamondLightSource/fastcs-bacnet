@@ -32,6 +32,7 @@ class Device:
         number_of_constant_fields: int = 0,
         number_of_oscillating_fields: int = 0,
         number_of_random_fields: int = 0,
+        number_of_puppet_fields: int = 0,
         puppet_controller: PuppetController | None = None,
         **kwargs,
     ):
@@ -60,6 +61,8 @@ class Device:
             self.add_object(OscillatingVariable, i, **kwargs)
         for i in range(number_of_random_fields):
             self.add_object(RandomVariable, i, **kwargs)
+        for i in range(number_of_puppet_fields):
+            self.add_object(PuppetVariable, i, **kwargs)
 
     def add_object(self, variable_class: type[DeviceVariable], index: int, **kwargs):
         """
