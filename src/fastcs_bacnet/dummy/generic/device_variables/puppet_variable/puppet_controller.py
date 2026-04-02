@@ -28,6 +28,7 @@ class PuppetController:
 
         self.variables = []
         self.update_loops_started = False
+        self.update_loop_count = update_loops
 
         for puppet_variable in initial_variables:
             self.add_puppet_variable(puppet_variable)
@@ -35,7 +36,7 @@ class PuppetController:
     def add_puppet_variable(self, puppet_variable: PuppetVariable):
         self.variables.append(puppet_variable)
 
-    def start_update_loops(self, update_loops: int, **kwargs):
+    def start_update_loops(self, **kwargs):
         """
         Creates update_loops s RandomVariables
         Sets the callback to _update_random_variable
@@ -45,7 +46,7 @@ class PuppetController:
             return
         self.update_loops_started = True
 
-        for i in range(update_loops):
+        for i in range(self.update_loop_count):
             RandomVariable(
                 "puppet_random_" + str(i),
                 update_callback=self._update_random_variable,
