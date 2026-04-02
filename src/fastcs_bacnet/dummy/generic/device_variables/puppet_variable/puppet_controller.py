@@ -7,23 +7,34 @@ from fastcs_bacnet.dummy.generic.device_variables.random_variable import RandomV
 
 
 class PuppetController:
+    """
+    Class to control puppet variables
+    Currently uses a RandomVariable to upadte one puppet at a time randomly
+    """
+
     variables: list[PuppetVariable]
 
-    def __init__(self, initial_variables: list[PuppetVariable], update_loops: int = 1):
+    def __init__(
+        self, initial_variables: list[PuppetVariable], update_loops: int = 1, **kwargs
+    ):
 
         self.variables = []
 
         for puppet_variable in initial_variables:
             self.add_puppet_variable(puppet_variable)
 
+        self._start_update_loops(update_loops, **kwargs)
+
     def add_puppet_variable(self, puppet_variable: PuppetVariable):
         self.variables.append(puppet_variable)
 
-    def _start_update_loops(self, update_loops: int):
+    def _start_update_loops(self, update_loops: int, **kwargs):
 
         for i in range(update_loops):
             RandomVariable(
-                "puppet_random_" + str(i), update_callback=self._update_random_variable
+                "puppet_random_" + str(i),
+                update_callback=self._update_random_variable,
+                **kwargs,
             )
 
     def _update_random_variable(self, new_value: float):
