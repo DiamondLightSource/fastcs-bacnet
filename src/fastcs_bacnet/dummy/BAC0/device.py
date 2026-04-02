@@ -10,6 +10,12 @@ from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceV
 from fastcs_bacnet.dummy.generic.device_variables.oscillating_variable import (
     OscillatingVariable,
 )
+from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_controller import (  # noqa: E501
+    PuppetController,
+)
+from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_variable import (  # noqa: E501
+    PuppetVariable,
+)
 from fastcs_bacnet.dummy.generic.device_variables.random_variable import RandomVariable
 
 
@@ -26,6 +32,7 @@ class Device:
         number_of_constant_fields: int = 0,
         number_of_oscillating_fields: int = 0,
         number_of_random_fields: int = 0,
+        puppet_controller: PuppetController | None = None,
         **kwargs,
     ):
         """
@@ -43,6 +50,9 @@ class Device:
         # so object ids dont clash
         # TODO: Change this to be a dictionary so it can track all object types
         self._current_analog_output_index: int = 0
+
+        if puppet_controller is not None:
+            self.puppet_controller = puppet_controller
 
         for i in range(number_of_constant_fields):
             self.add_object(ConstantVariable, i, **kwargs)
@@ -104,6 +114,13 @@ class Device:
                 }
             }
             object_variable = RandomVariable(variable_string, **random_kwargs)
+        elif variable_class == PuppetVariable:
+            variable_string = "puppet"
+            puppet_kwargs = {
+                k: kwargs[k] for k in kwargs.keys() if k in {"update_callback"}
+            }
+            object_variable = PuppetVariable(variable_string, **puppet_kwargs)
+            self.puppet_controller.add_puppet_variable(object_variable)
         object_name = f"{variable_string}_object_{index}"
         object_description = (
             f"{variable_string} object of device {self._ip_address}:{self._port}"
