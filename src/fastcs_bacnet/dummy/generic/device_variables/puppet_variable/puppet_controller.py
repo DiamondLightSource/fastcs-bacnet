@@ -17,6 +17,13 @@ class PuppetController:
     def __init__(
         self, initial_variables: list[PuppetVariable], update_loops: int = 1, **kwargs
     ):
+        """
+        Adds all initial PuppetVariables and starts the update loops
+        initial_variables: Variables to be controller by this controller
+            PuppetVariables should only be controlled by one controller
+        update_loops: The number of RandomVariables to start
+        **kwargs: keyword arguments for the RandomVariables
+        """
 
         self.variables = []
 
@@ -29,6 +36,11 @@ class PuppetController:
         self.variables.append(puppet_variable)
 
     def _start_update_loops(self, update_loops: int, **kwargs):
+        """
+        Creates update_loops s RandomVariables
+        Sets the callback to _update_random_variable
+        keyword arguments are sent straight to the RandomVariable constructor
+        """
 
         for i in range(update_loops):
             RandomVariable(
@@ -38,6 +50,9 @@ class PuppetController:
             )
 
     def _update_random_variable(self, new_value: float):
+        """
+        Gives a random PuppetVariable in the list new_value
+        """
 
         variable_index: int = int(len(self.variables) * random.random())
 
