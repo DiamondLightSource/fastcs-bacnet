@@ -158,7 +158,7 @@ class SubscriptionPair:
             self._total_updates_recieved + self.get_total_missed_updates()
         )
         if total_updates_sent == 0:
-            return 0
+            return 1
         return self._total_updates_recieved / (total_updates_sent)
 
     def get_analog_output_object(self) -> AnalogOutputObject:
