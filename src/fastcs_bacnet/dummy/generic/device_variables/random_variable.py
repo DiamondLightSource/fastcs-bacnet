@@ -28,9 +28,6 @@ class RandomVariable(DeviceVariable):
 
         update loop is started automatically after initialisation
         """
-        print("creating random varibale")
-        print("min change time: ", min_change_time)
-        print("max change time: ", max_change_time)
 
         super().__init__(name, update_callback=update_callback)
 
