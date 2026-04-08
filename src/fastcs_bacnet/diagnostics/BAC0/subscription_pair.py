@@ -14,11 +14,11 @@ class SubscriptionPair:
     """
 
     # subscription messages that have been sent but not recieved yet
-    _sent_buffer: list[tuple[float, datetime]] = []
+    _sent_buffer: list[tuple[float, datetime]]
 
     # time between sending and recieving updates
     # size limited, only the most recent sent updates are kept
-    _recent_receival_times: list[timedelta | None] = []
+    _recent_receival_times: list[timedelta | None]
 
     # max size of recent_recieval_times
     _recent_times_buffer_length: int
@@ -51,6 +51,9 @@ class SubscriptionPair:
         self._total_update_wait_time = timedelta(0)
         self._analog_output_object = analog_output_object
         self._object_subscription = object_subscription
+
+        self._sent_buffer = []
+        self._recent_receival_times = []
 
         # maybe a bit cheeky to acess the analog_ouput_object underlying
         # device variable directly. Should be with a getter??
