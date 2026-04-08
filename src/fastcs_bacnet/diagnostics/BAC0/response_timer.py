@@ -85,10 +85,17 @@ class ResponseTimer:
 
     def get_average_reliability(self) -> float:
         total_reliability = 0.0
+        total_pairs_averaged = 0
 
         for pair in self._subscription_pairs:
-            total_reliability += pair.get_reliability()
+            pair_reliability = pair.get_reliability()
+            if pair_reliability is not None:
+                total_reliability += pair_reliability
+                total_pairs_averaged += 1
 
-        total_reliability /= len(self._subscription_pairs)
+        if total_pairs_averaged == 0:
+            return 0
+
+        total_reliability /= total_pairs_averaged
 
         return total_reliability
