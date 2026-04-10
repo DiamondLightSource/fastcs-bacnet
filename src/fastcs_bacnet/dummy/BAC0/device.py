@@ -26,7 +26,7 @@ class Device:
 
     def __init__(
         self,
-        ip_address: str,
+        ip_address: str | None,
         port: int,
         device_id: int,
         number_of_constant_fields: int = 0,
