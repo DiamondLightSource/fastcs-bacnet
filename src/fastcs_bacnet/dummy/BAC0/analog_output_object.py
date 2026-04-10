@@ -51,7 +51,5 @@ class AnalogOutputObject:
         """
         Callback function to update this objects value
         """
-        # Ruff doesnt like this
-        # It is the way they do it in the docs
-        # Sometime Ruff is fine with it??
+        # bad typing from BAC0 library, have to ignore this ruff error
         self.device[self.name].presentValue = new_value  # type: ignore
