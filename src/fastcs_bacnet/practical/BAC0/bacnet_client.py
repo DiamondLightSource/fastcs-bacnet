@@ -87,9 +87,7 @@ class BacnetClient:
             callback=callback,
         )
 
-    def remove_subscription(
-        self, subscription_id: SubscriptionID, stop_subscription=True
-    ):
+    def remove_subscription(self, subscription_id: SubscriptionID):
         """
         Removes a subscription from the dictionary
         subscription_id: identifier used to find the object to subscribe to
@@ -99,8 +97,7 @@ class BacnetClient:
         """
         subscription = self._subscriptions.pop(subscription_id)
 
-        if stop_subscription:
-            subscription.stop_subscription()
+        subscription.stop_subscription()
 
     def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
         return self._subscriptions[subscription_id]
