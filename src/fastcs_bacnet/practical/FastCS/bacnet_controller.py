@@ -15,9 +15,6 @@ class BacnetController(Controller):
         Creates a FastCS controller (and subcontrollers) from a BacnetClient object
         bacnet_client: NOT a BAC0.lite object but a BacnetClient object
             Will create subcontrollers for each device the BacnetClient is subscribed to
-            (these will be BacnetSubcontrollers)
-            Subcontroller naming convention: subcontroller_[index]
-            Where [index] increments from 0 for each device in no particular order
         """
         super().__init__(ios=[])
 
