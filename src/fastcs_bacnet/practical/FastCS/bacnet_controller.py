@@ -1,7 +1,7 @@
 from fastcs.controllers import Controller
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscription_id import sort_subscriptions
 from fastcs_bacnet.practical.FastCS.bacnet_subcontroller import BacnetSubController
 
 
@@ -20,7 +20,7 @@ class BacnetController(Controller):
 
         self.bacnet_client = bacnet_client
 
-        location_subscription_list_pairs = BacnetController._sort_subscriptions(
+        location_subscription_list_pairs = sort_subscriptions(
             self.bacnet_client.get_subscription_ids()
         )
 
@@ -43,32 +43,3 @@ class BacnetController(Controller):
             )
 
             subcontroller_index += 1
-
-    @staticmethod
-    def _sort_subscriptions(
-        subscription_ids: list[SubscriptionID],
-    ) -> dict[tuple[str, int], list[SubscriptionID]]:
-        """
-        Sorts a list of subscription ids into lists of common locations (ip-port pairs)
-        subscription_ids: A list of SubscriptionID objects to sort
-            Each list of common locations is put into a dictionary where
-            the key is the location
-        """
-
-        location_subscription_list_pairs: dict[
-            tuple[str, int], list[SubscriptionID]
-        ] = {}
-
-        for subscription_id in subscription_ids:
-            location = (subscription_id.address, subscription_id.port)
-
-            # If the location is already in the dictionary
-            # add the subscription id to the list
-            if location in location_subscription_list_pairs:
-                location_subscription_list_pairs[location].append(subscription_id)
-            # If the location is not in the dictionary
-            # create a new list for the location, it contains the subscription id
-            else:
-                location_subscription_list_pairs[location] = [subscription_id]
-
-        return location_subscription_list_pairs
