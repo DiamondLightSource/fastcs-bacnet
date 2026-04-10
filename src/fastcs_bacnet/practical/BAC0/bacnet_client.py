@@ -18,8 +18,6 @@ class BacnetClient:
         initial_subscriptions: list[SubscriptionID] | None = None,
         subscription_lifetime: int = 60,
         auto_renew_subscriptions: bool = False,
-        default_generic_callback: Callable[[SubscriptionID, str, float], None]
-        | None = None,
     ):
         """
         bacnet_client: python bacnet object used to interact with actual bacnet objects
@@ -39,7 +37,6 @@ class BacnetClient:
         """
         self._subscription_lifetime = subscription_lifetime
         self._auto_renew_subscriptions = auto_renew_subscriptions
-        self._default_generic_callback = default_generic_callback
 
         self._bacnet_client = bacnet_client
 
@@ -60,17 +57,6 @@ class BacnetClient:
         callback: Procedure that is called when a new value is recieved from the device
             If None the default_generic_callback will be used
         """
-        # cant do the check for default_generic_callback being none here
-        # because it could change
-        if callback is None:
-
-            def default_callback(property_indentifier: str, property_value: float):
-                if self._default_generic_callback is not None:
-                    self._default_generic_callback(
-                        subscription_id, property_indentifier, property_value
-                    )
-
-            callback = default_callback
 
         self._subscriptions[subscription_id] = ObjectSubscription(
             self._bacnet_client,

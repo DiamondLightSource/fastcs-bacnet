@@ -1,8 +1,6 @@
 import asyncio
-from datetime import datetime as dt
 
 from BAC0 import start
-from bacpypes3.primitivedata import PropertyIdentifier
 
 from fastcs_bacnet.dummy.BAC0.device import Device
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
@@ -51,32 +49,15 @@ async def asyc_function():
         ),
     ]
 
-    # OPTIONAL: specify a generic callback
-    def generic_callback(
-        subscription_id: SubscriptionID,
-        property_identifier: str,
-        property_value: float,
-    ):
-        if property_identifier == PropertyIdentifier.presentValue:
-            time = dt.now()
-            print(f"""
-                Value changed!
-                Time: {time}
-                Location: {subscription_id.address} : {subscription_id.port}
-                Object type: {subscription_id.object_type}
-                Object id number: {subscription_id.object_id}
-                Property Identifier: {property_identifier}
-                New value: {property_value}
-            """)
-
     ### Create bacnet client device ###
     bac0_client = start(ip=IP_ADDRESS, port=47808, deviceId=0)
 
     BacnetClient(
         bac0_client,
         initial_subscriptions=subscription_ids,
-        default_generic_callback=generic_callback,
     )
+
+    # TODO: add callbacks to all the subscriptions here
 
     ### Keep async thread alive ###
     while True:
