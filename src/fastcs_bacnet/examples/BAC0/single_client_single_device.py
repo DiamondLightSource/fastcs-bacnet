@@ -6,7 +6,11 @@ from bacpypes3.primitivedata import PropertyIdentifier
 
 from fastcs_bacnet.dummy.BAC0.device import Device
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscription_id import (
+    IPv4SocketAddress,
+    ObjectIdentifier,
+    SubscriptionID,
+)
 
 IP_ADDRESS = "127.0.0.1"
 DUMMY_DEVICE_PORT = 47810
@@ -36,7 +40,8 @@ async def asyc_function():
     # Specify object to subscribe to ("analog-output" instance 0)
     # All dummy device objects are CURRENTLY analog-output s
     dummy_device_subscription = SubscriptionID(
-        IP_ADDRESS, DUMMY_DEVICE_PORT, "analog-output", 0
+        IPv4SocketAddress(IP_ADDRESS, DUMMY_DEVICE_PORT),
+        ObjectIdentifier("analog-output", 0),
     )
 
     # Function that runs when any object value is changed
@@ -52,10 +57,10 @@ async def asyc_function():
             print(f"""
                 Value changed!
                 Time: {time}
-                Location: {dummy_device_subscription.address} :
-                {dummy_device_subscription.port}
-                Object type: {dummy_device_subscription.object_type}
-                Object id number: {dummy_device_subscription.object_id}
+                Location: {dummy_device_subscription.socket_address.ip_address} :
+                {dummy_device_subscription.socket_address.port}
+                Object type: {dummy_device_subscription.object_key.object_type}
+                Object id number: {dummy_device_subscription.object_key.object_instance}
                 Property Identifier: {property_identifier}
                 New value: {property_value}
             """)
@@ -64,7 +69,7 @@ async def asyc_function():
     bacnet_client.add_subscription(dummy_device_subscription, callback=callback)
 
     ### Keep async thread alive ###
-    await asyncio.Event()
+    await asyncio.Event().wait()
 
 
 asyncio.run(asyc_function())

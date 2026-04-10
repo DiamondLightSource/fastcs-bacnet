@@ -69,8 +69,8 @@ class ObjectSubscription:
         # But it puts string for the first argument even though PropertyIdentifier
         # is an enum thats values are integers
         self._bacnet_client.cov(
-            self._subscription_id.socket_address(),
-            self._subscription_id.object_key(),
+            str(self._subscription_id.socket_address),
+            self._subscription_id.object_key.to_tuple(),
             lifetime=self._lifetime,
             callback=callback,
         )

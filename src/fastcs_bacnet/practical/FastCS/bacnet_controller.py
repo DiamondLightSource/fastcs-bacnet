@@ -20,21 +20,20 @@ class BacnetController(Controller):
 
         self.bacnet_client = bacnet_client
 
-        location_subscription_list_pairs = sort_subscriptions(
+        socket_address_subscription_list_pairs = sort_subscriptions(
             self.bacnet_client.get_subscription_ids()
         )
 
         subcontroller_index = 0
-        for location in location_subscription_list_pairs.keys():
-            # change to a named tuple?
-            device_ip_address = location[0]
-            device_bacnet_port = location[1]
-            device_subscription_ids = location_subscription_list_pairs[location]
+        for socket_address in socket_address_subscription_list_pairs.keys():
+            device_subscription_ids = socket_address_subscription_list_pairs[
+                socket_address
+            ]
 
             device_controller = BacnetSubController(
                 self.bacnet_client,
-                device_ip_address,
-                device_bacnet_port,
+                socket_address.ip_address,
+                socket_address.port,
                 device_subscription_ids,
             )
 

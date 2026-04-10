@@ -95,21 +95,25 @@ class BacnetSubController(Controller):
 
         for subscription_id in subscription_ids:
             # TODO: Throw an error here instead
-            if subscription_id.address != ip_address:
+            if subscription_id.socket_address.ip_address != ip_address:
                 print(f"""
                     Subcontroller address does not match subscription address
                     Subcontroller address: {ip_address}
-                    Subscription address: {subscription_id.address}
+                    Subscription address: {subscription_id.socket_address.ip_address}
                 """)
-            if subscription_id.port != port:
+            if subscription_id.socket_address.port != port:
                 print(f"""
                     Subcontroller port does not match subscription port
                     Subcontroller port: {port}
-                    Subscription port: {subscription_id.port}
+                    Subscription port: {subscription_id.socket_address.port}
                 """)
 
-            object_type_snake_case = subscription_id.object_type.replace("-", "_")
-            attribute_name = f"{object_type_snake_case}_{subscription_id.object_id}"
+            object_type_snake_case = subscription_id.object_key.object_type.replace(
+                "-", "_"
+            )
+            attribute_name = (
+                f"{object_type_snake_case}_{subscription_id.object_key.object_instance}"
+            )
             self.add_attribute(
                 attribute_name,
                 AttrR(
