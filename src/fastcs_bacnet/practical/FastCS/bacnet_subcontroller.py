@@ -51,7 +51,7 @@ class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
         # subscription_id should never be none
         # finicky with default arguments
         if attr.io_ref.subscription_id is None:
-            return
+            raise ValueError
 
         subscription_object = self.bacnet_client.get_subscription(
             attr.io_ref.subscription_id
