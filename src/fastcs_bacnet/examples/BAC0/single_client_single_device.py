@@ -8,23 +8,23 @@ from fastcs_bacnet.dummy.BAC0.device import Device
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
-ip_address = "127.0.0.1"
-dummy_device_port = 47810
-dummy_device_id = 123
+IP_ADDRESS = "127.0.0.1"
+DUMMY_DEVICE_PORT = 47810
+DUMMY_DEVICE_ID = 123
 
 
 async def asyc_function():
 
     ### Create dummy bacnet devices (setting up environment) ###
     Device(
-        ip_address,
-        dummy_device_port,
-        dummy_device_id,
+        IP_ADDRESS,
+        DUMMY_DEVICE_PORT,
+        DUMMY_DEVICE_ID,
         number_of_oscillating_fields=1,
     )
 
     ### Create bacnet client device ###
-    bac0_client = start(ip=ip_address, port=47808, deviceId=0)
+    bac0_client = start(ip=IP_ADDRESS, port=47808, deviceId=0)
 
     bacnet_client = BacnetClient(
         bac0_client,
@@ -36,7 +36,7 @@ async def asyc_function():
     # Specify object to subscribe to ("analog-output" instance 0)
     # All dummy device objects are CURRENTLY analog-output s
     dummy_device_subscription = SubscriptionID(
-        ip_address, dummy_device_port, "analog-output", 0
+        IP_ADDRESS, DUMMY_DEVICE_PORT, "analog-output", 0
     )
 
     # Function that runs when any object value is changed

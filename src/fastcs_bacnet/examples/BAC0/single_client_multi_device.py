@@ -8,30 +8,30 @@ from fastcs_bacnet.dummy.BAC0.device import Device
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
-ip_address = "127.0.0.1"
-dummy_device_ports = [47900, 47970, 47985]
-dummy_device_ids = [543, 78, 34]
+IP_ADDRESS = "127.0.0.1"
+DUMMY_DEVICE_PORTS = [47900, 47970, 47985]
+DUMMY_DEVICE_IDS = [543, 78, 34]
 
 
 async def asyc_function():
 
     ### Create dummy bacnet devices (setting up environment) ###
     Device(
-        ip_address,
-        dummy_device_ports[0],
-        dummy_device_ids[0],
+        IP_ADDRESS,
+        DUMMY_DEVICE_PORTS[0],
+        DUMMY_DEVICE_IDS[0],
         number_of_constant_fields=5,
     )
     Device(
-        ip_address,
-        dummy_device_ports[1],
-        dummy_device_ids[1],
+        IP_ADDRESS,
+        DUMMY_DEVICE_PORTS[1],
+        DUMMY_DEVICE_IDS[1],
         number_of_oscillating_fields=5,
     )
     named_dummy_device = Device(
-        ip_address,
-        dummy_device_ports[2],
-        dummy_device_ids[2],
+        IP_ADDRESS,
+        DUMMY_DEVICE_PORTS[2],
+        DUMMY_DEVICE_IDS[2],
         number_of_oscillating_fields=6,
         number_of_random_fields=7,
     )
@@ -40,12 +40,12 @@ async def asyc_function():
     # Specify objects to subscribe to for bacnet client
     subscription_ids = [
         # how you would have to specify objects on a real network
-        SubscriptionID(ip_address, dummy_device_ports[0], "analog-output", 4),
-        SubscriptionID(ip_address, dummy_device_ports[1], "analog-output", 1),
+        SubscriptionID(IP_ADDRESS, DUMMY_DEVICE_PORTS[0], "analog-output", 4),
+        SubscriptionID(IP_ADDRESS, DUMMY_DEVICE_PORTS[1], "analog-output", 1),
         # for dummy bacnet objects we can use names
         SubscriptionID(
-            ip_address,
-            dummy_device_ports[2],
+            IP_ADDRESS,
+            DUMMY_DEVICE_PORTS[2],
             named_dummy_device.object_identifier_from_name("random_object_4")[0],
             named_dummy_device.object_identifier_from_name("random_object_4")[1],
         ),
@@ -70,7 +70,7 @@ async def asyc_function():
             """)
 
     ### Create bacnet client device ###
-    bac0_client = start(ip=ip_address, port=47808, deviceId=0)
+    bac0_client = start(ip=IP_ADDRESS, port=47808, deviceId=0)
 
     BacnetClient(
         bac0_client,

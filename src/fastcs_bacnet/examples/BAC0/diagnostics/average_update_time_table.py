@@ -6,9 +6,9 @@ from fastcs_bacnet.dummy.BAC0.device import Device
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
-ip_address = "127.0.0.1"
-dummy_device_starting_port = 47810
-dummy_device_starting_id = 123
+IP_ADDRESS = "127.0.0.1"
+DUMMY_DEVICE_STARTING_PORT = 47810
+DUMMY_DEVICE_STARTING_ID = 123
 
 
 async def get_subscription_data(
@@ -23,10 +23,10 @@ async def get_subscription_data(
     subscription_ids = []
 
     for i in range(number_of_devices):
-        port = dummy_device_starting_port + i
-        device_id = dummy_device_starting_id + i
+        port = DUMMY_DEVICE_STARTING_PORT + i
+        device_id = DUMMY_DEVICE_STARTING_ID + i
         dummy_device = Device(
-            ip_address,
+            IP_ADDRESS,
             port,
             device_id,
             number_of_random_fields=fields,
@@ -36,7 +36,7 @@ async def get_subscription_data(
         dummy_devices[port] = dummy_device
 
         subscription_ids += [
-            SubscriptionID(ip_address, port, "analog-output", i) for i in range(fields)
+            SubscriptionID(IP_ADDRESS, port, "analog-output", i) for i in range(fields)
         ]
 
     bacnet_client = BacnetClient(
