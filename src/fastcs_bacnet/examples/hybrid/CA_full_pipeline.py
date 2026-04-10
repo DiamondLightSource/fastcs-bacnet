@@ -1,5 +1,6 @@
 import asyncio
 
+from BAC0 import start
 from fastcs.launch import FastCS
 from fastcs.transports.epics import EpicsIOCOptions
 from fastcs.transports.epics.ca import EpicsCATransport
@@ -52,7 +53,10 @@ async def async_function():
         ),
     ]
 
+    bacnet_client = start()
+
     bacnet_client = BacnetClient(
+        bacnet_client,
         initial_subscriptions=subscription_ids,
     )
 
