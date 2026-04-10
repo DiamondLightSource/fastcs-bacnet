@@ -75,17 +75,9 @@ class ObjectSubscription:
             callback=callback,
         )
 
-        # is it bad to do this recursively rather than in a while loop??
         if self.auto_renew:
-            asyncio.create_task(self._queue_subscription(self._lifetime // 2))
-
-    async def _queue_subscription(self, queue_time: int):
-        """
-        Calls subscription in [queue time] seconds
-        """
-
-        await asyncio.sleep(queue_time)
-        self.subscribe()
+            event_loop = asyncio.get_running_loop()
+            event_loop.call_later(self._lifetime // 2, self.subscribe)
 
     def _decorate_callback(self) -> Callable[[str, float], None]:
         """
