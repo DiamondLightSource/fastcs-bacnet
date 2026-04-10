@@ -97,8 +97,7 @@ class BacnetClient:
             Set to False if you have taken your own instance of the
             ObjectSubscription that you are still using
         """
-        subscription = self.get_subscription(subscription_id)
-        self._subscriptions.pop(subscription_id)
+        subscription = self._subscriptions.pop(subscription_id)
 
         if stop_subscription:
             subscription.stop_subscription()
