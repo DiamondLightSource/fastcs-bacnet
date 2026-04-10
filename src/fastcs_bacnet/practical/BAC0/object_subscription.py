@@ -113,8 +113,7 @@ class ObjectSubscription:
         Can't restart a subscription after its been stopped
         Create a new ObjectSubscription instead
         """
-        # I dont think its possible to actually send a stop
-        # subscription message to a device??
+        # You cant send a "stop subscription" message to bacnet devices
         # The best we can do is wait out the last subscription
         self._subscription_stopped = True
 
