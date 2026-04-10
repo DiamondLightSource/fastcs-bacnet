@@ -93,7 +93,7 @@ class BacnetClient:
         """
         Removes a subscription from the dictionary
         subscription_id: identifier used to find the object to subscribe to
-        stop_subscription: if True, the subsciption itself is also stopped
+        stop_subscription: if True, the subscription itself is also stopped
             Set to False if you have taken your own instance of the
             ObjectSubscription that you are still using
         """
