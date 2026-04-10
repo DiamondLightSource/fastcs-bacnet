@@ -19,3 +19,6 @@ class SubscriptionID:
 
     def socket_address(self) -> str:
         return f"{self.address}:{self.port}"
+
+    def object_key(self) -> tuple[str, int]:
+        return (self.object_type, self.object_id)

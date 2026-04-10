@@ -70,7 +70,7 @@ class ObjectSubscription:
         # is an enum thats values are integers
         self._bacnet_client.cov(
             self._subscription_id.socket_address(),
-            (self._subscription_id.object_type, self._subscription_id.object_id),
+            self._subscription_id.object_key(),
             lifetime=self._lifetime,
             callback=callback,
         )
