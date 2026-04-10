@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass
 
 
@@ -34,18 +35,17 @@ def sort_subscriptions(
         the key is the location
     """
 
-    location_subscription_list_pairs: dict[tuple[str, int], list[SubscriptionID]] = {}
+    # default dict is a subclass of dict
+    # if you try to index a key thats not in the dictionary
+    # it runs the factory function on that key (list here, creating an empty list)
+    # it then indexes the key as usual
+    location_subscription_list_pairs: dict[tuple[str, int], list[SubscriptionID]] = (
+        defaultdict(list)
+    )
 
     for subscription_id in subscription_ids:
         location = (subscription_id.address, subscription_id.port)
 
-        # If the location is already in the dictionary
-        # add the subscription id to the list
-        if location in location_subscription_list_pairs:
-            location_subscription_list_pairs[location].append(subscription_id)
-        # If the location is not in the dictionary
-        # create a new list for the location, it contains the subscription id
-        else:
-            location_subscription_list_pairs[location] = [subscription_id]
+        location_subscription_list_pairs[location].append(subscription_id)
 
     return location_subscription_list_pairs
