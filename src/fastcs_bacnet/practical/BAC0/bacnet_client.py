@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from BAC0 import lite, start
+from BAC0 import lite
 
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
@@ -14,7 +14,7 @@ class BacnetClient:
 
     def __init__(
         self,
-        bacnet_client: lite | None = None,
+        bacnet_client: lite,
         initial_subscriptions: list[SubscriptionID] | None = None,
         subscription_lifetime: int = 60,
         auto_renew_subscriptions: bool = False,
@@ -23,8 +23,8 @@ class BacnetClient:
     ):
         """
         bacnet_client: python bacnet object used to interact with actual bacnet objects
-            if set to None one is created inside the object
-            if one is created remember to disconnect it using the disconnect method
+            can use this classes disconnect method to disconnect it
+            or disconnect manually outside
         initial_subscriptions: A list of SubsciptionIDs the object can use
             to make subscriptions in the constructor
             Just loops through this list and calls add_subscription
@@ -41,14 +41,7 @@ class BacnetClient:
         self._auto_renew_subscriptions = auto_renew_subscriptions
         self._default_generic_callback = default_generic_callback
 
-        if bacnet_client is not None:
-            self._bacnet_client = bacnet_client
-            self._borrowed_device = False
-        else:
-            # these are not good forced parameters
-            # maybe its just better to force users to give a bacnet_client??
-            self._bacnet_client = start("127.0.0.1", 47808, deviceId=1)
-            self._borrowed_device = True
+        self._bacnet_client = bacnet_client
 
         self._subscriptions: dict[SubscriptionID, ObjectSubscription] = {}
 
@@ -105,20 +98,12 @@ class BacnetClient:
     def get_subscription_ids(self) -> list[SubscriptionID]:
         return list(self._subscriptions.keys())
 
-    def is_device_borrowed(self) -> bool:
-        return self._borrowed_device
-
     async def disconnect(self):
         """
-        If a bacnet client was made on the initialisation of this class
-        (bacnet_client = None on object creation)
         You should run this method when you are done with the python object
         The python object will essentially be useless after this
         Also stops all subscriptions
         """
-
-        if self._borrowed_device:
-            return
 
         for subscription_id in self.get_subscription_ids():
             self.remove_subscription(subscription_id=subscription_id)
