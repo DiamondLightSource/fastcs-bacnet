@@ -64,8 +64,7 @@ async def asyc_function():
     bacnet_client.add_subscription(dummy_device_subscription, callback=callback)
 
     ### Keep async thread alive ###
-    while True:
-        await asyncio.sleep(10)
+    await asyncio.Event()
 
 
 asyncio.run(asyc_function())
