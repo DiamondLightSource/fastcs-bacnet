@@ -10,6 +10,8 @@ from fastcs.util import ONCE
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
+background_tasks = set()
+
 
 @dataclass
 class AnalogOutputAttributeIORef(AttributeIORef):
@@ -60,7 +62,10 @@ class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
         def actual_update(property_indentifier: str, property_value: float):
             if property_indentifier == PropertyIdentifier.presentValue:
                 # could add tracking data here
-                asyncio.create_task(attr.update(property_value))
+                task = asyncio.create_task(attr.update(property_value))
+                background_tasks.add(task)
+                # removes task from set when the task is done
+                task.add_done_callback(background_tasks.discard)
 
         subscription_object.set_callback(actual_update)
 
