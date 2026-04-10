@@ -15,7 +15,6 @@ description = "Reads bacnet data to an IOC"
 dependencies = [
     "BAC0",
     "fastcs[epicsca]",
-    "matplotlib",
     "epicscorelibs",
 ] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
@@ -26,6 +25,7 @@ requires-python = ">=3.11"
 [dependency-groups]
 dev = [
     "copier",
+    "matplotlib",
     "pre-commit",
     "pyright",
     "pytest",

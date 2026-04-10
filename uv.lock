@@ -657,12 +657,12 @@ dependencies = [
     { name = "bac0" },
     { name = "epicscorelibs" },
     { name = "fastcs", extra = ["epicsca"] },
-    { name = "matplotlib" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "copier" },
+    { name = "matplotlib" },
     { name = "pre-commit" },
     { name = "pyright" },
     { name = "pytest" },
@@ -677,12 +677,12 @@ requires-dist = [
     { name = "bac0" },
     { name = "epicscorelibs" },
     { name = "fastcs", extras = ["epicsca"] },
-    { name = "matplotlib" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "copier" },
+    { name = "matplotlib" },
     { name = "pre-commit" },
     { name = "pyright" },
     { name = "pytest" },
