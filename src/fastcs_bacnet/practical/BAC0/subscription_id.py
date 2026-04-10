@@ -16,3 +16,6 @@ class SubscriptionID:
     port: int
     object_type: str
     object_id: int
+
+    def socket_address(self) -> str:
+        return f"{self.address}:{self.port}"

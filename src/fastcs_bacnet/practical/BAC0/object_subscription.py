@@ -69,7 +69,7 @@ class ObjectSubscription:
         # But it puts string for the first argument even though PropertyIdentifier
         # is an enum thats values are integers
         self._bacnet_client.cov(
-            f"{self._subscription_id.address}:{self._subscription_id.port}",
+            self._subscription_id.socket_address(),
             (self._subscription_id.object_type, self._subscription_id.object_id),
             lifetime=self._lifetime,
             callback=callback,
