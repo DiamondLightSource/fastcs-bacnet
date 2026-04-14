@@ -25,11 +25,10 @@ class BacnetController(Controller):
         )
 
         subcontroller_index = 0
-        for socket_address in socket_address_subscription_list_pairs.keys():
-            device_subscription_ids = socket_address_subscription_list_pairs[
-                socket_address
-            ]
-
+        for (
+            socket_address,
+            device_subscription_ids,
+        ) in socket_address_subscription_list_pairs.items():
             device_controller = BacnetSubController(
                 self.bacnet_client,
                 socket_address.ip_address,
