@@ -4,6 +4,16 @@ from dataclasses import astuple, dataclass
 
 @dataclass(frozen=True)
 class IPv4SocketAddress:
+    """
+    Dataclass for storing IPv4 socket addresses
+    This is the combination of a 4 byte IP address
+    and the port it uses
+    ip_address: Address given as a string
+        (e.g. "198.162.0.1")
+        No support for addresses as ints
+    port: Just port number as an int
+    """
+
     ip_address: str
     port: int
 
@@ -13,6 +23,15 @@ class IPv4SocketAddress:
 
 @dataclass(frozen=True)
 class ObjectIdentifier:
+    """
+    Combination of object type and instance to indentify
+    a specific object in a device
+    object_type: self explanatory
+        (e.g. "analog-output")
+    object_instance: Instance number for that object
+        usually increment from 0 for each device
+    """
+
     object_type: str
     object_instance: int
 
@@ -24,11 +43,11 @@ class ObjectIdentifier:
 class SubscriptionID:
     """
     dataclass for identifying a specific bacnet object to subscribe to
-    address: ip address of the device that owns the object
-        in string format (e.g. "127.0.0.1")
-    port: port device is using for bacnet communication (e.g. 47808)
-    object_type: type of object belonging to the bacnet device (e.g. "analog-output")
-    object_id: instance number for this object on the device (e.g. 0)
+    socket_address: IPv4SocketAddress dataclass object
+        IP of device in combination with the port it is using for
+        bacnet communication (usually 47808)
+    object_key: To identify the object of the device you want to
+        subscribe to
     """
 
     socket_address: IPv4SocketAddress
