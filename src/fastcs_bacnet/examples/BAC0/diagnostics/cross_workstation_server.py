@@ -8,14 +8,9 @@ DUMMY_DEVICE_ID = 125
 
 async def async_function():
 
-    dummy_device_0 = Device(
-        None,
-        DUMMY_DEVICE_PORT,
-        DUMMY_DEVICE_ID,
-        number_of_constant_fields=20,
-    )
+    dummy_device_0 = Device(None, 47808, 998, number_of_constant_fields=10)
 
-    input()
+    await asyncio.Event().wait()
 
     await dummy_device_0.disconnect()
 
