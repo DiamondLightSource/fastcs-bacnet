@@ -63,8 +63,6 @@ class ObjectSubscription:
 
         callback = self._decorate_callback()
 
-        print("subscribing!!")
-
         # typing of cov's callback is TECHNICALLY [PropertyIdentifier, Any]
         # But it puts string for the first argument even though PropertyIdentifier
         # is an enum thats values are integers
