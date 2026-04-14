@@ -27,13 +27,8 @@ class BacnetClient:
             to make subscriptions in the constructor
             Just loops through this list and calls add_subscription
         subscription_lifetime: Time that subscriptions last (in seconds)
-            subscriptions are auto renewed so this doesnt matter too much
-        default_generic_callback: Callbacks can be added to subscriptions
-            (procedures that run when a new value is recieved from the device)
-            This is a generic callback that can apply to any subscription and takes
-            its SubscriptionID as a parameter
-            This will be used as a defualt for added subscriptions
-            If None nothing happens when a new value is recieved
+            this will affect the amount of traffic on the network (a message
+            must be sent to renew the subscription)
         """
         self._subscription_lifetime = subscription_lifetime
         self._auto_renew_subscriptions = auto_renew_subscriptions
@@ -55,7 +50,7 @@ class BacnetClient:
         Adds a new subscription object to the dictionary
         subscription_id: identifier used to find the object to subscribe to
         callback: Procedure that is called when a new value is recieved from the device
-            If None the default_generic_callback will be used
+            If None no callback function will be used
         """
 
         self._subscriptions[subscription_id] = ObjectSubscription(
