@@ -18,16 +18,25 @@ def compare_files(bacnet_server_filepath: str, wireshark_filepath: str):
     line = ""
     while "END" not in line:
         line = bacnet_server_file.readline()
-        if "." in line:
-            socket_address = line.split(",")[0]
+        if "DATA: " in line:
+            socket_address = line.split(",")[0].split(" ")[1]
             address = socket_address.split(":")[0]
             port = int(socket_address.split(":")[1])
             object_id = int(line.split(",")[1].split(".")[0])
 
             bacnet_server_frequencies[(address, port, object_id)] += 1
 
-        elif "," in line:
-            start_time = line.split(",")[0]  # noqa: F841
-            end_time = line.split(",")[1]  # noqa: F841
+        elif "TIMES//" in line:
+            times = line.split("//")[1]
+            start_time = times.split("/")[1]  # noqa: F841
+            end_time = times.split("/")[3]  # noqa: F841
 
     wireshark_package_frequencies: dict[tuple[str, int, int], int] = {}  # noqa: F841
+
+    print(bacnet_server_frequencies)
+
+
+compare_files(
+    "./recieved_BAC0_updates.txt",
+    "./cross_workstation_test_1",
+)
