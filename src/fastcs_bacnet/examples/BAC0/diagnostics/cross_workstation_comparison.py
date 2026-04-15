@@ -106,7 +106,15 @@ def compare_dicts(
     total_updates_from_connected_objects = 0
     mystery_updates = 0
 
+    seen_ips = set()
+    seen_ports = set()
+    seen_object_numbers = set()
+
     for key, wireshark_frequency in wireshark_dict.items():
+        seen_ips.add(key[0])
+        seen_ports.add(key[1])
+        seen_object_numbers.add(key[2])
+
         if key not in client_dict:
             missed_objects += 1
             total_missed_updates += wireshark_frequency
@@ -125,9 +133,14 @@ def compare_dicts(
                 total_updates_from_connected_objects += wireshark_frequency
 
     for key, client_frequency in client_dict.items():
+        seen_ips.add(key[0])
+        seen_ports.add(key[1])
+        seen_object_numbers.add(key[2])
+
         if key not in wireshark_dict:
             mystery_updates += client_frequency
 
+    print("total updates ", total_updates)
     print("missed objects: ", missed_objects)
     print("missed updates: ", missed_updates_from_connected_object)
     print("mystery updates: ", mystery_updates)
@@ -136,6 +149,10 @@ def compare_dicts(
         (total_updates_from_connected_objects - missed_updates_from_connected_object)
         / total_updates_from_connected_objects,
     )
+
+    print("total unique ips seen: ", len(seen_ips))
+    print("total unique ports seen: ", len(seen_ports))
+    print("total unique object instance numbers seen: ", len(seen_object_numbers))
 
 
 def compare_files(bacnet_server_filepath: str, wireshark_filepath: str):
