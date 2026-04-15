@@ -7,12 +7,6 @@ from bacpypes3.primitivedata import PropertyIdentifier
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.object_subscription import SubscriptionID
 
-CLIENT_PORT = 47808
-CLIENT_ID = 145
-
-DUMMY_PORT = 47808
-DUMMY_IP = "172.23.245.103"
-
 
 def create_subscription_id_list(
     ips: list[str], ports: list[int], object_instance_numbers: list[int]
@@ -28,9 +22,7 @@ def create_subscription_id_list(
     return subscription_id_list
 
 
-async def async_function():
-
-    initial_subscriptions = create_subscription_id_list([], [], [])
+async def run_bacnet_server(subscription_list: list[SubscriptionID]):
 
     output_file = open("./recieved_BAC0_updates.txt", "w")
 
@@ -51,13 +43,13 @@ async def async_function():
 
     BacnetClient(
         bacnet_client=bac0_client,
-        initial_subscriptions=initial_subscriptions,
+        initial_subscriptions=subscription_list,
         default_generic_callback=default_generic_callback,
         auto_renew_subscriptions=False,
         subscription_lifetime=70,
     )
 
-    await asyncio.sleep(20)
+    await asyncio.sleep(60)
 
     end_time = dt.now()
     print("DISCONNECTING")
@@ -70,4 +62,12 @@ async def async_function():
     output_file.close()
 
 
-asyncio.run(async_function())
+# constants chosen to simulate roughly 2000 updates per minute
+DUMMY_DEVICE_PORTS = list(range(47808, 47820))
+NUMBER_OF_FIELDS = 30
+
+subscription_list = create_subscription_id_list(
+    ["172.23.245.103"], DUMMY_DEVICE_PORTS, list(range(NUMBER_OF_FIELDS))
+)
+
+asyncio.run(run_bacnet_server(subscription_list))
