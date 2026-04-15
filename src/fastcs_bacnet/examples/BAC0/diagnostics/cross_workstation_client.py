@@ -1,5 +1,4 @@
 import asyncio
-from collections import defaultdict
 from datetime import datetime as dt
 
 from BAC0 import start
@@ -31,7 +30,6 @@ def create_subscription_id_list(
 async def async_function():
 
     initial_subscriptions = create_subscription_id_list([], [], [])
-    update_count = defaultdict(int)
 
     output_file = open("./recieved_BAC0_updates.txt")
 
@@ -44,8 +42,6 @@ async def async_function():
             output_file.write(
                 f"{subscription_id.address}:{subscription_id.port},{subscription_id.object_id}.\n"
             )
-
-        update_count[subscription_id.object_id] += 1
 
     bac0_client = start()
 
@@ -64,7 +60,6 @@ async def async_function():
     end_time = dt.now()
     print("DISCONNECTING")
     print("time: ", end_time)
-    print("dict: ", update_count)
 
     await bac0_client.disconnect()
 
