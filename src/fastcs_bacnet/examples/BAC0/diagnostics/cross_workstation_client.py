@@ -1,7 +1,10 @@
 import asyncio
+from collections import defaultdict
+from datetime import datetime as dt
 
 from BAC0 import start
 
+from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.object_subscription import SubscriptionID
 
 CLIENT_PORT = 47808
@@ -27,13 +30,44 @@ def create_subscription_id_list(
 
 async def async_function():
 
-    bac0_client = start(port=CLIENT_PORT, deviceId=CLIENT_ID)
+    initial_subscriptions = create_subscription_id_list([], [], [])
+    update_count = defaultdict(int)
 
-    read_argument = f"{DUMMY_IP}:{DUMMY_PORT} analog-output 0 presentValue"
-    os1_value = await bac0_client.read(read_argument)
-    print("value recorded from client read: ", os1_value)
+    # open file
+
+    def default_generic_callback(
+        subscription_id: SubscriptionID,
+        property_indentifier: str,
+        property_value: float,
+    ):
+        if property_indentifier == "presentValue":
+            # write ip, port and object instance number to file
+            pass
+
+        update_count[subscription_id.object_id] += 1
+
+    bac0_client = start()
+
+    start_time = dt.now()  # noqa: F841
+
+    BacnetClient(
+        bacnet_client=bac0_client,
+        initial_subscriptions=initial_subscriptions,
+        default_generic_callback=default_generic_callback,
+        auto_renew_subscriptions=False,
+        subscription_lifetime=70,
+    )
+
+    await asyncio.sleep(60)
+
+    end_time = dt.now()
+    print("DISCONNECTING")
+    print("time: ", end_time)
+    print("dict: ", update_count)
 
     await bac0_client.disconnect()
+
+    # write times in file and close
 
 
 asyncio.run(async_function())
