@@ -33,7 +33,7 @@ async def async_function():
     initial_subscriptions = create_subscription_id_list([], [], [])
     update_count = defaultdict(int)
 
-    # open file
+    output_file = open("./recieved_BAC0_updates.txt")
 
     def default_generic_callback(
         subscription_id: SubscriptionID,
@@ -41,14 +41,15 @@ async def async_function():
         property_value: float,
     ):
         if property_indentifier == "presentValue":
-            # write ip, port and object instance number to file
-            pass
+            output_file.write(
+                f"{subscription_id.address}:{subscription_id.port},{subscription_id.object_id}.\n"
+            )
 
         update_count[subscription_id.object_id] += 1
 
     bac0_client = start()
 
-    start_time = dt.now()  # noqa: F841
+    start_time = dt.now()
 
     BacnetClient(
         bacnet_client=bac0_client,
@@ -67,7 +68,9 @@ async def async_function():
 
     await bac0_client.disconnect()
 
-    # write times in file and close
+    output_file.write(f"start_time: {start_time}, end_time: {end_time}")
+    output_file.write("END\n")
+    output_file.close()
 
 
 asyncio.run(async_function())
