@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime as dt
 
 from BAC0 import start
+from bacpypes3.primitivedata import PropertyIdentifier
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.object_subscription import SubscriptionID
@@ -31,16 +32,17 @@ async def async_function():
 
     initial_subscriptions = create_subscription_id_list([], [], [])
 
-    output_file = open("./recieved_BAC0_updates.txt")
+    output_file = open("./recieved_BAC0_updates.txt", "w")
 
     def default_generic_callback(
         subscription_id: SubscriptionID,
-        property_indentifier: str,
+        property_identifier: str,
         property_value: float,
     ):
-        if property_indentifier == "presentValue":
+        if property_identifier == PropertyIdentifier.presentValue:
             output_file.write(
-                f"{subscription_id.address}:{subscription_id.port},{subscription_id.object_id}.\n"
+                f"DATA: {subscription_id.address}:{subscription_id.port}"
+                + f",{subscription_id.object_id}.\n"
             )
 
     bac0_client = start()
@@ -55,7 +57,7 @@ async def async_function():
         subscription_lifetime=70,
     )
 
-    await asyncio.sleep(60)
+    await asyncio.sleep(20)
 
     end_time = dt.now()
     print("DISCONNECTING")
@@ -63,7 +65,7 @@ async def async_function():
 
     await bac0_client.disconnect()
 
-    output_file.write(f"start_time: {start_time}, end_time: {end_time}")
+    output_file.write(f"TIMES// start_time: /{start_time}/, end_time: /{end_time}/\n")
     output_file.write("END\n")
     output_file.close()
 
