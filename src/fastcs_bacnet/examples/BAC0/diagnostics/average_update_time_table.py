@@ -84,10 +84,11 @@ async def get_subscription_data(
     return response_timer.get_average_response_time()
 
 
-print(
-    asyncio.run(
-        get_subscription_data(
-            100, 10, min_change_time=1.0, max_change_time=5.0, sample_time=300
+if __name__ == "__main__":
+    print(
+        asyncio.run(
+            get_subscription_data(
+                100, 10, min_change_time=1.0, max_change_time=5.0, sample_time=300
+            )
         )
     )
-)
