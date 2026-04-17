@@ -1,6 +1,9 @@
 from collections.abc import Callable
 
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
+from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
+    DeviceVariable,
+    DVCallbackParameters,
+)
 
 
 class PuppetVariable(DeviceVariable):
@@ -15,7 +18,7 @@ class PuppetVariable(DeviceVariable):
         self,
         name: str,
         initial_value: float = 1.0,
-        update_callback: Callable[[float], None] | None = None,
+        update_callback: Callable[[*DVCallbackParameters], None] | None = None,
     ):
         super().__init__(name, update_callback=update_callback)
         self._value = initial_value
@@ -27,7 +30,4 @@ class PuppetVariable(DeviceVariable):
         previous_value = self._value
         self._value = new_value
 
-        if self.update_callback is not None:
-            self.update_callback(self._value)
-        if self.diagnostic_callback is not None:
-            self.diagnostic_callback(previous_value, self._value)
+        self.callback_stack.sum_callback(self._value, previous_value)  # type: ignore
