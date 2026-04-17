@@ -58,7 +58,7 @@ class BacnetClient:
             subscription_id,
             lifetime=self._subscription_lifetime,
             auto_renew=self._auto_renew_subscriptions,
-            callback=callback,
+            initial_callback=callback,
         )
 
     def remove_subscription(self, subscription_id: SubscriptionID):
