@@ -1,7 +1,10 @@
 from abc import ABC
 from collections.abc import Callable
+from typing import TypeAlias
 
 from fastcs_bacnet.practical.generic.callback_stack import CallbackStack
+
+DVCallbackParameters: TypeAlias = tuple[float, float | None]
 
 
 class DeviceVariable(ABC):
@@ -14,12 +17,20 @@ class DeviceVariable(ABC):
     """
 
     _value: float | None
-    callback_stack: CallbackStack[float | None, float]
+    # you will see a lot of type ignores where I unpack DVCallbackParameters into
+    # CallbackStack or related methods. This is because pylance struggles with
+    # unpacking a tuple of type parameters into ParamSpec (I think)
+    # Unpacking (the *) is the same as writing the contents of the tuple out without
+    # the surrounding data structure.
+    # e.g.: *tuple[float, float | None] == float, float | None
+    # Pylance is fine if I write it the long way, therefore I can only assume it is the
+    # the one who is wrong
+    callback_stack: CallbackStack[*DVCallbackParameters]  # type: ignore
 
     def __init__(
         self,
         name: str,
-        update_callback: Callable[[float | None, float], None] | None = None,
+        update_callback: Callable[[*DVCallbackParameters], None] | None = None,
     ):
         """
         name: name of variable, should be unique per device
@@ -28,7 +39,7 @@ class DeviceVariable(ABC):
         self._value = None
         self.name = name
 
-        self.callback_stack = CallbackStack[float | None, float]()
+        self.callback_stack = CallbackStack[*DVCallbackParameters]()  # type: ignore
         if update_callback is not None:
             self.callback_stack.add_to_stack(update_callback)
 
