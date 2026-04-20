@@ -4,7 +4,9 @@ from datetime import datetime as dt
 
 from BAC0 import lite
 
+from fastcs_bacnet.practical.BAC0.cov_tracker import CovTracker
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscription_status import SubscriptionStatus, Team
 from fastcs_bacnet.practical.generic.callback_stack import CallbackStack
 
 
@@ -23,8 +25,8 @@ class ObjectSubscription:
         bacnet_client: lite,
         subscription_id: SubscriptionID,
         lifetime: int = 60,
-        auto_renew: bool = True,
         tracking: bool = False,
+        auto_start: bool = True,
         initial_callback: Callable[[str, float], None] | None = None,
     ):
         """
@@ -41,12 +43,7 @@ class ObjectSubscription:
             update from the device
             Parameters are the objects property identifier and the new value
         """
-        self._bacnet_client = bacnet_client
-        self._subscription_id = subscription_id
-        self._lifetime = lifetime
-        self.auto_renew = auto_renew
-        self.tracking = tracking
-        self.callback_stack = CallbackStack[str, float]()
+        callback_stack = CallbackStack[str, float]()
 
         if tracking:
 
@@ -55,12 +52,25 @@ class ObjectSubscription:
             ) -> None:
                 self._last_update = dt.now()
 
-            self.callback_stack.add_to_stack(update_last_update)
+            callback_stack.add_to_stack(update_last_update)
 
         if initial_callback is not None:
-            self.callback_stack.add_to_stack(initial_callback)
+            callback_stack.add_to_stack(initial_callback)
 
-        self.subscribe()
+        self.subscription_status_object = SubscriptionStatus(
+            callback_stack, subscription_id, lifetime
+        )
+
+        self.red_cov_tracker = CovTracker(
+            bacnet_client, Team.RED, self.subscription_status_object
+        )
+
+        self.blue_cov_tracker = CovTracker(
+            bacnet_client, Team.BLUE, self.subscription_status_object
+        )
+
+        if auto_start:
+            self.subscribe()
 
     def subscribe(self):
         """
@@ -68,25 +78,12 @@ class ObjectSubscription:
         Records time this method was called
         NOTE: Having multiple subscriptions running at a time could cause issues
         """
-        # TODO: Remove last subscription here so re-subscribing does not cause issues
-        if self._subscription_stopped:
-            return
-        if self.tracking:
-            self._last_subscription = dt.now()
+        self.red_cov_tracker.start_cov()
 
-        # typing of cov's callback is TECHNICALLY [PropertyIdentifier, Any]
-        # But it puts string for the first argument even though PropertyIdentifier
-        # is an enum thats values are integers
-        self._bacnet_client.cov(
-            str(self._subscription_id.socket_address),
-            self._subscription_id.object_key.to_tuple(),
-            lifetime=self._lifetime,
-            callback=self.callback_stack.sum_callback,
+        asyncio.get_running_loop().call_later(
+            self.subscription_status_object.lifetime // 2,
+            self.blue_cov_tracker.start_cov,
         )
-
-        if self.auto_renew:
-            event_loop = asyncio.get_running_loop()
-            event_loop.call_later(self._lifetime // 2, self.subscribe)
 
     def stop_subscription(self):
         """
@@ -94,9 +91,8 @@ class ObjectSubscription:
         Can't restart a subscription after its been stopped
         Create a new ObjectSubscription instead
         """
-        # You cant send a "stop subscription" message to bacnet devices
-        # The best we can do is wait out the last subscription
-        self._subscription_stopped = True
+        self.red_cov_tracker.stop_cov()
+        self.blue_cov_tracker.stop_cov()
 
     def is_subscription_stopped(self):
         return self._subscription_stopped
