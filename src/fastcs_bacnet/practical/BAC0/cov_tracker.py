@@ -62,9 +62,16 @@ class CovTracker:
         if self.cov_stopped:
             return
 
+        # CoV updates can be the initial subscription notification
+        # In this case we DONT want to call the callback as there has been
+        # no actual update
+        # UNLESS its the very first subscription we get from this ID
+        # TODO: Add check mentioned above
         if not self.subscription_confirmed:
-            # TODO: Set status here
             self.subscription_confirmed = True
+
+            if not self.status.is_team_up(self.team):
+                self.status.set_team_up(self.team, True)
             return
 
         await self.callback_race()
