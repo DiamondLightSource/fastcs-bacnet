@@ -37,11 +37,23 @@ class SubscriptionStatus:
 
         self.callback_lock = Lock()
 
-    def is_red_up(self) -> bool:
-        return "R" in self.status.value
+    def is_team_up(self, team: Team) -> bool:
+        return team.value in self.status.value
 
-    def is_blue_up(self) -> bool:
-        return "B" in self.status.value
+    def set_team_up(self, team: Team, up: bool = True):
+        if self.is_team_up(team) == up:
+            if up:
+                print(team, " is already up")
+            else:
+                print(team, " is already down")
+            return
+
+        if up:
+            self.status = Status(order(self.status.value + team.value))
+        else:
+            self.status = Status(self.status.value.replace(team.value, ""))
+
+        # TODO: change callback_called depending on this
 
     def get_status(self) -> Status:
         return self.status
@@ -60,3 +72,9 @@ def get_oposite_team(team: Team) -> Team:
     if team == Team.RED:
         return Team.BLUE
     return Team.RED
+
+
+def order(string: str) -> str:
+    if string == "BR":
+        return "RB"
+    return string
