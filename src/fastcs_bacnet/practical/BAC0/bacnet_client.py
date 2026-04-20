@@ -17,7 +17,6 @@ class BacnetClient:
         bacnet_client: lite,
         initial_subscriptions: list[SubscriptionID] | None = None,
         subscription_lifetime: int = 60,
-        auto_renew_subscriptions: bool = False,
     ):
         """
         bacnet_client: python bacnet object used to interact with actual bacnet objects
@@ -31,7 +30,6 @@ class BacnetClient:
             must be sent to renew the subscription)
         """
         self._subscription_lifetime = subscription_lifetime
-        self._auto_renew_subscriptions = auto_renew_subscriptions
 
         self._bacnet_client = bacnet_client
 
@@ -57,7 +55,6 @@ class BacnetClient:
             self._bacnet_client,
             subscription_id,
             lifetime=self._subscription_lifetime,
-            auto_renew=self._auto_renew_subscriptions,
             initial_callback=callback,
         )
 
