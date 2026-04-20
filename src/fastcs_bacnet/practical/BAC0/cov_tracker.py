@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import Callable
 
 from BAC0 import Base, lite
@@ -18,6 +19,10 @@ class CovTracker:
     team: Team
     status: SubscriptionStatus
 
+    cov_task: COVSubscription
+
+    subscription_confirmed: bool = False
+
     def __init__(
         self, bacnet_client: lite, team: Team, subscription_status: SubscriptionStatus
     ):
@@ -26,13 +31,33 @@ class CovTracker:
         self.status = subscription_status
 
     def start_cov(self):
-        pass
+
+        self.on_resubscribe()
+
+        self.bacnet_client.cov(
+            str(self.status.subscription_id.socket_address),
+            self.status.subscription_id.object_key.to_tuple(),
+            self.status.lifetime,
+            callback=self.callback(),
+        )
+
+        self.cov_task = get_last_cov_task()
+
+        set_cov_resubscribe_callback(
+            self.bacnet_client, self.cov_task, self.on_resubscribe
+        )
 
     def stop_cov(self):
         pass
 
-    def retry_cov(self):
-        pass
+    async def callback(self):
+
+        if not self.subscription_confirmed:
+            # TODO: Set status here
+            self.subscription_confirmed = True
+            return
+
+        await self.callback_race()
 
     async def callback_race(self):
 
@@ -64,6 +89,28 @@ class CovTracker:
 
             self.status.callback.sum_callback()
 
+    def on_resubscribe_fail(self):
+        # CoV request was never responded to
+        # Clean up the CoV that failed
+
+        # If the other team is up, try again in lifetime / 2
+        # (can be fancier with scheduling if we use the start time of other CoV)
+
+        # Otherwise, cancel the whole thing
+        pass
+
+    def on_resubscribe(self):
+
+        async def on_resubscribe_task():
+            self.subscription_confirmed = False
+
+            await asyncio.sleep(7)
+
+            if not self.subscription_confirmed:
+                self.on_resubscribe_fail()
+
+        asyncio.create_task(on_resubscribe_task())
+
 
 def get_last_cov_task() -> COVSubscription:
     # get last tasks process ID
@@ -73,7 +120,7 @@ def get_last_cov_task() -> COVSubscription:
     return task
 
 
-async def set_cov_resubscribe_callback(
+def set_cov_resubscribe_callback(
     bacnet_client: lite, task: COVSubscription, func: Callable[[], None]
 ):
     scm_key = (task.address, task.process_identifier)
