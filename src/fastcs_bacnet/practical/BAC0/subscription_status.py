@@ -1,3 +1,4 @@
+from asyncio import Lock
 from enum import Enum
 
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
@@ -21,6 +22,7 @@ class SubscriptionStatus:
     callback: CallbackStack
     status: Status = Status.NEITHER
     callback_called: Status = Status.NEITHER
+    callback_lock: Lock
     lifetime: int
 
     def __init__(
@@ -32,6 +34,8 @@ class SubscriptionStatus:
         self.callback = callback
         self.subscription_id = subscription_id
         self.lifetime = subscription_lifetime
+
+        self.callback_lock = Lock()
 
     def is_red_up(self) -> bool:
         return "R" in self.status.value
