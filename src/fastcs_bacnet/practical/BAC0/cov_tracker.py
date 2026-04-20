@@ -168,14 +168,15 @@ class CovTracker:
             self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
             self.cov_task = None
 
-        # If the other team is up, try again in lifetime / 2
+        # If the other team is up, try again in lifetime
         # (can be fancier with scheduling if we use the start time of other CoV)
-        if self.status.is_team_up(get_oposite_team(self.team)):
-            asyncio.get_running_loop().call_later(
-                self.status.lifetime // 2, self.start_cov
-            )
-        # Otherwise, cancel the whole thing
-        # Not sure what code this involves yet
+        def try_subscription_again():
+            if self.status.is_team_up(get_oposite_team(self.team)):
+                self.start_cov()
+
+        asyncio.get_running_loop().call_later(
+            self.status.lifetime, try_subscription_again
+        )
 
     def on_resubscribe(self):
         """
