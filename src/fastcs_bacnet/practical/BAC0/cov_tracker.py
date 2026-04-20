@@ -27,15 +27,28 @@ class CovTracker:
     def __init__(
         self, bacnet_client: lite, team: Team, subscription_status: SubscriptionStatus
     ):
+        """
+        bacnet_client: BAC0 isntance used to start subscriptions
+        team: cov_trackers come in pairs, team is either red or blue
+            its partner should have the oposite team
+        """
         self.bacnet_client = bacnet_client
         self.team = team
         self.status = subscription_status
 
     def start_cov(self):
+        """
+        Sends CoV request
+        Cleans up previous CoV request (if it exists)
+        And sets the callback that validates CoV requests
+        Does NOT change SubscriptionStatus
+        """
 
         # clean up previous cov task before starting a new one
+        # Maybe turn this into a method??
         if self.cov_task is not None:
             self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
+            self.cov_task = None
 
         self.on_resubscribe()
 
@@ -53,17 +66,30 @@ class CovTracker:
         )
 
     def stop_cov(self):
+        """
+        Sets the cov_stopped attribute to True
+        Updates status
+        Clean up CoV
+        """
         self.cov_stopped = True
 
         # Update status
         if self.status.is_team_up(self.team):
             self.status.set_team_up(self.team, False)
 
-        # Clean up the CoV that failed
+        # Clean up the CoV that has been cancelled
         if self.cov_task is not None:
             self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
+            self.cov_task = None
 
     async def callback(self):
+        """
+        The callback function that should be used in the cov request
+        Starts a callback race with the other team
+        Returns if cov has been stopped
+        Also doesnt run the callback race if the update is a response to renewing the
+        subscription
+        """
         if self.cov_stopped:
             return
 
@@ -82,6 +108,17 @@ class CovTracker:
         await self.callback_race()
 
     async def callback_race(self):
+        """
+        "Races" the other team to call the callback stack first
+        Ensures the callback stack is only run once per update even though we
+        run 2 CoVs in parallel
+        Both CoVs share a status object, the first to recieve the update uses its lock,
+        sets the callback called status and calls the callback stack
+        The second is locked out until the first finishes, when its let in it can see
+        the status has been updated by the other team so it updates it back and does not
+        call the callback stack
+        If one cov_tracker is down no race occurs and the stack is called as normal
+        """
 
         async with self.status.callback_lock:
             # This team has won the race already and got another CoV??
@@ -112,6 +149,14 @@ class CovTracker:
             self.status.callback.sum_callback()
 
     def on_resubscribe_fail(self):
+        """
+        Should only be called when a cov request (or resubscription from a cov request)
+        is sent out and not responded to (response would look like an update but has
+        the same value as the last update or is in its deadband)
+        Updates status
+        Cleans up failed CoV request if it exists
+        Will try to restart in phase if other team is still up
+        """
         # CoV request was never responded to
 
         # Update status
@@ -121,6 +166,7 @@ class CovTracker:
         # Clean up the CoV that failed
         if self.cov_task is not None:
             self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
+            self.cov_task = None
 
         # If the other team is up, try again in lifetime / 2
         # (can be fancier with scheduling if we use the start time of other CoV)
@@ -132,6 +178,11 @@ class CovTracker:
         # Not sure what code this involves yet
 
     def on_resubscribe(self):
+        """
+        Set as the CoV resubscribe callback
+        Also call when manually restarting the subscription (start method)
+        Checks if the subscription is restarted correctly
+        """
 
         async def on_resubscribe_task():
             self.subscription_confirmed = False
@@ -145,6 +196,10 @@ class CovTracker:
 
 
 def get_last_cov_task() -> COVSubscription:
+    """
+    Gets the most recent async task that was created from a cov request
+    from the BAC0 Base class
+    """
     # get last tasks process ID
     cov_pid = Base._last_cov_identifier  # noqa: SLF001
     # Get object from Base dictionary
@@ -155,6 +210,9 @@ def get_last_cov_task() -> COVSubscription:
 def set_cov_resubscribe_callback(
     bacnet_client: lite, task: COVSubscription, func: Callable[[], None]
 ):
+    """
+    Sets the function that is called when a cov is automatically refreshed
+    """
     scm_key = (task.address, task.process_identifier)
 
     def on_cov_subscription_start(_):
