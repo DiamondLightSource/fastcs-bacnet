@@ -48,3 +48,15 @@ class SubscriptionStatus:
 
     def get_callback_called(self) -> Status:
         return self.callback_called
+
+
+def team_to_status(team: Team) -> Status:
+    if team == Team.RED:
+        return Status.RED_UP
+    return Status.BLUE_UP
+
+
+def get_oposite_team(team: Team) -> Team:
+    if team == Team.RED:
+        return Team.BLUE
+    return Team.RED
