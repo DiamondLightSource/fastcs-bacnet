@@ -4,7 +4,13 @@ from BAC0 import Base, lite
 from BAC0.core.functions.CoV import COVSubscription
 from bacpypes3.service.cov import SubscriptionContextManager
 
-from fastcs_bacnet.practical.BAC0.subscription_status import SubscriptionStatus, Team
+from fastcs_bacnet.practical.BAC0.subscription_status import (
+    Status,
+    SubscriptionStatus,
+    Team,
+    get_oposite_team,
+    team_to_status,
+)
 
 
 class CovTracker:
@@ -28,8 +34,35 @@ class CovTracker:
     def retry_cov(self):
         pass
 
-    def callback_race(self):
-        pass
+    async def callback_race(self):
+
+        async with self.status.callback_lock:
+            # This team has won the race already and got another CoV??
+            # This is an error state
+            # TODO: Throw an appropriate error here
+            if self.status.callback_called == team_to_status(self.team):
+                print("this should not happen, something has gone wrong")
+                return
+
+            # Other team won race
+            # Dont call callback as it has already been called
+            elif self.status.callback_called == team_to_status(
+                get_oposite_team(self.team)
+            ):
+                # reseting state for the next race
+                self.status.callback_called = Status.BOTH
+                return
+
+            # This team won the race
+            if self.status.callback_called == Status.BOTH:
+                self.status.callback_called = team_to_status(self.team)
+                # TODO: Create a task here to check the other team recieves a CoV aswell
+
+            # If status was BOTH or NEITHER we call the callback
+            # Either there is nothing to race (only one CoV up)
+            # OR this team won the race
+
+            self.status.callback.sum_callback()
 
 
 def get_last_cov_task() -> COVSubscription:
