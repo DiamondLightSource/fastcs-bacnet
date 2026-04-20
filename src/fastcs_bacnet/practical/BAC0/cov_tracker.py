@@ -19,7 +19,7 @@ class CovTracker:
     team: Team
     status: SubscriptionStatus
 
-    cov_task: COVSubscription
+    cov_task: COVSubscription | None = None
 
     subscription_confirmed: bool = False
     cov_stopped: bool = False
@@ -32,6 +32,10 @@ class CovTracker:
         self.status = subscription_status
 
     def start_cov(self):
+
+        # clean up previous cov task before starting a new one
+        if self.cov_task is not None:
+            self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
 
         self.on_resubscribe()
 
@@ -56,7 +60,8 @@ class CovTracker:
             self.status.set_team_up(self.team, False)
 
         # Clean up the CoV that failed
-        self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
+        if self.cov_task is not None:
+            self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
 
     async def callback(self):
         if self.cov_stopped:
@@ -114,7 +119,8 @@ class CovTracker:
             self.status.set_team_up(self.team, False)
 
         # Clean up the CoV that failed
-        self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
+        if self.cov_task is not None:
+            self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
 
         # If the other team is up, try again in lifetime / 2
         # (can be fancier with scheduling if we use the start time of other CoV)
