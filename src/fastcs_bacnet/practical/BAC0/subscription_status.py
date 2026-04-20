@@ -21,10 +21,17 @@ class SubscriptionStatus:
     callback: CallbackStack
     status: Status = Status.NEITHER
     callback_called: Status = Status.NEITHER
+    lifetime: int
 
-    def __init__(self, callback: CallbackStack, subscription_id: SubscriptionID):
+    def __init__(
+        self,
+        callback: CallbackStack,
+        subscription_id: SubscriptionID,
+        subscription_lifetime: int,
+    ):
         self.callback = callback
         self.subscription_id = subscription_id
+        self.lifetime = subscription_lifetime
 
     def is_red_up(self) -> bool:
         return "R" in self.status.value
