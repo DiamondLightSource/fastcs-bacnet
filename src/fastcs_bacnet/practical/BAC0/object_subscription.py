@@ -15,7 +15,6 @@ class ObjectSubscription:
     Handles and tracks subscriptions to bacnet objects
     """
 
-    _last_subscription: dt
     _last_update: dt
     _subscription_stopped: bool = False
     callback_stack: CallbackStack[str, float]
@@ -33,12 +32,8 @@ class ObjectSubscription:
         bacnet_client: python bacnet device that can interact with bacnet objects
         subscription_id: dataclass used to identify an object on a bacnet device
         lifetime: length of subscription (in seconds)
-        auto_renew: whether the object automatically restarts its subscription
-            This will happen half way through the subscriptions lifetime
-            You can still use the subscribe method to restart the subscription manually
-        tracking: whether the object tracks:
-            last subscription time
-            last update from device subscription
+        tracking: whether the object tracks last update from device object
+        auto_start: If True, starts the subscription at the end of initialisation
         callback: procedure to run when subscription object recieves an
             update from the device
             Parameters are the objects property identifier and the new value
@@ -74,10 +69,12 @@ class ObjectSubscription:
 
     def subscribe(self):
         """
-        Restarts the subscription to the bacnet object
-        Records time this method was called
-        NOTE: Having multiple subscriptions running at a time could cause issues
+        Starts the subscription
         """
+        # TODO: reinitialise all objects so this method can also be used to
+        # manually restart the subscription, whether it was stopped manually
+        # OR lost the object
+
         self.red_cov_tracker.start_cov()
 
         asyncio.get_running_loop().call_later(
@@ -87,18 +84,14 @@ class ObjectSubscription:
 
     def stop_subscription(self):
         """
-        Stops the subscription from restarting or running a callback function
-        Can't restart a subscription after its been stopped
-        Create a new ObjectSubscription instead
+        Stops the subscriptions from automatically renewing
+        Also stops callbacks being called from now on
         """
         self.red_cov_tracker.stop_cov()
         self.blue_cov_tracker.stop_cov()
 
     def is_subscription_stopped(self):
         return self._subscription_stopped
-
-    def get_last_subscription(self) -> dt:
-        return self._last_subscription
 
     def get_last_update(self) -> dt:
         return self._last_update
