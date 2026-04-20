@@ -6,6 +6,10 @@ from fastcs_bacnet.practical.generic.callback_stack import CallbackStack
 
 
 class Status(Enum):
+    """
+    Records the status of cov_tracker s
+    """
+
     NEITHER = ""
     RED_UP = "R"
     BLUE_UP = "B"
@@ -13,15 +17,26 @@ class Status(Enum):
 
 
 class Team(Enum):
+    """
+    Describes the team of a cov_tracker
+    """
+
     RED = "R"
     BLUE = "B"
 
 
 class SubscriptionStatus:
+    """
+    Stores state for an object subscription that a cov_tracker needs
+    """
+
     subscription_id: SubscriptionID
     callback: CallbackStack
+    # Represents which cov_tracker s are currently working
     status: Status = Status.NEITHER
+    # Represents which cov_tracker recieves the update first
     callback_called: Status = Status.NEITHER
+    # Allows one update to be processed at a time
     callback_lock: Lock
     lifetime: int
 
@@ -38,9 +53,17 @@ class SubscriptionStatus:
         self.callback_lock = Lock()
 
     def is_team_up(self, team: Team) -> bool:
+        """
+        Returns if the team's cov_tracker is currently working
+        """
         return team.value in self.status.value
 
     def set_team_up(self, team: Team, up: bool = True):
+        """
+        Sets the status to represent if the teams cov_tracker is working
+        team: cov_tracker to set the status of
+        up: True if that cov_tracker is working, False is not
+        """
         if self.is_team_up(team) == up:
             if up:
                 print(team, " is already up")
@@ -68,9 +91,7 @@ class SubscriptionStatus:
 
 
 def team_to_status(team: Team) -> Status:
-    if team == Team.RED:
-        return Status.RED_UP
-    return Status.BLUE_UP
+    return Status(team.value)
 
 
 def get_oposite_team(team: Team) -> Team:
@@ -80,6 +101,13 @@ def get_oposite_team(team: Team) -> Team:
 
 
 def order(string: str) -> str:
+    """
+    Literally just converts BR to RB, otherwise returns string as normal
+    For when you want to change status by adding to the string
+    E.g. Only blue was up before (status = "B") but now both are up
+        status += "R" but BR is not a valid Status value
+    Should I have just used a set??
+    """
     if string == "BR":
         return "RB"
     return string
