@@ -53,7 +53,12 @@ class SubscriptionStatus:
         else:
             self.status = Status(self.status.value.replace(team.value, ""))
 
-        # TODO: change callback_called depending on this
+        if self.status == Status.BOTH:
+            # prepared for a race
+            self.callback_called = Status.BOTH
+        else:
+            # no race since only one / neither is up
+            self.callback_called = Status.NEITHER
 
     def get_status(self) -> Status:
         return self.status
