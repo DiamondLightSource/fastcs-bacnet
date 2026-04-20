@@ -22,6 +22,7 @@ class CovTracker:
     cov_task: COVSubscription
 
     subscription_confirmed: bool = False
+    cov_stopped: bool = False
 
     def __init__(
         self, bacnet_client: lite, team: Team, subscription_status: SubscriptionStatus
@@ -48,9 +49,18 @@ class CovTracker:
         )
 
     def stop_cov(self):
-        pass
+        self.cov_stopped = True
+
+        # Update status
+        if self.status.is_team_up(self.team):
+            self.status.set_team_up(self.team, False)
+
+        # Clean up the CoV that failed
+        self.bacnet_client.cancel_cov(self.cov_task.process_identifier)
 
     async def callback(self):
+        if self.cov_stopped:
+            return
 
         if not self.subscription_confirmed:
             # TODO: Set status here
@@ -92,7 +102,7 @@ class CovTracker:
     def on_resubscribe_fail(self):
         # CoV request was never responded to
 
-        # Set up status
+        # Update status
         if self.status.is_team_up(self.team):
             self.status.set_team_up(self.team, False)
 
