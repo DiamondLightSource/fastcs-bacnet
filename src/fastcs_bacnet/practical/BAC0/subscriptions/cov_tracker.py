@@ -141,7 +141,13 @@ class CovTracker:
         asyncio.create_task(on_resubscribe_task())
 
     def blank_update_callback(self):
+
+        # Assume blank updates (when they are expected) are subscription confirmations
         self.subscription_confirmed = True
+
+        if not self.status.is_team_up(self.team):
+            self.status.set_team_up(self.team)
+
         return False
 
 
