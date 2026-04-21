@@ -148,6 +148,16 @@ class CovTracker:
         if not self.status.is_team_up(self.team):
             self.status.set_team_up(self.team)
 
+        # TODO: Also try and cancel the previous subscription here
+        # Since the current one was successful. There is at most 2 seconds left on
+        # the previous subscription BUT if an update comes in in this time both CoVs
+        # will be called. This could ruin the race and cause undefined behaviour
+
+        # Usually when a subscription is refreshed the update stack is not run
+        # This makes sense as its not a real update
+        # HOWEVER on the first subscription confirmation the value is new so we should
+        # run the update stack
+        # TODO: Check if this is the first subscription confirmation and return True if
         return False
 
 

@@ -51,11 +51,14 @@ class UpdateHandler:
         if self.cov_stopped:
             return
 
-        # CoV updates can be the initial subscription notification
-        # In this case we DONT want to call the callback as there has been
-        # no actual update
-        # UNLESS its the very first subscription we get from this ID
-        # TODO: Add check mentioned above
+        # If we are expecting a blank update we just assume the next update we get is
+        # a blank one. This is not good
+        # TODO: At LEAST add a time for when the blank update was expected
+        # if the next update is recieved too long after the time (1 second) assume we
+        # missed the blank update and maybe call a callback??
+        # TODO: Better implementation (but more technical) check if the update is in the
+        # deadband or not. This may require more reads and therefore network traffic
+        # but it would be good to be sure
         if not self.blank_update_expected:
             self.blank_update_expected = True
 
