@@ -21,10 +21,12 @@ class GenericVariableSubscriptionAttributeIO(GenericVariableAttributeIO):
         # set initial value
         await attr.update(self.device.get_variable(attr.io_ref.name).get_value())
 
-        def actual_update(value):
-            asyncio.create_task(attr.update(value))
+        def actual_update(new_value: float, old_value: float | None):
+            asyncio.create_task(attr.update(new_value))
 
-        self.device.get_variable(attr.io_ref.name).set_update_callback(actual_update)
+        self.device.get_variable(attr.io_ref.name).callback_stack.add_to_stack(
+            actual_update
+        )
 
 
 class SubscriptionDeviceController(Controller):
