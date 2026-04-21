@@ -19,7 +19,8 @@ class UpdateHandler:
     status: SubscriptionStatus
     team: Team
     cov_stopped: bool = False
-    subscription_confirmation_callback: Callable[[], None]
+    subscription_confirmed: bool = False
+    subscription_confirmation_callback: Callable[[], bool]
 
     running_async_tasks: set[asyncio.Task]
 
@@ -27,7 +28,7 @@ class UpdateHandler:
         self,
         team: Team,
         status: SubscriptionStatus,
-        subscription_confirmation_callback: Callable[[], None],
+        subscription_confirmation_callback: Callable[[], bool],
     ):
         self.team = team
         self.status = status
@@ -54,9 +55,12 @@ class UpdateHandler:
         if not self.subscription_confirmed:
             self.subscription_confirmed = True
 
-            if not self.status.is_team_up(self.team):
-                self.status.set_team_up(self.team, True)
-            return
+            # If subscription confirmation callback returns True, run the callback race
+            # Otherwise just return
+            # It doesnt count as a proper update as its just to validate the
+            # subscription
+            if not self.subscription_confirmation_callback():
+                return
 
         task = asyncio.create_task(
             self.callback_race(property_identifier, property_value)

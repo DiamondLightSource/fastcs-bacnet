@@ -41,7 +41,7 @@ class CovTracker:
         self.team = team
         self.status = subscription_status
 
-        self.update_handler = UpdateHandler(self.team, self.status, lambda: None)
+        self.update_handler = UpdateHandler(self.team, self.status, lambda: True)
 
     def start_cov(self):
         """
