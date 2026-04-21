@@ -24,10 +24,11 @@ class CovTracker:
 
     cov_task: COVSubscription | None = None
 
-    subscription_confirmed: bool = False
     cov_stopped: bool = False
 
     update_handler: UpdateHandler
+
+    subscription_confirmed: bool = False
 
     def __init__(
         self, bacnet_client: lite, team: Team, subscription_status: SubscriptionStatus
@@ -41,7 +42,9 @@ class CovTracker:
         self.team = team
         self.status = subscription_status
 
-        self.update_handler = UpdateHandler(self.team, self.status, lambda: True)
+        self.update_handler = UpdateHandler(
+            self.team, self.status, self.blank_update_callback
+        )
 
     def start_cov(self):
         """
@@ -128,6 +131,7 @@ class CovTracker:
 
         async def on_resubscribe_task():
             self.subscription_confirmed = False
+            self.update_handler.expect_blank_update()
 
             await asyncio.sleep(7)
 
@@ -135,6 +139,10 @@ class CovTracker:
                 self.on_resubscribe_fail()
 
         asyncio.create_task(on_resubscribe_task())
+
+    def blank_update_callback(self):
+        self.subscription_confirmed = True
+        return False
 
 
 def get_last_cov_task() -> COVSubscription:

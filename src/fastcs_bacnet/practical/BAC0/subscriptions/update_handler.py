@@ -19,8 +19,12 @@ class UpdateHandler:
     status: SubscriptionStatus
     team: Team
     cov_stopped: bool = False
-    subscription_confirmed: bool = False
-    subscription_confirmation_callback: Callable[[], bool]
+    # A "blank update" is a update that tells us nothing
+    # The value recieved is in the deadband of the previous value
+    # You may be thinking that we should never recieve these updates
+    # However, an update like this will be recieved when a CoV is restarted
+    blank_update_expected: bool = False
+    blank_update_callback: Callable[[], bool]
 
     running_async_tasks: set[asyncio.Task]
 
@@ -32,7 +36,7 @@ class UpdateHandler:
     ):
         self.team = team
         self.status = status
-        self.subscription_confirmation_callback = subscription_confirmation_callback
+        self.blank_update_callback = subscription_confirmation_callback
 
         self.running_async_tasks = set()
 
@@ -52,14 +56,14 @@ class UpdateHandler:
         # no actual update
         # UNLESS its the very first subscription we get from this ID
         # TODO: Add check mentioned above
-        if not self.subscription_confirmed:
-            self.subscription_confirmed = True
+        if not self.blank_update_expected:
+            self.blank_update_expected = True
 
             # If subscription confirmation callback returns True, run the callback race
             # Otherwise just return
             # It doesnt count as a proper update as its just to validate the
             # subscription
-            if not self.subscription_confirmation_callback():
+            if not self.blank_update_callback():
                 return
 
         task = asyncio.create_task(
@@ -108,3 +112,6 @@ class UpdateHandler:
             # OR this team won the race
 
             self.status.callback.sum_callback(property_identifier, property_value)
+
+    def expect_blank_update(self):
+        self.blank_update_expected = False
