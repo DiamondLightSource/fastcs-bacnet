@@ -31,6 +31,9 @@ class SubscriptionPair:
     # shouldnt ever happed but we should definitely know if it does
     _total_mystery_updates: int = 0
 
+    _analog_output_callback_id: int = -1
+    _object_subscription_callback_id: int = -1
+
     def __init__(
         self,
         analog_output_object: AnalogOutputObject,
@@ -57,10 +60,14 @@ class SubscriptionPair:
 
         # maybe a bit cheeky to acess the analog_ouput_object underlying
         # device variable directly. Should be with a getter??
-        self._analog_output_object.device_variable.set_diagnostic_callback(
-            self._on_send
+        self._analog_output_callback_id = (
+            self._analog_output_object.device_variable.callback_stack.add_to_stack(
+                self._on_send
+            )
         )
-        self._object_subscription.set_diagnostic_callback(self._on_recieve)
+        self._object_subscription_callback_id = (
+            self._object_subscription.callback_stack.add_to_stack(self._on_recieve)
+        )
 
     def _on_send(self, old_value: float | None, new_value: float):
         """
@@ -171,5 +178,9 @@ class SubscriptionPair:
         return self._object_subscription
 
     def stop_recording(self):
-        self._analog_output_object.device_variable.set_diagnostic_callback(None)
-        self._object_subscription.set_diagnostic_callback(None)
+        self._analog_output_object.device_variable.callback_stack.remove_callback(
+            self._analog_output_callback_id
+        )
+        self._object_subscription.callback_stack.remove_callback(
+            self._object_subscription_callback_id
+        )
