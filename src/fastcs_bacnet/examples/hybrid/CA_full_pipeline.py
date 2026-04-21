@@ -7,7 +7,7 @@ from fastcs.transports.epics.ca import EpicsCATransport
 
 from fastcs_bacnet.dummy.BAC0.device import Device
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.subscription_id import (
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
     SubscriptionID,

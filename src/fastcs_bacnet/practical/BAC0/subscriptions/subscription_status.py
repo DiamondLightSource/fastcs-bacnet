@@ -1,7 +1,7 @@
 from asyncio import Lock
 from enum import Enum
 
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_id import SubscriptionID
 from fastcs_bacnet.practical.generic.callback_stack import CallbackStack
 
 

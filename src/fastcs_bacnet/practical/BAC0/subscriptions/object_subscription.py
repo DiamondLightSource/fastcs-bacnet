@@ -4,9 +4,12 @@ from datetime import datetime as dt
 
 from BAC0 import lite
 
-from fastcs_bacnet.practical.BAC0.cov_tracker import CovTracker
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
-from fastcs_bacnet.practical.BAC0.subscription_status import SubscriptionStatus, Team
+from fastcs_bacnet.practical.BAC0.subscriptions.cov_tracker import CovTracker
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_status import (
+    SubscriptionStatus,
+    Team,
+)
 from fastcs_bacnet.practical.generic.callback_stack import CallbackStack
 
 

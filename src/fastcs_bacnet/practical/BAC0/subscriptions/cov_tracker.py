@@ -5,7 +5,7 @@ from BAC0 import Base, lite
 from BAC0.core.functions.CoV import COVSubscription
 from bacpypes3.service.cov import SubscriptionContextManager
 
-from fastcs_bacnet.practical.BAC0.subscription_status import (
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_status import (
     Status,
     SubscriptionStatus,
     Team,

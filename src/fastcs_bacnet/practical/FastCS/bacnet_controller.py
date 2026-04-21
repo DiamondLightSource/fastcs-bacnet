@@ -1,7 +1,9 @@
 from fastcs.controllers import Controller
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.subscription_id import sort_subscriptions
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_id import (
+    sort_subscriptions,
+)
 from fastcs_bacnet.practical.FastCS.bacnet_subcontroller import BacnetSubController
 
 

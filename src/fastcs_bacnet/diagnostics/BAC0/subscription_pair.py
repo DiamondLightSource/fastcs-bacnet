@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 from bacpypes3.primitivedata import PropertyIdentifier
 
 from fastcs_bacnet.dummy.BAC0.analog_output_object import AnalogOutputObject
-from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
+from fastcs_bacnet.practical.BAC0.subscriptions.object_subscription import (
+    ObjectSubscription,
+)
 
 
 class SubscriptionPair:

@@ -9,7 +9,7 @@ from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_control
     PuppetController,
 )
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.subscription_id import (
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
     SubscriptionID,

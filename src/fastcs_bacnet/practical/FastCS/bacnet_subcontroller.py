@@ -8,7 +8,7 @@ from fastcs.datatypes import Float
 from fastcs.util import ONCE
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscriptions.subscription_id import SubscriptionID
 
 background_tasks = set()
 
