@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import Callable
 
 from fastcs_bacnet.practical.BAC0.subscriptions.subscription_status import (
@@ -20,6 +21,8 @@ class UpdateHandler:
     cov_stopped: bool = False
     subscription_confirmation_callback: Callable[[], None]
 
+    running_async_tasks: set[asyncio.Task]
+
     def __init__(
         self,
         team: Team,
@@ -30,7 +33,9 @@ class UpdateHandler:
         self.status = status
         self.subscription_confirmation_callback = subscription_confirmation_callback
 
-    async def callback(self):
+        self.running_async_tasks = set()
+
+    def callback(self, property_identifier: str, property_value: float):
         """
         The callback function that should be used in the cov request
         Starts a callback race with the other team
@@ -53,9 +58,13 @@ class UpdateHandler:
                 self.status.set_team_up(self.team, True)
             return
 
-        await self.callback_race()
+        task = asyncio.create_task(
+            self.callback_race(property_identifier, property_value)
+        )
+        self.running_async_tasks.add(task)
+        task.add_done_callback(self.running_async_tasks.discard)
 
-    async def callback_race(self):
+    async def callback_race(self, property_identifier: str, property_value: float):
         """
         "Races" the other team to call the callback stack first
         Ensures the callback stack is only run once per update even though we
@@ -94,4 +103,4 @@ class UpdateHandler:
             # Either there is nothing to race (only one CoV up)
             # OR this team won the race
 
-            self.status.callback.sum_callback()
+            self.status.callback.sum_callback(property_identifier, property_value)

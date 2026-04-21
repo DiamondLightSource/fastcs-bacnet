@@ -63,7 +63,7 @@ class CovTracker:
             str(self.status.subscription_id.socket_address),
             self.status.subscription_id.object_key.to_tuple(),
             self.status.lifetime,
-            callback=self.update_handler.callback(),
+            callback=self.update_handler.callback,
         )
 
         self.cov_task = get_last_cov_task()
