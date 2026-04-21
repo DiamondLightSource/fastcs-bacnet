@@ -17,7 +17,7 @@ async def async_function():
         number_of_random_fields=15000,
     )
 
-    dummy_device.get_variable("dummy_random_477").set_diagnostic_callback(
+    dummy_device.get_variable("dummy_random_477").callback_stack.add_to_stack(
         lambda x, y: print("new value: ", y)
     )
 
