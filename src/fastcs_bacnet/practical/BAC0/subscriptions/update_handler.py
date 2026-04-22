@@ -59,8 +59,8 @@ class UpdateHandler:
         # TODO: Better implementation (but more technical) check if the update is in the
         # deadband or not. This may require more reads and therefore network traffic
         # but it would be good to be sure
-        if not self.blank_update_expected:
-            self.blank_update_expected = True
+        if self.blank_update_expected:
+            self.blank_update_expected = False
 
             # If subscription confirmation callback returns True, run the callback race
             # Otherwise just return
@@ -117,4 +117,7 @@ class UpdateHandler:
             self.status.callback.sum_callback(property_identifier, property_value)
 
     def expect_blank_update(self):
-        self.blank_update_expected = False
+        self.blank_update_expected = True
+
+    def stop_cov(self):
+        self.cov_stopped = True
