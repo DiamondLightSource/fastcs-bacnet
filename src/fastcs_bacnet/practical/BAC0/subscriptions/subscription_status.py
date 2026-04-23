@@ -39,6 +39,7 @@ class SubscriptionStatus:
     # Allows one update to be processed at a time
     callback_lock: Lock
     lifetime: int
+    first_update_recieved: bool = False
 
     def __init__(
         self,
@@ -88,6 +89,12 @@ class SubscriptionStatus:
 
     def get_callback_called(self) -> Status:
         return self.callback_called
+
+    def recieved_first_update(self):
+        self.first_update_recieved = True
+
+    def has_recieved_first_update(self) -> bool:
+        return self.first_update_recieved
 
 
 def team_to_status(team: Team) -> Status:

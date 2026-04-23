@@ -62,6 +62,7 @@ class CovTracker:
 
         self.on_resubscribe()
 
+        print("sending cov now")
         self.bacnet_client.cov(
             str(self.status.subscription_id.socket_address),
             self.status.subscription_id.object_key.to_tuple(),
@@ -141,6 +142,7 @@ class CovTracker:
         asyncio.create_task(on_resubscribe_task())
 
     def blank_update_callback(self):
+        print("blank update callback")
 
         # Assume blank updates (when they are expected) are subscription confirmations
         self.subscription_confirmed = True
@@ -157,7 +159,12 @@ class CovTracker:
         # This makes sense as its not a real update
         # HOWEVER on the first subscription confirmation the value is new so we should
         # run the update stack
-        # TODO: Check if this is the first subscription confirmation and return True if
+        # Check if this is the first subscription confirmation
+        if not self.status.has_recieved_first_update():
+            # If it is, update status to say we've already recieved it and return True
+            # (returning True runs the callback)
+            self.status.recieved_first_update()
+            return True
         return False
 
 

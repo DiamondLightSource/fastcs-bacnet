@@ -48,6 +48,9 @@ class UpdateHandler:
         Also doesnt run the callback race if the update is a response to renewing the
         subscription
         """
+
+        print("entering update handler callback!!")
+
         if self.cov_stopped:
             return
 
