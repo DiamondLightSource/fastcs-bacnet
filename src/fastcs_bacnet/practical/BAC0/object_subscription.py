@@ -55,10 +55,10 @@ class ObjectSubscription:
             ) -> None:
                 self._last_update = dt.now()
 
-            self.callback_stack.add_to_stack(update_last_update)
+            self.callback_stack.add(update_last_update)
 
         if initial_callback is not None:
-            self.callback_stack.add_to_stack(initial_callback)
+            self.callback_stack.add(initial_callback)
 
         self.subscribe()
 

@@ -67,7 +67,7 @@ class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
                 # removes task from set when the task is done
                 task.add_done_callback(background_tasks.discard)
 
-        subscription_object.callback_stack.add_to_stack(actual_update)
+        subscription_object.callback_stack.add(actual_update)
 
 
 class BacnetSubController(Controller):

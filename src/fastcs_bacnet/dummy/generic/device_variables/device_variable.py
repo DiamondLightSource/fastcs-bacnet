@@ -40,7 +40,7 @@ class DeviceVariable(ABC):
 
         self.callback_stack = CallbackHolder[*DVCallbackParameters]()
         if update_callback is not None:
-            self.callback_stack.add_to_stack(update_callback)
+            self.callback_stack.add(update_callback)
 
     def get_value(self) -> float | None:
         """
