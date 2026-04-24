@@ -35,7 +35,7 @@ class CallbackHolder[*P]:
         self._in_progress_callbacks = set()
         self._callback_dict = {}
 
-    def add_to_stack(self, f: Callback) -> int:
+    def add(self, f: Callback) -> int:
         """
         Adds a callback function / coroutine to the stack
         Returns a "key" (int) for the callback that is added so
@@ -58,7 +58,7 @@ class CallbackHolder[*P]:
 
         return callback_key
 
-    def get_callback(self, key: int) -> Callback | None:
+    def get(self, key: int) -> Callback | None:
         """
         Returns callback when given the key
         """
@@ -66,7 +66,7 @@ class CallbackHolder[*P]:
             return None
         return self._callback_dict[key]
 
-    def remove_callback(self, key: int):
+    def remove(self, key: int):
         """
         Removes a callback when given the key
         """
