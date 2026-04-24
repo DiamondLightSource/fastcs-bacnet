@@ -82,7 +82,7 @@ class CallbackHolder[*P]:
 
     def sum_callback(self, *args: *P):
         """
-        This is the callback function that calls all added callbacks
+        Calls all callbacks added to the holder
         First iterates through coroutines and creates a task for each
         Then iterates through synchronous functions and calls them
         one by one
