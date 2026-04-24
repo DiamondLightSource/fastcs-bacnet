@@ -1,14 +1,16 @@
 import asyncio
 from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
-from typing import Generic, ParamSpec, TypeAlias
 
-# Use old paramspec syntax to keep it available for python 3.11
-P = ParamSpec("P")
-Callback: TypeAlias = Callable[P, None] | Callable[P, Coroutine[None, None, None]]
+# *P here is a TypeVarTuple, It represents a generic tuple of types
+# E.g. [str, int, float] or [int]
+# Callbacks added to the holder must take arguments of these types
 
 
-class CallbackStack(Generic[P]):
+# Ideally we would use a ParamSpec here (**P) instead
+# However, Pyright doesnt like it when you unpack tuples into a ParamSpec
+# So this method works better if you want to use type aliases
+class CallbackStack[*P]:
     """
     A generic class to store a list of callbacks (functions or coroutines) for
     some other object
@@ -16,8 +18,10 @@ class CallbackStack(Generic[P]):
     Adding callbacks that manipulate common state is undefined behaviour
     """
 
-    _sync_callbacks: list[Callable[P, None]]
-    _async_callbacks: list[Callable[P, Coroutine[None, None, None]]]
+    type Callback = Callable[[*P], None] | Callable[[*P], Coroutine[None, None, None]]
+
+    _sync_callbacks: list[Callable[[*P], None]]
+    _async_callbacks: list[Callable[[*P], Coroutine[None, None, None]]]
     _in_progress_callbacks: set[asyncio.Task]
 
     _next_callback_index: int = 0
@@ -66,7 +70,7 @@ class CallbackStack(Generic[P]):
         """
         self._callback_dict.pop(key)
 
-    def sum_callback(self, *args: P.args, **kwargs: P.kwargs):
+    def sum_callback(self, *args: *P):
         """
         This is the callback function that calls all added callbacks
         First iterates through coroutines and creates a task for each
@@ -75,9 +79,9 @@ class CallbackStack(Generic[P]):
         """
 
         for async_callback in self._async_callbacks:
-            task = asyncio.create_task(async_callback(*args, **kwargs))
+            task = asyncio.create_task(async_callback(*args))
             self._in_progress_callbacks.add(task)
             task.add_done_callback(self._in_progress_callbacks.discard)
 
         for sync_callback in self._sync_callbacks:
-            sync_callback(*args, **kwargs)
+            sync_callback(*args)
