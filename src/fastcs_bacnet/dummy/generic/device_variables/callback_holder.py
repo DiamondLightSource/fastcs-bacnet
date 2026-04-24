@@ -86,3 +86,8 @@ class CallbackHolder:
 
         for sync_callback in self._sync_callbacks:
             sync_callback(new_value, previous_value)
+
+    def remove_all(self):
+        # could this cause memory leaks??
+        self._sync_callbacks = []
+        self._async_callbacks = []

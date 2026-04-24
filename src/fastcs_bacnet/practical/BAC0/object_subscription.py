@@ -16,7 +16,7 @@ class ObjectSubscription:
 
     _last_subscription: dt
     _last_update: dt
-    _subscription_object: COVSubscription
+    _subscription_object: COVSubscription | None = None
     _subscription_stopped: bool = False
     callback_holder: CallbackHolder
 
@@ -101,9 +101,15 @@ class ObjectSubscription:
         Can't restart a subscription after its been stopped
         Create a new ObjectSubscription instead
         """
-        # You cant send a "stop subscription" message to bacnet devices
-        # The best we can do is wait out the last subscription
         self._subscription_stopped = True
+        if self._subscription_object is not None:
+            self._subscription_object.stop()
+        # dereference _subscription object so it can be garbage collected
+        self._subscription_object = None
+
+        # technically people could still add callbacks back to this which would still
+        # trigger until the CoV is fully over
+        self.callback_stack.remove_all()
 
     def is_subscription_stopped(self):
         return self._subscription_stopped
