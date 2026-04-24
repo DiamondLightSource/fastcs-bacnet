@@ -18,10 +18,12 @@ class CallbackStack[*P]:
     Adding callbacks that manipulate common state is undefined behaviour
     """
 
-    type Callback = Callable[[*P], None] | Callable[[*P], Coroutine[None, None, None]]
+    type SyncCallback = Callable[[*P], None]
+    type AsyncCallback = Callable[[*P], Coroutine[None, None, None]]
+    type Callback = SyncCallback | AsyncCallback
 
-    _sync_callbacks: list[Callable[[*P], None]]
-    _async_callbacks: list[Callable[[*P], Coroutine[None, None, None]]]
+    _sync_callbacks: list[SyncCallback]
+    _async_callbacks: list[AsyncCallback]
     _in_progress_callbacks: set[asyncio.Task]
 
     _next_callback_index: int = 0
