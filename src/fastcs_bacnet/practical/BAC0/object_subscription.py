@@ -3,6 +3,7 @@ from collections.abc import Callable
 from datetime import datetime as dt
 
 from BAC0 import lite
+from BAC0.core.functions.CoV import COVSubscription
 
 from fastcs_bacnet.practical.BAC0.callback_holder import CallbackHolder
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
@@ -15,6 +16,7 @@ class ObjectSubscription:
 
     _last_subscription: dt
     _last_update: dt
+    _subscription_object: COVSubscription
     _subscription_stopped: bool = False
     callback_holder: CallbackHolder
 
@@ -74,16 +76,19 @@ class ObjectSubscription:
         if self.tracking:
             self._last_subscription = dt.now()
 
-        # typing of cov's callback is TECHNICALLY [PropertyIdentifier, Any]
-        # But it puts string for the first argument even though PropertyIdentifier
-        # is an enum thats values are integers
-        self._bacnet_client.cov(
-            str(self._subscription_id.socket_address),
-            self._subscription_id.object_key.to_tuple(),
+        # This is EXACTLY how address is assigned in lite.cov()
+        # using a string in place of the complicated Address metaclass
+        # using a BAC0.lite in place of BAC0Application
+        self._subscription_object = COVSubscription(
+            address=str(self._subscription_id.socket_address),  # type: ignore
+            objectID=self._subscription_id.object_key.to_tuple(),
             lifetime=self._lifetime,
-            # callback is typed incorrectly here
-            # specifically the coroutine (awaitable) shoud take the same arguments too
-            callback=self.callback_holder.run_callbacks,  # type: ignore
+            confirmed=False,
+            callback=self.callback_holder.run_callbacks,
+            BAC0App=self._bacnet_client,  # type: ignore
+        )
+        self._subscription_object.task = asyncio.create_task(
+            self._subscription_object.run()
         )
 
         if self.auto_renew:
