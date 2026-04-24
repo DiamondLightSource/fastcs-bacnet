@@ -69,7 +69,16 @@ class CallbackHolder[*P]:
         """
         Removes a callback when given the key
         """
-        self._callback_dict.pop(key)
+        callback_instance = self._callback_dict.pop(key)
+
+        if callback_instance in self._sync_callbacks:
+            # If calback instance is in _sync_callbacks it must be a SyncCallback
+            # Pyright cant tell this so type is ignored
+            self._sync_callbacks.remove(callback_instance)  # type: ignore
+        elif callback_instance in self._async_callbacks:
+            # If calback instance is in _async_callbacks it must be an AsyncCallback
+            # Pyright cant tell this so type is ignored
+            self._async_callbacks.remove(callback_instance)  # type: ignore
 
     def sum_callback(self, *args: *P):
         """
