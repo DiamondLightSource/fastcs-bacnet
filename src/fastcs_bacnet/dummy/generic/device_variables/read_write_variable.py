@@ -30,4 +30,4 @@ class ReadWriteVariable(DeviceVariable):
         previous_value = self._value
         self._value = value
 
-        self.callback_stack.sum_callback(self._value, previous_value)  # type: ignore
+        self.callback_stack.sum_callback(self._value, previous_value)
