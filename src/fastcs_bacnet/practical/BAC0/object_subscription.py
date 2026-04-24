@@ -4,6 +4,7 @@ from datetime import datetime as dt
 
 from BAC0 import lite
 from BAC0.core.functions.CoV import COVSubscription
+from bacpypes3.service.cov import SubscriptionContextManager
 
 from fastcs_bacnet.practical.BAC0.callback_holder import CallbackHolder
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
@@ -91,9 +92,43 @@ class ObjectSubscription:
             self._subscription_object.run()
         )
 
-        if self.auto_renew:
-            event_loop = asyncio.get_running_loop()
-            event_loop.call_later(self._lifetime // 2, self.subscribe)
+        self._subscription_object.task.add_done_callback(self._decorate_resubscribe)
+
+    def _decorate_resubscribe(self, _):
+
+        if self._subscription_object is None:
+            return
+
+        scm_key = (
+            self._subscription_object.address,
+            self._subscription_object.process_identifier,
+        )
+
+        # To add a callback on resubscription we need to go down to the BacPyPes3 layer
+        # Specifically, we need to get the SusbcriptionContextManager as this is what
+        # handles the resubscription
+        # Accessing the _cov_contexts private dictionary is the only way to get it
+        subscription_context_manager: SubscriptionContextManager = (
+            self._bacnet_client.this_application.app._cov_contexts[scm_key]  # noqa: SLF001
+        )
+
+        # manual decoration funciton
+        def decorate_refresh_subscription(refresh_subscription):
+
+            # decorated function just calls resubscription_callback_stack first
+            async def decorated_refresh_subscription(*args):
+                # self.resubscription_callback_stack.sum_callback()
+
+                await refresh_subscription(*args)
+
+            return decorated_refresh_subscription
+
+        # replace resfresh_subscription with its decorated version
+        subscription_context_manager.refresh_subscription = (
+            decorate_refresh_subscription(
+                subscription_context_manager.refresh_subscription
+            )
+        )
 
     def stop_subscription(self):
         """
@@ -109,7 +144,7 @@ class ObjectSubscription:
 
         # technically people could still add callbacks back to this which would still
         # trigger until the CoV is fully over
-        self.callback_stack.remove_all()
+        # self.callback_holder.remove_all()
 
     def is_subscription_stopped(self):
         return self._subscription_stopped
