@@ -60,6 +60,11 @@ class ObjectSubscription:
 
             self.callback_holder.add(update_last_update)
 
+            def update_last_subscription():
+                self._last_subscription = dt.now()
+
+            self.resubscription_callback_stack.add(update_last_subscription)
+
         if initial_callback is not None:
             self.callback_holder.add(initial_callback)
 
