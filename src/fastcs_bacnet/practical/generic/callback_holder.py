@@ -51,7 +51,6 @@ class CallbackHolder[*P]:
             self._sync_callbacks.append(f)  # type: ignore
 
         callback_key = self._next_callback_index
-        # TODO: make a better key system that wont eventually overflow
         self._next_callback_index += 1
 
         self._callback_dict[callback_key] = f
