@@ -5,7 +5,7 @@ from datetime import datetime as dt
 from BAC0 import lite
 
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
-from fastcs_bacnet.practical.generic.callback_stack import CallbackStack
+from fastcs_bacnet.practical.generic.callback_holder import CallbackHolder
 
 
 class ObjectSubscription:
@@ -16,7 +16,7 @@ class ObjectSubscription:
     _last_subscription: dt
     _last_update: dt
     _subscription_stopped: bool = False
-    callback_stack: CallbackStack[str, float]
+    callback_stack: CallbackHolder[str, float]
 
     def __init__(
         self,
@@ -46,7 +46,7 @@ class ObjectSubscription:
         self._lifetime = lifetime
         self.auto_renew = auto_renew
         self.tracking = tracking
-        self.callback_stack = CallbackStack[str, float]()
+        self.callback_stack = CallbackHolder[str, float]()
 
         if tracking:
 

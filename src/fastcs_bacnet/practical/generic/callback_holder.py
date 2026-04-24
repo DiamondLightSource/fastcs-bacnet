@@ -10,7 +10,7 @@ from inspect import iscoroutinefunction
 # Ideally we would use a ParamSpec here (**P) instead
 # However, Pyright doesnt like it when you unpack tuples into a ParamSpec
 # So this method works better if you want to use type aliases
-class CallbackStack[*P]:
+class CallbackHolder[*P]:
     """
     A generic class to store a list of callbacks (functions or coroutines) for
     some other object

@@ -1,7 +1,7 @@
 from abc import ABC
 from collections.abc import Callable
 
-from fastcs_bacnet.practical.generic.callback_stack import CallbackStack
+from fastcs_bacnet.practical.generic.callback_holder import CallbackHolder
 
 type DVCallbackParameters = tuple[float, float | None]
 
@@ -24,7 +24,7 @@ class DeviceVariable(ABC):
     # e.g.: *tuple[float, float | None] == float, float | None
     # Pylance is fine if I write it the long way, therefore I can only assume it is the
     # the one who is wrong
-    callback_stack: CallbackStack[*DVCallbackParameters]
+    callback_stack: CallbackHolder[*DVCallbackParameters]
 
     def __init__(
         self,
@@ -38,7 +38,7 @@ class DeviceVariable(ABC):
         self._value = None
         self.name = name
 
-        self.callback_stack = CallbackStack[*DVCallbackParameters]()
+        self.callback_stack = CallbackHolder[*DVCallbackParameters]()
         if update_callback is not None:
             self.callback_stack.add_to_stack(update_callback)
 
