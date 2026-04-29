@@ -60,11 +60,6 @@ class ObjectSubscription:
 
             self.callback_holder.add(update_last_update)
 
-            def update_last_subscription():
-                self._last_subscription = dt.now()
-
-            self.resubscription_callback_stack.add(update_last_subscription)
-
         if initial_callback is not None:
             self.callback_holder.add(initial_callback)
 
@@ -105,7 +100,7 @@ class ObjectSubscription:
                 await self._subscription_object.run()
                 print("done running!!")
         except BaseException:
-            print("caught it first time!!")
+            print("subscription didnt even start")
 
     def _decorate_resubscribe(self, _):
 
@@ -130,12 +125,12 @@ class ObjectSubscription:
 
             # decorated function just calls resubscription_callback_stack first
             async def decorated_refresh_subscription(*args):
-                # self.resubscription_callback_stack.sum_callback()
+                self._on_resubscription_attempt()
 
                 try:
                     await refresh_subscription(*args)
                 except BaseException:
-                    print("exception caught!!!")
+                    self._on_failed_resubscription()
 
             return decorated_refresh_subscription
 
@@ -145,6 +140,12 @@ class ObjectSubscription:
                 subscription_context_manager.refresh_subscription
             )
         )
+
+    def _on_resubscription_attempt(self):
+        self._last_subscription = dt.now()
+
+    def _on_failed_resubscription(self):
+        print("resubscription failed")
 
     def stop_subscription(self):
         """
