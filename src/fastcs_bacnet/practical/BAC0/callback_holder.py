@@ -16,7 +16,6 @@ class CallbackHolder:
 
     _sync_callbacks: list[SyncCallback]
     _async_callbacks: list[AsyncCallback]
-    _in_progress_callbacks: set[asyncio.Task]
 
     _next_callback_index: int = 0
     _callback_dict: dict[int, Callback]
@@ -24,7 +23,6 @@ class CallbackHolder:
     def __init__(self):
         self._sync_callbacks = []
         self._async_callbacks = []
-        self._in_progress_callbacks = set()
         self._callback_dict = {}
 
     def add(self, f: Callback) -> int:
