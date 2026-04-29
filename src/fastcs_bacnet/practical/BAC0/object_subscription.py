@@ -161,7 +161,7 @@ class ObjectSubscription:
 
         # technically people could still add callbacks back to this which would still
         # trigger until the CoV is fully over
-        # self.callback_holder.remove_all()
+        self.callback_holder.remove_all()
 
     def is_subscription_stopped(self):
         return self._subscription_stopped
