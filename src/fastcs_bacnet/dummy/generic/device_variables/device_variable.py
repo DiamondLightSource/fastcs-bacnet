@@ -14,14 +14,6 @@ class DeviceVariable(ABC):
     """
 
     _value: float | None
-    # you will see a lot of type ignores where I unpack DVCallbackParameters into
-    # CallbackStack or related methods. This is because pylance struggles with
-    # unpacking a tuple of type parameters into ParamSpec (I think)
-    # Unpacking (the *) is the same as writing the contents of the tuple out without
-    # the surrounding data structure.
-    # e.g.: *tuple[float, float | None] == float, float | None
-    # Pylance is fine if I write it the long way, therefore I can only assume it is the
-    # the one who is wrong
     callback_stack: CallbackHolder
 
     def __init__(
