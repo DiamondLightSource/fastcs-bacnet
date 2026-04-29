@@ -20,6 +20,8 @@ class ObjectSubscription:
     _subscription_object: COVSubscription | None = None
     _subscription_stopped: bool = False
     callback_holder: CallbackHolder
+    _subscription_callback: Callable[[bool], None] | None
+    _failed_subscription_callback: Callable[[bool], None] | None
 
     def __init__(
         self,
@@ -29,6 +31,8 @@ class ObjectSubscription:
         auto_renew: bool = True,
         tracking: bool = False,
         initial_callback: Callable[[str, float], None] | None = None,
+        subscription_callback: Callable[[bool], None] | None = None,
+        failed_subscription_callback: Callable[[bool], None] | None = None,
     ):
         """
         bacnet_client: python bacnet device that can interact with bacnet objects
@@ -50,6 +54,9 @@ class ObjectSubscription:
         self.auto_renew = auto_renew
         self.tracking = tracking
         self.callback_holder = CallbackHolder()
+
+        self._subscription_callback = subscription_callback
+        self._failed_subscription_callback = failed_subscription_callback
 
         if tracking:
 
@@ -141,6 +148,8 @@ class ObjectSubscription:
     def _on_subscription_attempt(self, first_attempt: bool):
         if self.tracking:
             self._last_subscription = dt.now()
+        if self._subscription_callback is not None:
+            self._subscription_callback(first_attempt)
 
     def _on_failed_subscription(self, first_attempt: bool):
         if first_attempt:
@@ -149,6 +158,8 @@ class ObjectSubscription:
             print("resubscription failed")
         print("IP: ", self._subscription_id.socket_address)
         print("Object: ", self._subscription_id.object_key)
+        if self._failed_subscription_callback is not None:
+            self._failed_subscription_callback(first_attempt)
 
     def stop_subscription(self):
         """
