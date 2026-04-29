@@ -93,11 +93,19 @@ class ObjectSubscription:
             callback=self.callback_holder.run_callbacks,
             BAC0App=self._bacnet_client,  # type: ignore
         )
-        self._subscription_object.task = asyncio.create_task(
-            self._subscription_object.run()
-        )
+        self._subscription_object.task = asyncio.create_task(self.run_with_catch())
 
         self._subscription_object.task.add_done_callback(self._decorate_resubscribe)
+
+    async def run_with_catch(self):
+
+        try:
+            if self._subscription_object is not None:
+                print("start running!!")
+                await self._subscription_object.run()
+                print("done running!!")
+        except BaseException:
+            print("caught it first time!!")
 
     def _decorate_resubscribe(self, _):
 
@@ -124,7 +132,10 @@ class ObjectSubscription:
             async def decorated_refresh_subscription(*args):
                 # self.resubscription_callback_stack.sum_callback()
 
-                await refresh_subscription(*args)
+                try:
+                    await refresh_subscription(*args)
+                except BaseException:
+                    print("exception caught!!!")
 
             return decorated_refresh_subscription
 
