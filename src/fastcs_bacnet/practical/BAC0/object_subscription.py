@@ -74,8 +74,6 @@ class ObjectSubscription:
         # TODO: Remove last subscription here so re-subscribing does not cause issues
         if self._subscription_stopped:
             return
-        if self.tracking:
-            self._last_subscription = dt.now()
 
         # This is EXACTLY how address is assigned in lite.cov()
         # using a string in place of the complicated Address metaclass
@@ -96,11 +94,10 @@ class ObjectSubscription:
 
         try:
             if self._subscription_object is not None:
-                print("start running!!")
+                self._on_subscription_attempt(True)
                 await self._subscription_object.run()
-                print("done running!!")
         except BaseException:
-            print("subscription didnt even start")
+            self._on_failed_subscription(True)
 
     def _decorate_resubscribe(self, _):
 
@@ -125,12 +122,12 @@ class ObjectSubscription:
 
             # decorated function just calls resubscription_callback_stack first
             async def decorated_refresh_subscription(*args):
-                self._on_resubscription_attempt()
+                self._on_subscription_attempt(False)
 
                 try:
                     await refresh_subscription(*args)
                 except BaseException:
-                    self._on_failed_resubscription()
+                    self._on_failed_subscription(False)
 
             return decorated_refresh_subscription
 
@@ -141,11 +138,17 @@ class ObjectSubscription:
             )
         )
 
-    def _on_resubscription_attempt(self):
-        self._last_subscription = dt.now()
+    def _on_subscription_attempt(self, first_attempt: bool):
+        if self.tracking:
+            self._last_subscription = dt.now()
 
-    def _on_failed_resubscription(self):
-        print("resubscription failed")
+    def _on_failed_subscription(self, first_attempt: bool):
+        if first_attempt:
+            print("subscription failed")
+        else:
+            print("resubscription failed")
+        print("IP: ", self._subscription_id.socket_address)
+        print("Object: ", self._subscription_id.object_key)
 
     def stop_subscription(self):
         """
