@@ -44,9 +44,16 @@ class ObjectSubscription:
         tracking: whether the object tracks:
             last subscription time
             last update from device subscription
-        callback: procedure to run when subscription object recieves an
+        initial_callback: procedure to run when subscription object recieves an
             update from the device
             Parameters are the objects property identifier and the new value
+        subscription_callback: procedure that runs when a cov request is sent out
+            The boolean parameter represents whether it is the initial subscription
+            request or refreshing the subscription (automatically done by BAC0)
+        failed_subscription_callback: procedure that runs when a cov request is sent out
+            and fails
+            The boolean parameter represents whether it is the initial subscription
+            request or refreshing the subscription (automatically done by BAC0)
         """
         self._bacnet_client = bacnet_client
         self._subscription_id = subscription_id
