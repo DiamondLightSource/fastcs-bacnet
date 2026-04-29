@@ -79,8 +79,18 @@ class CallbackHolder:
         """
 
         for sync_callback in self._sync_callbacks:
-            sync_callback(property_identifier, property_value)
+            try:
+                sync_callback(property_identifier, property_value)
+            except BaseException as e:
+                print("excepted in synchronous task")
+                print(e)
 
         async with asyncio.TaskGroup() as group:
             for async_callback in self._async_callbacks:
-                group.create_task(async_callback(property_identifier, property_value))
+                try:
+                    group.create_task(
+                        async_callback(property_identifier, property_value)
+                    )
+                except BaseException as e:
+                    print("excepted in asynchronous task")
+                    print(e)
