@@ -19,6 +19,7 @@ class ObjectSubscription:
     _last_update: dt
     _subscription_object: COVSubscription | None = None
     _subscription_stopped: bool = False
+    _subscription_down: bool = True
     callback_holder: CallbackHolder
     _subscription_callback: Callable[[bool], None] | None
     _failed_subscription_callback: Callable[[bool], None] | None
@@ -85,9 +86,13 @@ class ObjectSubscription:
         Records time this method was called
         NOTE: Having multiple subscriptions running at a time could cause issues
         """
-        # TODO: Remove last subscription here so re-subscribing does not cause issues
         if self._subscription_stopped:
+            print("subscription has been stopped, make a new ObjectSubscription")
             return
+        if not self._subscription_down:
+            print("subscrption is already up")
+            return
+        self._subscription_down = False
 
         # This is EXACTLY how address is assigned in lite.cov()
         # using a string in place of the complicated Address metaclass
@@ -163,6 +168,7 @@ class ObjectSubscription:
             print("subscription failed")
         else:
             print("resubscription failed")
+        self._subscription_down = True
         print("IP: ", self._subscription_id.socket_address)
         print("Object: ", self._subscription_id.object_key)
         if self._failed_subscription_callback is not None:
