@@ -72,7 +72,7 @@ class CallbackHolder:
             # Pyright cant tell this so type is ignored
             self._async_callbacks.remove(callback_instance)  # type: ignore
 
-    def sum_callback(self, property_identifier: str, property_value: float):
+    async def sum_callback(self, property_identifier: str, property_value: float):
         """
         Calls all callbacks added to the holder
         First iterates through coroutines and creates a task for each
@@ -80,12 +80,9 @@ class CallbackHolder:
         one by one
         """
 
-        for async_callback in self._async_callbacks:
-            task = asyncio.create_task(
-                async_callback(property_identifier, property_value)
-            )
-            self._in_progress_callbacks.add(task)
-            task.add_done_callback(self._in_progress_callbacks.discard)
-
         for sync_callback in self._sync_callbacks:
             sync_callback(property_identifier, property_value)
+
+        async with asyncio.TaskGroup() as group:
+            for async_callback in self._async_callbacks:
+                group.create_task(async_callback(property_identifier, property_value))

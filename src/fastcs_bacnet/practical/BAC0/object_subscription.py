@@ -81,7 +81,9 @@ class ObjectSubscription:
             str(self._subscription_id.socket_address),
             self._subscription_id.object_key.to_tuple(),
             lifetime=self._lifetime,
-            callback=self.callback_holder.sum_callback,
+            # callback is typed incorrectly here
+            # specifically the coroutine (awaitable) shoud take the same arguments too
+            callback=self.callback_holder.sum_callback,  # type: ignore
         )
 
         if self.auto_renew:
