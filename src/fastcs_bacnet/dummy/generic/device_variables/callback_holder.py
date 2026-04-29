@@ -2,19 +2,10 @@ import asyncio
 from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
 
-# *P here is a TypeVarTuple, It represents a generic tuple of types
-# E.g. [str, int, float] or [int]
-# Callbacks added to the holder must take arguments of these types
 
-
-# Ideally we would use a ParamSpec here (**P) instead
-# However, Pyright doesnt like it when you unpack tuples into a ParamSpec
-# So this method works better if you want to use type aliases
 class CallbackHolder:
     """
-    A generic class to store a list of callbacks (functions or coroutines) for
-    some other object
-    The type parameters should be set to the arguments the callbacks expect
+    A class to store a list of callbacks (functions or coroutines) for device variables
     Adding callbacks that manipulate common state is undefined behaviour
     """
 
