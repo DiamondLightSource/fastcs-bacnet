@@ -16,7 +16,7 @@ class ObjectSubscription:
     _last_subscription: dt
     _last_update: dt
     _subscription_stopped: bool = False
-    callback_stack: CallbackHolder
+    callback_holder: CallbackHolder
 
     def __init__(
         self,
@@ -46,7 +46,7 @@ class ObjectSubscription:
         self._lifetime = lifetime
         self.auto_renew = auto_renew
         self.tracking = tracking
-        self.callback_stack = CallbackHolder()
+        self.callback_holder = CallbackHolder()
 
         if tracking:
 
@@ -55,10 +55,10 @@ class ObjectSubscription:
             ) -> None:
                 self._last_update = dt.now()
 
-            self.callback_stack.add(update_last_update)
+            self.callback_holder.add(update_last_update)
 
         if initial_callback is not None:
-            self.callback_stack.add(initial_callback)
+            self.callback_holder.add(initial_callback)
 
         self.subscribe()
 
@@ -81,7 +81,7 @@ class ObjectSubscription:
             str(self._subscription_id.socket_address),
             self._subscription_id.object_key.to_tuple(),
             lifetime=self._lifetime,
-            callback=self.callback_stack.sum_callback,
+            callback=self.callback_holder.sum_callback,
         )
 
         if self.auto_renew:
