@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections.abc import Callable
 
 from BAC0 import lite
@@ -11,6 +12,8 @@ class BacnetClient:
     Creates and stores subscription objects to bacnet objects
     Does NOT handle them
     """
+
+    _down_subscriptions: defaultdict[str, list[ObjectSubscription]]
 
     def __init__(
         self,
@@ -36,6 +39,7 @@ class BacnetClient:
         self._bacnet_client = bacnet_client
 
         self._subscriptions: dict[SubscriptionID, ObjectSubscription] = {}
+        self._down_subscriptions = defaultdict(list)
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
@@ -53,13 +57,28 @@ class BacnetClient:
             If None no callback function will be used
         """
 
-        self._subscriptions[subscription_id] = ObjectSubscription(
+        # object_subscription has to be set AFTER its created
+        # This is because the callback must be defined before its created
+        # We cant give the ObjectSubscription in the callback
+        # because we would have to type this inside the ObjectSubscription class
+        object_subscription: ObjectSubscription | None = None
+
+        def failed_subscription_callback(_):
+            if object_subscription is not None:
+                self._down_subscriptions[
+                    subscription_id.socket_address.ip_address
+                ].append(object_subscription)
+
+        object_subscription = ObjectSubscription(
             self._bacnet_client,
             subscription_id,
             lifetime=self._subscription_lifetime,
             auto_renew=self._auto_renew_subscriptions,
             initial_callback=callback,
+            failed_subscription_callback=failed_subscription_callback,
         )
+
+        self._subscriptions[subscription_id] = object_subscription
 
     def remove_subscription(self, subscription_id: SubscriptionID):
         """
