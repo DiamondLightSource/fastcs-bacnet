@@ -5,7 +5,6 @@ from datetime import datetime as dt
 
 from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
     DeviceVariable,
-    DVCallbackParameters,
 )
 
 
@@ -23,7 +22,7 @@ class OscillatingVariable(DeviceVariable):
         offset: float = 0.0,
         frequency: float = 1.0,
         value_refresh_period: float = 1.2,
-        update_callback: Callable[[*DVCallbackParameters], None] | None = None,
+        update_callback: Callable[[float, float | None], None] | None = None,
     ):
         """
         amplitude: Amplitude of the sin wave

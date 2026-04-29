@@ -2,7 +2,6 @@ from collections.abc import Callable
 
 from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
     DeviceVariable,
-    DVCallbackParameters,
 )
 
 
@@ -17,7 +16,7 @@ class ReadWriteVariable(DeviceVariable):
         self,
         name: str,
         initial_value: float = 0.0,
-        update_callback: Callable[[*DVCallbackParameters], None] | None = None,
+        update_callback: Callable[[float, float | None], None] | None = None,
     ):
         super().__init__(name, update_callback=update_callback)
 

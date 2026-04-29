@@ -4,7 +4,6 @@ from collections.abc import Callable
 
 from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
     DeviceVariable,
-    DVCallbackParameters,
 )
 
 
@@ -21,7 +20,7 @@ class RandomVariable(DeviceVariable):
         max_change_time: float = 2.0,
         min_value: float = 0.0,
         max_value: float = 1.0,
-        update_callback: Callable[[*DVCallbackParameters], None] | None = None,
+        update_callback: Callable[[float, float | None], None] | None = None,
     ):
         """
         min_change_time: Minimum time between variable changes
