@@ -29,4 +29,4 @@ class PuppetVariable(DeviceVariable):
         previous_value = self._value
         self._value = new_value
 
-        self.callback_stack.sum_callback(self._value, previous_value)
+        self.callback_holder.sum_callback(self._value, previous_value)

@@ -64,4 +64,4 @@ class RandomVariable(DeviceVariable):
             random.random() * (self.max_value - self.min_value)
         )
 
-        self.callback_stack.sum_callback(self._value, previous_value)
+        self.callback_holder.sum_callback(self._value, previous_value)

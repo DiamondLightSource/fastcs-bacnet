@@ -69,4 +69,4 @@ class OscillatingVariable(DeviceVariable):
             * math.sin(self.frequency * dif_time.total_seconds() * math.pi * 2)
         )
 
-        self.callback_stack.sum_callback(self._value, previous_value)
+        self.callback_holder.sum_callback(self._value, previous_value)

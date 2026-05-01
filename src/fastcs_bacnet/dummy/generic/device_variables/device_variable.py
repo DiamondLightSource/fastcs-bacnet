@@ -14,7 +14,7 @@ class DeviceVariable(ABC):
     """
 
     _value: float | None
-    callback_stack: CallbackHolder
+    callback_holder: CallbackHolder
 
     def __init__(
         self,
@@ -28,9 +28,9 @@ class DeviceVariable(ABC):
         self._value = None
         self.name = name
 
-        self.callback_stack = CallbackHolder()
+        self.callback_holder = CallbackHolder()
         if update_callback is not None:
-            self.callback_stack.add(update_callback)
+            self.callback_holder.add(update_callback)
 
     def get_value(self) -> float | None:
         """
