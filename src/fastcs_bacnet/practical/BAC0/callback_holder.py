@@ -73,6 +73,7 @@ class CallbackHolder:
     async def run_callbacks(self, property_identifier: str, property_value: float):
         """
         Calls all callbacks added to the holder
+
         First iterates through coroutines and creates a task for each
         Then iterates through synchronous functions and calls them
         one by one
