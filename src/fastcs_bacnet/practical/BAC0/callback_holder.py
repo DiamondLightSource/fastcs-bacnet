@@ -1,6 +1,7 @@
 import asyncio
 from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
+from typing import TypeGuard
 
 
 class CallbackHolder:
@@ -32,13 +33,14 @@ class CallbackHolder:
         it can be fetched or removed later
         """
 
-        if iscoroutinefunction(f):
+        # Cant just use an else here as Pyright does not infer the
+        # async type correctly in this case
+        if self.is_sync_callback(f):
+            self._sync_callbacks.append(f)
+        elif self.is_async_callback(f):
             self._async_callbacks.append(f)
-        elif callable(f):
-            # We know f must be a normal callable function here (not a coroutine)
-            # as the previous if establishes it is not a coroutine
-            # Pylance does not pick this up though
-            self._sync_callbacks.append(f)  # type: ignore
+        else:
+            print("Callback is neither sync or async??")
 
         callback_key = self._next_callback_index
         self._next_callback_index += 1
@@ -61,14 +63,16 @@ class CallbackHolder:
         """
         callback_instance = self._callback_dict.pop(key)
 
-        if callback_instance in self._sync_callbacks:
-            # If calback instance is in _sync_callbacks it must be a SyncCallback
-            # Pyright cant tell this so type is ignored
-            self._sync_callbacks.remove(callback_instance)  # type: ignore
-        elif callback_instance in self._async_callbacks:
-            # If calback instance is in _async_callbacks it must be an AsyncCallback
-            # Pyright cant tell this so type is ignored
-            self._async_callbacks.remove(callback_instance)  # type: ignore
+        if self.is_sync_callback(callback_instance):
+            if callback_instance in self._sync_callbacks:
+                self._sync_callbacks.remove(callback_instance)
+            else:
+                print("Sync callback in dict but not in list, this should not happen")
+        elif self.is_async_callback(callback_instance):
+            if callback_instance in self._async_callbacks:
+                self._async_callbacks.remove(callback_instance)
+            else:
+                print("Async callback in dict but not in list, this should not happen")
 
     async def run_callbacks(self, property_identifier: str, property_value: float):
         """
@@ -95,3 +99,10 @@ class CallbackHolder:
                 except BaseException as e:
                     print("excepted in asynchronous task")
                     print(e)
+
+    # seems silly to have 2 inverse functions but they are necessary as they are guards
+    def is_sync_callback(self, callback: Callback) -> TypeGuard[SyncCallback]:
+        return not iscoroutinefunction(callback)
+
+    def is_async_callback(self, callback: Callback) -> TypeGuard[AsyncCallback]:
+        return iscoroutinefunction(callback)
