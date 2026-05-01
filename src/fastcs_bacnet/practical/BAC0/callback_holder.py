@@ -70,7 +70,7 @@ class CallbackHolder:
             # Pyright cant tell this so type is ignored
             self._async_callbacks.remove(callback_instance)  # type: ignore
 
-    async def sum_callback(self, property_identifier: str, property_value: float):
+    async def run_callbacks(self, property_identifier: str, property_value: float):
         """
         Calls all callbacks added to the holder
         First iterates through coroutines and creates a task for each

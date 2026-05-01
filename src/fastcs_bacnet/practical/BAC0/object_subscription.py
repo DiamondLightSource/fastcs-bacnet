@@ -82,7 +82,7 @@ class ObjectSubscription:
             lifetime=self._lifetime,
             # callback is typed incorrectly here
             # specifically the coroutine (awaitable) shoud take the same arguments too
-            callback=self.callback_holder.sum_callback,  # type: ignore
+            callback=self.callback_holder.run_callbacks,  # type: ignore
         )
 
         if self.auto_renew:
