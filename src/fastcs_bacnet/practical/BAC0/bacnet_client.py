@@ -1,3 +1,5 @@
+import asyncio
+from asyncio import Lock
 from collections import defaultdict
 from collections.abc import Callable
 
@@ -6,8 +8,28 @@ from BAC0 import lite
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 from fastcs_bacnet.practical.BAC0.subscription_id import (
     IPv4SocketAddress,
+    ObjectIdentifier,
     SubscriptionID,
 )
+
+
+class SubscriptionLock(Lock):
+    _acquired_by = ObjectIdentifier
+
+    async def acquire_with(self, acquired_by: ObjectIdentifier):
+        valid = await super().acquire()
+
+        if valid:
+            self._acquired_by = acquired_by
+
+        return valid
+
+    def release_with(self, released_by: ObjectIdentifier) -> bool:
+
+        if released_by != self._acquired_by:
+            return False
+        super().release()
+        return True
 
 
 class BacnetClient:
@@ -17,6 +39,7 @@ class BacnetClient:
     """
 
     _down_subscriptions: defaultdict[IPv4SocketAddress, list[ObjectSubscription]]
+    _locked_devices: defaultdict[IPv4SocketAddress, SubscriptionLock]
 
     def __init__(
         self,
@@ -43,12 +66,13 @@ class BacnetClient:
 
         self._subscriptions: dict[SubscriptionID, ObjectSubscription] = {}
         self._down_subscriptions = defaultdict(list)
+        self._locked_devices = defaultdict(SubscriptionLock)
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
-                self.add_subscription(subscription_id)
+                asyncio.create_task(self.add_subscription(subscription_id))
 
-    def add_subscription(
+    async def add_subscription(
         self,
         subscription_id: SubscriptionID,
         callback: Callable[[str, float], None] | None = None,
@@ -59,6 +83,18 @@ class BacnetClient:
         callback: Procedure that is called when a new value is recieved from the device
             If None no callback function will be used
         """
+
+        await self._locked_devices[subscription_id.socket_address].acquire_with(
+            subscription_id.object_key
+        )
+
+        def release(property_indentifier: str, property_value: float):
+            if self._locked_devices[subscription_id.socket_address].locked:
+                # will TRY to release with this socket address
+                # wont work if it doesnt match
+                self._locked_devices[subscription_id.socket_address].release_with(
+                    subscription_id.object_key
+                )
 
         # object_subscription has to be set AFTER its created
         # This is because the callback must be defined before its created
@@ -80,6 +116,7 @@ class BacnetClient:
             initial_callback=callback,
             failed_subscription_callback=failed_subscription_callback,
         )
+        object_subscription.callback_holder.add(release)
 
         self._subscriptions[subscription_id] = object_subscription
 
