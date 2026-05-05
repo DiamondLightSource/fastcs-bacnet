@@ -29,7 +29,6 @@ class ObjectSubscription:
         bacnet_client: lite,
         subscription_id: SubscriptionID,
         lifetime: int = 60,
-        auto_renew: bool = True,
         tracking: bool = False,
         initial_callback: Callable[[str, float], None] | None = None,
         subscription_callback: Callable[[bool], None] | None = None,
@@ -59,7 +58,6 @@ class ObjectSubscription:
         self._bacnet_client = bacnet_client
         self._subscription_id = subscription_id
         self._lifetime = lifetime
-        self.auto_renew = auto_renew
         self.tracking = tracking
         self.callback_holder = CallbackHolder()
 
