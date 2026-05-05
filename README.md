@@ -10,8 +10,9 @@ Reads bacnet data to an IOC
 This is where you should write a short paragraph that describes what your module does,
 how it does it, and why people should use it.
 
-Source          | <https://github.com/DiamondLightSource/fastcs-bacnet>
+What            | Where
 :---:           | :---:
+Source          | <https://github.com/DiamondLightSource/fastcs-bacnet>
 PyPI            | `pip install fastcs-bacnet`
 Docker          | `docker run ghcr.io/diamondlightsource/fastcs-bacnet:latest`
 Releases        | <https://github.com/DiamondLightSource/fastcs-bacnet/releases>
