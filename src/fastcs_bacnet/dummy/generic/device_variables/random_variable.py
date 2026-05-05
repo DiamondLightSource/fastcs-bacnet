@@ -2,7 +2,10 @@ import asyncio
 import random
 from collections.abc import Callable
 
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
+from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
+    DeviceVariable,
+    DVCallbackParameters,
+)
 
 
 class RandomVariable(DeviceVariable):
@@ -18,7 +21,7 @@ class RandomVariable(DeviceVariable):
         max_change_time: float = 2.0,
         min_value: float = 0.0,
         max_value: float = 1.0,
-        update_callback: Callable[[float], None] | None = None,
+        update_callback: Callable[[*DVCallbackParameters], None] | None = None,
     ):
         """
         min_change_time: Minimum time between variable changes
@@ -62,7 +65,4 @@ class RandomVariable(DeviceVariable):
             random.random() * (self.max_value - self.min_value)
         )
 
-        if self.update_callback is not None:
-            self.update_callback(self._value)
-        if self.diagnostic_callback is not None:
-            self.diagnostic_callback(previous_value, self._value)
+        self.callback_stack.sum_callback(self._value, previous_value)  # type: ignore

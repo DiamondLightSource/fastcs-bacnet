@@ -26,9 +26,9 @@ class Device:
 
     def __init__(
         self,
-        ip_address: str,
-        port: int,
         device_id: int,
+        ip_address: str | None = None,
+        port: int | None = None,
         number_of_constant_fields: int = 0,
         number_of_oscillating_fields: int = 0,
         number_of_random_fields: int = 0,

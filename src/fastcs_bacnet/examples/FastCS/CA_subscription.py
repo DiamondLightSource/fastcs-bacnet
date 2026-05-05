@@ -30,4 +30,5 @@ async def async_function():
         await asyncio.sleep(10)
 
 
-asyncio.run(async_function())
+if __name__ == "__main__":
+    asyncio.run(async_function())
