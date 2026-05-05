@@ -1,6 +1,7 @@
 from collections.abc import Callable
 
 from BAC0 import lite
+
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 

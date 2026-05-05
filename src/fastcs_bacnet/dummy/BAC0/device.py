@@ -1,6 +1,7 @@
 import random
 
 import BAC0
+
 from fastcs_bacnet.dummy.BAC0.analog_output_object import AnalogOutputObject
 from fastcs_bacnet.dummy.generic.device_variables.constant_variable import (
     ConstantVariable,

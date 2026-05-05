@@ -1,6 +1,6 @@
+import BAC0
 from BAC0.core.devices.local.factory import analog_output
 
-import BAC0
 from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
 
 
