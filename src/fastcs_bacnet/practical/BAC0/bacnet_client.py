@@ -4,7 +4,10 @@ from collections.abc import Callable
 from BAC0 import lite
 
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscription_id import (
+    IPv4SocketAddress,
+    SubscriptionID,
+)
 
 
 class BacnetClient:
@@ -13,7 +16,7 @@ class BacnetClient:
     Does NOT handle them
     """
 
-    _down_subscriptions: defaultdict[str, list[ObjectSubscription]]
+    _down_subscriptions: defaultdict[IPv4SocketAddress, list[ObjectSubscription]]
 
     def __init__(
         self,
@@ -65,9 +68,9 @@ class BacnetClient:
 
         def failed_subscription_callback(_):
             if object_subscription is not None:
-                self._down_subscriptions[
-                    subscription_id.socket_address.ip_address
-                ].append(object_subscription)
+                self._down_subscriptions[subscription_id.socket_address].append(
+                    object_subscription
+                )
 
         object_subscription = ObjectSubscription(
             self._bacnet_client,
