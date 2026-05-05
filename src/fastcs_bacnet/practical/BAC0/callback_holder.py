@@ -29,6 +29,7 @@ class CallbackHolder:
     def add(self, f: Callback) -> int:
         """
         Adds a callback function / coroutine to the stack
+
         Returns a "key" (int) for the callback that is added so
         it can be fetched or removed later
         """
