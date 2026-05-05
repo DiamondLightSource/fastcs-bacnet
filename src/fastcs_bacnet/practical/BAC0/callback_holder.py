@@ -33,10 +33,9 @@ class CallbackHolder:
         it can be fetched or removed later
         """
 
-        # Cant just use an else here as Pyright does not infer the
-        # async type correctly in this case
         if self.is_sync_callback(f):
             self._sync_callbacks.append(f)
+        # required for Pyright to infer f's type
         elif self.is_async_callback(f):
             self._async_callbacks.append(f)
         else:
