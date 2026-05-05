@@ -43,11 +43,11 @@ class AnalogOutputObject:
 
         initial_value = device_variable.get_value()
         if initial_value is not None:
-            self._update_value(initial_value)
+            self._update_value(initial_value, None)
 
-        device_variable.set_update_callback(self._update_value)
+        device_variable.callback_holder.add(self._update_value)
 
-    def _update_value(self, new_value: float):
+    def _update_value(self, new_value: float, previous_value: float | None):
         """
         Callback function to update this objects value
         """

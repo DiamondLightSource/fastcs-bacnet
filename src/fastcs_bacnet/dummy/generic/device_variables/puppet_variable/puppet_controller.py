@@ -55,7 +55,7 @@ class PuppetController:
                 **self.random_variable_args,
             )
 
-    def _update_random_variable(self, new_value: float):
+    def _update_random_variable(self, new_value: float, previous_value: float | None):
         """
         Gives a random PuppetVariable in the list new_value
         """

@@ -3,7 +3,9 @@ import math
 from collections.abc import Callable
 from datetime import datetime as dt
 
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
+from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
+    DeviceVariable,
+)
 
 
 class OscillatingVariable(DeviceVariable):
@@ -20,7 +22,7 @@ class OscillatingVariable(DeviceVariable):
         offset: float = 0.0,
         frequency: float = 1.0,
         value_refresh_period: float = 1.2,
-        update_callback: Callable[[float], None] | None = None,
+        update_callback: Callable[[float, float | None], None] | None = None,
     ):
         """
         amplitude: Amplitude of the sin wave
@@ -67,7 +69,4 @@ class OscillatingVariable(DeviceVariable):
             * math.sin(self.frequency * dif_time.total_seconds() * math.pi * 2)
         )
 
-        if self.update_callback is not None:
-            self.update_callback(self._value)
-        if self.diagnostic_callback is not None:
-            self.diagnostic_callback(previous_value, self._value)
+        self.callback_holder.sum_callback(self._value, previous_value)
