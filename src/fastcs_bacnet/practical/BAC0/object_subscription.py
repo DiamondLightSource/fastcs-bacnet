@@ -127,7 +127,7 @@ class ObjectSubscription:
         )
 
         # To add a callback on resubscription we need to go down to the BacPyPes3 layer
-        # Specifically, we need to get the SusbcriptionContextManager as this is what
+        # Specifically, we need to get the SubscriptionContextManager as this is what
         # handles the resubscription
         # Accessing the _cov_contexts private dictionary is the only way to get it
         subscription_context_manager: SubscriptionContextManager = (
