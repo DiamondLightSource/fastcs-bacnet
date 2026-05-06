@@ -18,7 +18,6 @@ class ObjectSubscription:
     _last_subscription: dt
     _last_update: dt
     _subscription_object: COVSubscription | None = None
-    _subscription_stopped: bool = False
     _subscription_down: bool = True
     callback_holder: CallbackHolder
     _subscription_callback: Callable[[bool], None] | None
@@ -87,9 +86,6 @@ class ObjectSubscription:
         Records time this method was called
         NOTE: Having multiple subscriptions running at a time could cause issues
         """
-        if self._subscription_stopped:
-            print("subscription has been stopped, make a new ObjectSubscription")
-            return
         if not self._subscription_down:
             print("subscrption is already up")
             return
@@ -176,25 +172,6 @@ class ObjectSubscription:
         print("Object: ", self._subscription_id.object_key)
         if self._failed_subscription_callback is not None:
             self._failed_subscription_callback(first_attempt)
-
-    def stop_subscription(self):
-        """
-        Stops the subscription from restarting or running a callback function
-        Can't restart a subscription after its been stopped
-        Create a new ObjectSubscription instead
-        """
-        self._subscription_stopped = True
-        if self._subscription_object is not None:
-            self._subscription_object.stop()
-        # dereference _subscription object so it can be garbage collected
-        self._subscription_object = None
-
-        # technically people could still add callbacks back to this which would still
-        # trigger until the CoV is fully over
-        self.callback_holder.remove_all()
-
-    def is_subscription_stopped(self):
-        return self._subscription_stopped
 
     def get_last_subscription(self) -> dt:
         return self._last_subscription
