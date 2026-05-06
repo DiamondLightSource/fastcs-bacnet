@@ -121,13 +121,8 @@ class BacnetClient:
         """
         Removes a subscription from the dictionary
         subscription_id: identifier used to find the object to subscribe to
-        stop_subscription: if True, the subscription itself is also stopped
-            Set to False if you have taken your own instance of the
-            ObjectSubscription that you are still using
         """
-        subscription = self._subscriptions.pop(subscription_id)
-
-        subscription.stop_subscription()
+        self._subscriptions.pop(subscription_id)
 
     def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
         return self._subscriptions[subscription_id]
