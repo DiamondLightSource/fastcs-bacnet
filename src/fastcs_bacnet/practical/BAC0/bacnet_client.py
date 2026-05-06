@@ -87,7 +87,7 @@ class BacnetClient:
         )
 
         def release(property_indentifier: str, property_value: float):
-            if self._locked_devices[subscription_id.socket_address].locked:
+            if self._locked_devices[subscription_id.socket_address].locked():
                 # will TRY to release with this socket address
                 # wont work if it doesnt match
                 self._locked_devices[subscription_id.socket_address].release_with(
