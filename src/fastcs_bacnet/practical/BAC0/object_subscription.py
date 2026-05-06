@@ -81,6 +81,7 @@ class ObjectSubscription:
     def subscribe(self):
         """
         Restarts the subscription to the bacnet object
+
         Records time this method was called
         NOTE: Having multiple subscriptions running at a time could cause issues
         """
