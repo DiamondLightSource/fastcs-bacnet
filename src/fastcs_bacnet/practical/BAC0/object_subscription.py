@@ -93,6 +93,7 @@ class ObjectSubscription:
         # This is EXACTLY how address is assigned in lite.cov()
         # using a string in place of the complicated Address metaclass
         # using a BAC0.lite in place of BAC0Application
+        # https://github.com/ChristianTremblay/BAC0/blob/main/BAC0/scripts/Lite.py#L516
         self._subscription_object = COVSubscription(
             address=str(self._subscription_id.socket_address),  # type: ignore
             objectID=self._subscription_id.object_key.to_tuple(),
