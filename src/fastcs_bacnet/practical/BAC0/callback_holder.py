@@ -75,7 +75,6 @@ class CallbackHolder:
                 print("Async callback in dict but not in list, this should not happen")
 
     def remove_all(self):
-        # could this cause memory leaks??
         self._sync_callbacks = []
         self._async_callbacks = []
 
