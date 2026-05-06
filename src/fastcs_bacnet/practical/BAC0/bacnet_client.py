@@ -88,8 +88,8 @@ class BacnetClient:
 
         def release(property_indentifier: str, property_value: float):
             if self._locked_devices[subscription_id.socket_address].locked():
-                # will TRY to release with this socket address
-                # wont work if it doesnt match
+                # Only releases if the object_key matches the one that locked it
+                # This prevents other subscription notifications confirming a CoV
                 self._locked_devices[subscription_id.socket_address].release_with(
                     subscription_id.object_key
                 )
