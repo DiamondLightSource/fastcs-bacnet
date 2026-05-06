@@ -101,11 +101,11 @@ class ObjectSubscription:
             callback=self.callback_holder.run_callbacks,
             BAC0App=self._bacnet_client,  # type: ignore
         )
-        self._subscription_object.task = asyncio.create_task(self.run_with_catch())
+        self._subscription_object.task = asyncio.create_task(self._run())
 
         self._subscription_object.task.add_done_callback(self._decorate_resubscribe)
 
-    async def run_with_catch(self):
+    async def _run(self):
 
         try:
             if self._subscription_object is not None:
