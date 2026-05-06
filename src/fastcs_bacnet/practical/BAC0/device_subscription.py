@@ -36,8 +36,8 @@ class SubscriptionLock(Lock):
 class DeviceSubscription:
     object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
     subscription_lock: SubscriptionLock
-    down_subscriptions: set[ObjectSubscription]
-    iam_listener_reference: asyncio.Task | None = None
+    down_subscription_ids: set[ObjectIdentifier]
+    task_pool: set[asyncio.Task]
 
     def __init__(self, bacnet_client: lite, ip_socket: IPv4SocketAddress):
 
@@ -45,7 +45,8 @@ class DeviceSubscription:
         self.ip_socket = ip_socket
         self.object_subscriptions = {}
         self.subscription_lock = SubscriptionLock()
-        self.down_subscriptions = set()
+        self.down_subscription_ids = set()
+        self.task_pool = set()
 
     async def add_subscription(
         self,
@@ -71,7 +72,7 @@ class DeviceSubscription:
 
         def failed_subscription_callback(_):
             if object_subscription is not None:
-                self._handle_failed_subscription(object_subscription)
+                self._handle_failed_subscription(subscription_id.object_key)
 
         object_subscription = ObjectSubscription(
             self.bacnet_client,
@@ -86,14 +87,16 @@ class DeviceSubscription:
 
         self.object_subscriptions[object_id] = object_subscription
 
-    def _handle_failed_subscription(self, object_subscription: ObjectSubscription):
-        self.down_subscriptions.add(object_subscription)
+    def _handle_failed_subscription(self, subscription_id: ObjectIdentifier):
+        self.down_subscription_ids.add(subscription_id)
 
         # all subscriptions are down
-        if self.down_subscriptions == self.object_subscriptions.items():
-            self.iam_listener_reference = asyncio.create_task(
+        if self.down_subscription_ids == self.object_subscriptions.items():
+            task = asyncio.create_task(
                 self.listen_for_iam(self.restart_failed_subscriptions)
             )
+            self.task_pool.add(task)
+            task.add_done_callback(self.task_pool.remove)
 
     def remove_subscription(self, object_id: ObjectIdentifier):
         subscription = self.object_subscriptions.pop(object_id)
@@ -108,7 +111,7 @@ class DeviceSubscription:
         return self.object_subscriptions[object_id]
 
     def check_for_restart(self, *args):
-        if len(self.down_subscriptions) != 0:
+        if len(self.down_subscription_ids) != 0:
             self.restart_failed_subscriptions()
 
     async def listen_for_iam(self, callback: Callable[[], None]):
@@ -137,4 +140,24 @@ class DeviceSubscription:
         callback()
 
     def restart_failed_subscriptions(self):
-        pass
+
+        for down_object_subscription_id in self.down_subscription_ids:
+            task = asyncio.create_task(
+                self.restart_single_subscription(down_object_subscription_id)
+            )
+            self.task_pool.add(task)
+            task.add_done_callback(self.task_pool.remove)
+
+    async def restart_single_subscription(self, object_identifier: ObjectIdentifier):
+        object_subscription = self.object_subscriptions[object_identifier]
+        if object_subscription not in self.down_subscription_ids:
+            print("raise error")
+
+        await self.subscription_lock.acquire_with(object_identifier)
+
+        object_subscription.subscribe()
+
+        # Trust that the object subscription still has its its release() method on
+        # the callback holder??
+        # There is no reason to remove it but callback_holder is public and not
+        # releasing the lock would be very bad
