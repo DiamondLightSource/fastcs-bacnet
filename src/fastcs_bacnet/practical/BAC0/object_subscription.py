@@ -48,12 +48,14 @@ class ObjectSubscription:
             update from the device
             Parameters are the objects property identifier and the new value
         subscription_callback: procedure that runs when a cov request is sent out
-            The boolean parameter represents whether it is the initial subscription
-            request or refreshing the subscription (automatically done by BAC0)
+            The boolean parameter argument is True when it is the initial subscription
+            request and False when refreshing the subscription (automatically done by
+            BAC0)
         failed_subscription_callback: procedure that runs when a cov request is sent out
             and fails
-            The boolean parameter represents whether it is the initial subscription
-            request or refreshing the subscription (automatically done by BAC0)
+            The boolean parameter argument is True when it is the initial subscription
+            request and False when refreshing the subscription (automatically done by
+            BAC0)
         """
         self._bacnet_client = bacnet_client
         self._subscription_id = subscription_id
