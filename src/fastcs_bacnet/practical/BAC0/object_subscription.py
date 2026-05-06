@@ -77,9 +77,9 @@ class ObjectSubscription:
         if initial_callback is not None:
             self.callback_holder.add(initial_callback)
 
-        self.subscribe()
+        self.restart_subscription()
 
-    def subscribe(self):
+    def restart_subscription(self):
         """
         Restarts the subscription to the bacnet object
 

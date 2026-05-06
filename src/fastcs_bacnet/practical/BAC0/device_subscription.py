@@ -155,7 +155,7 @@ class DeviceSubscription:
 
         await self.subscription_lock.acquire_with(object_identifier)
 
-        object_subscription.subscribe()
+        object_subscription.restart_subscription()
 
         # Trust that the object subscription still has its its release() method on
         # the callback holder??
