@@ -138,7 +138,9 @@ class ObjectSubscription:
         # manual decoration funciton
         def decorate_refresh_subscription(refresh_subscription):
 
-            # decorated function just calls resubscription_callback_stack first
+            # decorated function calls _on_subscription_attempt first
+            # then tries to refresh subscription
+            # and calls _on_failed_subscription if it doesnt work
             async def decorated_refresh_subscription(*args):
                 self._on_subscription_attempt(False)
 
