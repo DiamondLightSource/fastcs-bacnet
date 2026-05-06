@@ -1,7 +1,10 @@
+import asyncio
 from asyncio import Lock
 from collections.abc import Callable
 
 from BAC0 import lite
+from bacpypes3.pdu import Address
+from bacpypes3.service.device import WhoIsFuture
 
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 from fastcs_bacnet.practical.BAC0.subscription_id import (
@@ -34,9 +37,11 @@ class DeviceSubscription:
     object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
     subscription_lock: SubscriptionLock
     down_subscriptions: set[ObjectSubscription]
+    iam_listener_reference: asyncio.Task | None = None
 
-    def __init__(self, ip_socket: IPv4SocketAddress):
+    def __init__(self, bacnet_client: lite, ip_socket: IPv4SocketAddress):
 
+        self.bacnet_client = bacnet_client
         self.ip_socket = ip_socket
         self.object_subscriptions = {}
         self.subscription_lock = SubscriptionLock()
@@ -44,7 +49,6 @@ class DeviceSubscription:
 
     async def add_subscription(
         self,
-        bacnet_client: lite,
         object_id: ObjectIdentifier,
         lifetime: int,
         callback: Callable[[str, float], None] | None = None,
@@ -70,18 +74,26 @@ class DeviceSubscription:
                 self._handle_failed_subscription(object_subscription)
 
         object_subscription = ObjectSubscription(
-            bacnet_client,
+            self.bacnet_client,
             subscription_id,
             lifetime=lifetime,
             initial_callback=callback,
+            subscription_callback=self.check_for_restart,
             failed_subscription_callback=failed_subscription_callback,
         )
         object_subscription.callback_holder.add(release)
+        object_subscription.callback_holder.add(self.check_for_restart)
 
         self.object_subscriptions[object_id] = object_subscription
 
     def _handle_failed_subscription(self, object_subscription: ObjectSubscription):
-        pass
+        self.down_subscriptions.add(object_subscription)
+
+        # all subscriptions are down
+        if self.down_subscriptions == self.object_subscriptions.items():
+            self.iam_listener_reference = asyncio.create_task(
+                self.listen_for_iam(self.restart_failed_subscriptions)
+            )
 
     def remove_subscription(self, object_id: ObjectIdentifier):
         subscription = self.object_subscriptions.pop(object_id)
@@ -94,3 +106,35 @@ class DeviceSubscription:
         if object_id not in self.object_subscriptions:
             return None
         return self.object_subscriptions[object_id]
+
+    def check_for_restart(self, *args):
+        if len(self.down_subscriptions) != 0:
+            self.restart_failed_subscriptions()
+
+    async def listen_for_iam(self, callback: Callable[[], None]):
+        app = self.bacnet_client.this_application.app
+
+        # this looks stupid but its exactly how they do it in BACpypes3
+        # https://github.com/JoelBender/BACpypes3/blob/main/bacpypes3/service/device.py#L184
+        if not hasattr(app, "_who_is_futures"):
+            app._who_is_futures = []  # noqa: SLF001
+
+        device_found = []
+        while len(device_found) == 0:
+            who_is_future = WhoIsFuture(
+                app, Address("172.23.240.101"), None, None, 3600
+            )
+            # need to add the future to the list or the future will raise an exception
+            app._who_is_futures.append(who_is_future)  # noqa: SLF001
+
+            # this will wait until it hears an IAm from the given IP address
+            # OR until it times out (hardcoded to an hour right now)
+            # returns a list of IAms that match the IP
+            # empty list means nothing was returned
+            device_found = await who_is_future.future
+
+        # maybe a comparison here to make sure it actually found the right device??
+        callback()
+
+    def restart_failed_subscriptions(self):
+        pass
