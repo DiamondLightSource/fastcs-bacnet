@@ -91,7 +91,7 @@ class DeviceSubscription:
         self.down_subscription_ids.add(subscription_id)
 
         # all subscriptions are down
-        if self.down_subscription_ids == self.object_subscriptions.items():
+        if self.down_subscription_ids == set(self.object_subscriptions.keys()):
             task = asyncio.create_task(
                 self.listen_for_iam(self.restart_failed_subscriptions)
             )
