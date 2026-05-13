@@ -91,11 +91,6 @@ class DeviceSubscription:
                 self.subscription_lock.release_with(object_id)
 
         subscription_id = SubscriptionID(self.ip_socket, object_id)
-        # object_subscription has to be set AFTER its created
-        # This is because the callback must be defined before its created
-        # We cant give the ObjectSubscription in the callback
-        # because we would have to type this inside the ObjectSubscription class
-        object_subscription: ObjectSubscription | None = None
 
         def failed_subscription_callback(_):
             if object_subscription is not None:
