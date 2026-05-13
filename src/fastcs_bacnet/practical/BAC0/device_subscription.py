@@ -59,7 +59,7 @@ class DeviceSubscription:
     subscription_lock: SubscriptionLock
     down_subscription_ids: set[ObjectIdentifier]
     task_pool: set[asyncio.Task]
-    iam_listen_task: asyncio.Task | None
+    iam_listen_task: asyncio.Task | None = None
 
     def __init__(self, bacnet_client: lite, ip_socket: IPv4SocketAddress):
 
