@@ -153,6 +153,15 @@ class DeviceSubscription:
 
         await self.subscription_lock.acquire_with(object_identifier)
 
+        if object_identifier not in self.down_subscription_ids:
+            # subscription already restarted
+            return
+
+        # asume the restart will work
+        # if it doesnt, the id will be added to this set again
+        self.down_subscription_ids.discard(object_identifier)
+        object_subscription = self.object_subscriptions[object_identifier]
+
         object_subscription.restart_subscription()
 
         # Trust that the object subscription still has its its release() method on
