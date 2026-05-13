@@ -14,7 +14,7 @@ from fastcs_bacnet.practical.BAC0.subscription_id import (
 
 
 class SubscriptionLock(Lock):
-    _acquired_by = ObjectIdentifier
+    _acquired_by: ObjectIdentifier
 
     async def acquire_with(self, acquired_by: ObjectIdentifier):
         valid = await super().acquire()
