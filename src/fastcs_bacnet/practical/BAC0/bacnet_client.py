@@ -62,11 +62,10 @@ class BacnetClient:
 
         if subscription_id.socket_address not in self._devices:
             self._devices[subscription_id.socket_address] = DeviceSubscription(
-                subscription_id.socket_address
+                self._bacnet_client, subscription_id.socket_address
             )
 
         await self._devices[subscription_id.socket_address].add_subscription(
-            self._bacnet_client,
             subscription_id.object_key,
             self._subscription_lifetime,
             callback=callback,
