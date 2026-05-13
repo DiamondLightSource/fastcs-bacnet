@@ -13,7 +13,8 @@ from fastcs_bacnet.practical.FastCS.bacnet_controller import BacnetController
 async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
 
     async with start() as bac0:
-        bacnet_client = BacnetClient(bac0, initial_subscriptions=subscriptions)
+        bacnet_client = BacnetClient(bac0)
+        await bacnet_client.group_add_subscriptions(subscriptions)
 
         epics_ca = EpicsCATransport(epicsca=EpicsIOCOptions(pv_prefix="FASTCSBACNET"))
         bacnet_controller = BacnetController(bacnet_client)
