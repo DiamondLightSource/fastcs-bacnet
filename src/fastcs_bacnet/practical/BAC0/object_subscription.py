@@ -110,6 +110,9 @@ class ObjectSubscription:
         )
 
     async def _run(self):
+        """
+        Calls subscription object run method with callbacks
+        """
 
         try:
             if self._subscription_object is not None:
@@ -119,6 +122,9 @@ class ObjectSubscription:
             self._on_failed_subscription(True)
 
     async def _decorate_resubscribe(self):
+        """
+        Implements callbcaks into resubscription method
+        """
 
         if self._subscription_object is None:
             return
@@ -164,12 +170,22 @@ class ObjectSubscription:
         )
 
     def _on_subscription_attempt(self, first_attempt: bool):
+        """
+        Method to be called when subscription is started or refreshed (automatically)
+
+        first_attempt: should be True on subscription and False on resubscription
+        """
         if self.tracking:
             self._last_subscription = dt.now()
         if self._subscription_callback is not None:
             self._subscription_callback(first_attempt)
 
     def _on_failed_subscription(self, first_attempt: bool):
+        """
+        Method to be called when subscription or resubscription fails
+
+        first_attempt: should be True on subscription and False on resubscription
+        """
         if first_attempt:
             print("subscription failed")
         else:
