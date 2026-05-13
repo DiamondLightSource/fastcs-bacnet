@@ -22,7 +22,7 @@ class SubscriptionLock(Lock):
     Must be released with the same ObjectIdentifier
     """
 
-    _acquired_by = ObjectIdentifier
+    _acquired_by: ObjectIdentifier
 
     async def acquire_with(self, acquired_by: ObjectIdentifier):
         """
