@@ -94,6 +94,7 @@ class DeviceSubscription:
 
         def failed_subscription_callback(_):
             if object_subscription is not None:
+                release("", 0.0)
                 self._handle_failed_subscription(subscription_id.object_key)
 
         object_subscription = ObjectSubscription(
