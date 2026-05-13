@@ -1,4 +1,4 @@
-from fastcs_bacnet.BAC0.subscription_id import (
+from fastcs_bacnet.practical.BAC0.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
     SubscriptionID,
