@@ -59,6 +59,7 @@ class DeviceSubscription:
     subscription_lock: SubscriptionLock
     down_subscription_ids: set[ObjectIdentifier]
     task_pool: set[asyncio.Task]
+    iam_listen_task: asyncio.Task | None
 
     def __init__(self, bacnet_client: lite, ip_socket: IPv4SocketAddress):
 
@@ -107,6 +108,7 @@ class DeviceSubscription:
         )
         object_subscription.callback_holder.add(release)
         object_subscription.callback_holder.add(self.check_for_restart)
+        object_subscription.callback_holder.add(self._cancel_iam)
 
         self.object_subscriptions[object_id] = object_subscription
 
@@ -118,11 +120,9 @@ class DeviceSubscription:
 
         # all subscriptions are down
         if self.down_subscription_ids == set(self.object_subscriptions.keys()):
-            task = asyncio.create_task(
+            self.iam_listen_task = asyncio.create_task(
                 self._listen_for_iam(self._restart_failed_subscriptions)
             )
-            self.task_pool.add(task)
-            task.add_done_callback(self.task_pool.remove)
 
     def remove_subscription(self, object_id: ObjectIdentifier):
         self.object_subscriptions.pop(object_id)
@@ -171,6 +171,13 @@ class DeviceSubscription:
 
         # maybe a comparison here to make sure it actually found the right device??
         callback()
+
+        self.iam_listen_task = None
+
+    def _cancel_iam(self, *_):
+        if self.iam_listen_task is not None:
+            self.iam_listen_task.cancel()
+            self.iam_listen_task = None
 
     def _restart_failed_subscriptions(self):
         """
