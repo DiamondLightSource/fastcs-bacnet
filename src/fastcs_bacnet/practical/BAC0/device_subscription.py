@@ -15,9 +15,20 @@ from fastcs_bacnet.practical.BAC0.subscription_id import (
 
 
 class SubscriptionLock(Lock):
+    """
+    Lock object specifically for Bacnet subscriptions
+
+    Acquired with an ObjectIdentifier
+    Must be released with the same ObjectIdentifier
+    """
+
     _acquired_by = ObjectIdentifier
 
     async def acquire_with(self, acquired_by: ObjectIdentifier):
+        """
+        Acquires the lock with a specific ObjectIdentifier
+        It can only be unlocked by passing this same ObjectIdentifier as an argument
+        """
         valid = await super().acquire()
 
         if valid:
@@ -26,6 +37,10 @@ class SubscriptionLock(Lock):
         return valid
 
     def release_with(self, released_by: ObjectIdentifier) -> bool:
+        """
+        ObjectIdentifier must match the ObjectIdentifier the lock was acquired with
+        Otherwise lock will not be released and False will be returned
+        """
 
         if released_by != self._acquired_by:
             return False
@@ -34,6 +49,12 @@ class SubscriptionLock(Lock):
 
 
 class DeviceSubscription:
+    """
+    Handles all subscriptions to a specific device
+
+    An intermediate between BacnetCleint and ObjectSubscription s
+    """
+
     object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
     subscription_lock: SubscriptionLock
     down_subscription_ids: set[ObjectIdentifier]
@@ -54,6 +75,12 @@ class DeviceSubscription:
         lifetime: int,
         callback: Callable[[str, float], None] | None = None,
     ):
+        """
+        Creates an ObjectSubscription that is handled by this object
+
+        Subscriptions can only be created one at a time so the lock is acquired
+        until the subscription is confirmed
+        """
 
         await self.subscription_lock.acquire_with(object_id)
 
@@ -88,6 +115,9 @@ class DeviceSubscription:
         self.object_subscriptions[object_id] = object_subscription
 
     def _handle_failed_subscription(self, subscription_id: ObjectIdentifier):
+        """
+        The callback that is run when a subscription or resubscription fails
+        """
         self.down_subscription_ids.add(subscription_id)
 
         # all subscriptions are down
@@ -108,11 +138,20 @@ class DeviceSubscription:
             return None
         return self.object_subscriptions[object_id]
 
-    def check_for_restart(self, *args):
+    def check_for_restart(self, *_):
+        """
+        Checks if any subscriptions are down, tries to restart them if so
+
+        Arguments are not used, parameter is there to make the function
+        more versatile
+        """
         if len(self.down_subscription_ids) != 0:
             self.restart_failed_subscriptions()
 
     async def listen_for_iam(self, callback: Callable[[], None]):
+        """
+        Indefinitely listens for an IAm message from the device this object represents
+        """
         app = self.bacnet_client.this_application.app
 
         # this looks stupid but its exactly how they do it in BACpypes3
@@ -123,7 +162,7 @@ class DeviceSubscription:
         device_found = []
         while len(device_found) == 0:
             who_is_future = WhoIsFuture(
-                app, Address("172.23.240.101"), None, None, 3600
+                app, Address(str(self.ip_socket)), None, None, 3600
             )
             # need to add the future to the list or the future will raise an exception
             app._who_is_futures.append(who_is_future)  # noqa: SLF001
@@ -138,6 +177,9 @@ class DeviceSubscription:
         callback()
 
     def restart_failed_subscriptions(self):
+        """
+        Loops through all subscriptions in the down subscriptions set and restarts them
+        """
 
         for down_object_subscription_id in self.down_subscription_ids:
             task = asyncio.create_task(
@@ -147,6 +189,10 @@ class DeviceSubscription:
             task.add_done_callback(self.task_pool.remove)
 
     async def restart_single_subscription(self, object_identifier: ObjectIdentifier):
+        """
+        Restarts a single object subscription on this device
+        """
+
         object_subscription = self.object_subscriptions[object_identifier]
         if object_subscription not in self.down_subscription_ids:
             print("raise error")
