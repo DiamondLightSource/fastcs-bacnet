@@ -123,7 +123,7 @@ class DeviceSubscription:
         # all subscriptions are down
         if self.down_subscription_ids == set(self.object_subscriptions.keys()):
             task = asyncio.create_task(
-                self.listen_for_iam(self.restart_failed_subscriptions)
+                self._listen_for_iam(self._restart_failed_subscriptions)
             )
             self.task_pool.add(task)
             task.add_done_callback(self.task_pool.remove)
@@ -146,9 +146,9 @@ class DeviceSubscription:
         more versatile
         """
         if len(self.down_subscription_ids) != 0:
-            self.restart_failed_subscriptions()
+            self._restart_failed_subscriptions()
 
-    async def listen_for_iam(self, callback: Callable[[], None]):
+    async def _listen_for_iam(self, callback: Callable[[], None]):
         """
         Indefinitely listens for an IAm message from the device this object represents
         """
@@ -176,19 +176,19 @@ class DeviceSubscription:
         # maybe a comparison here to make sure it actually found the right device??
         callback()
 
-    def restart_failed_subscriptions(self):
+    def _restart_failed_subscriptions(self):
         """
         Loops through all subscriptions in the down subscriptions set and restarts them
         """
 
         for down_object_subscription_id in self.down_subscription_ids:
             task = asyncio.create_task(
-                self.restart_single_subscription(down_object_subscription_id)
+                self._restart_single_subscription(down_object_subscription_id)
             )
             self.task_pool.add(task)
             task.add_done_callback(self.task_pool.remove)
 
-    async def restart_single_subscription(self, object_identifier: ObjectIdentifier):
+    async def _restart_single_subscription(self, object_identifier: ObjectIdentifier):
         """
         Restarts a single object subscription on this device
         """
