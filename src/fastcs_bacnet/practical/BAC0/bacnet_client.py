@@ -1,9 +1,35 @@
+import asyncio
+from asyncio import Lock
+from collections import defaultdict
 from collections.abc import Callable
 
 from BAC0 import lite
 
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.practical.BAC0.subscription_id import (
+    IPv4SocketAddress,
+    ObjectIdentifier,
+    SubscriptionID,
+)
+
+
+class SubscriptionLock(Lock):
+    _acquired_by: ObjectIdentifier
+
+    async def acquire_with(self, acquired_by: ObjectIdentifier):
+        valid = await super().acquire()
+
+        if valid:
+            self._acquired_by = acquired_by
+
+        return valid
+
+    def release_with(self, released_by: ObjectIdentifier) -> bool:
+
+        if released_by != self._acquired_by:
+            return False
+        super().release()
+        return True
 
 
 class BacnetClient:
@@ -12,12 +38,14 @@ class BacnetClient:
     Does NOT handle them
     """
 
+    _down_subscriptions: defaultdict[IPv4SocketAddress, list[ObjectSubscription]]
+    _locked_devices: defaultdict[IPv4SocketAddress, SubscriptionLock]
+
     def __init__(
         self,
         bacnet_client: lite,
         initial_subscriptions: list[SubscriptionID] | None = None,
         subscription_lifetime: int = 60,
-        auto_renew_subscriptions: bool = False,
     ):
         """
         bacnet_client: python bacnet object used to interact with actual bacnet objects
@@ -31,17 +59,18 @@ class BacnetClient:
             must be sent to renew the subscription)
         """
         self._subscription_lifetime = subscription_lifetime
-        self._auto_renew_subscriptions = auto_renew_subscriptions
 
         self._bacnet_client = bacnet_client
 
         self._subscriptions: dict[SubscriptionID, ObjectSubscription] = {}
+        self._down_subscriptions = defaultdict(list)
+        self._locked_devices = defaultdict(SubscriptionLock)
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
-                self.add_subscription(subscription_id)
+                asyncio.create_task(self.add_subscription(subscription_id))
 
-    def add_subscription(
+    async def add_subscription(
         self,
         subscription_id: SubscriptionID,
         callback: Callable[[str, float], None] | None = None,
@@ -53,25 +82,41 @@ class BacnetClient:
             If None no callback function will be used
         """
 
-        self._subscriptions[subscription_id] = ObjectSubscription(
+        await self._locked_devices[subscription_id.socket_address].acquire_with(
+            subscription_id.object_key
+        )
+
+        def release(property_indentifier: str, property_value: float):
+            if self._locked_devices[subscription_id.socket_address].locked():
+                # Only releases if the object_key matches the one that locked it
+                # This prevents other subscription notifications confirming a CoV
+                self._locked_devices[subscription_id.socket_address].release_with(
+                    subscription_id.object_key
+                )
+
+        def failed_subscription_callback(_):
+            if object_subscription is not None:
+                self._down_subscriptions[subscription_id.socket_address].append(
+                    object_subscription
+                )
+
+        object_subscription = ObjectSubscription(
             self._bacnet_client,
             subscription_id,
             lifetime=self._subscription_lifetime,
-            auto_renew=self._auto_renew_subscriptions,
             initial_callback=callback,
+            failed_subscription_callback=failed_subscription_callback,
         )
+        object_subscription.callback_holder.add(release)
+
+        self._subscriptions[subscription_id] = object_subscription
 
     def remove_subscription(self, subscription_id: SubscriptionID):
         """
         Removes a subscription from the dictionary
         subscription_id: identifier used to find the object to subscribe to
-        stop_subscription: if True, the subscription itself is also stopped
-            Set to False if you have taken your own instance of the
-            ObjectSubscription that you are still using
         """
-        subscription = self._subscriptions.pop(subscription_id)
-
-        subscription.stop_subscription()
+        self._subscriptions.pop(subscription_id)
 
     def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
         return self._subscriptions[subscription_id]
