@@ -99,9 +99,7 @@ class DeviceSubscription:
             task.add_done_callback(self.task_pool.remove)
 
     def remove_subscription(self, object_id: ObjectIdentifier):
-        subscription = self.object_subscriptions.pop(object_id)
-
-        subscription.stop_subscription()
+        self.object_subscriptions.pop(object_id)
 
     def get_subscription(
         self, object_id: ObjectIdentifier
