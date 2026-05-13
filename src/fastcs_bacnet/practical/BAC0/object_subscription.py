@@ -22,6 +22,7 @@ class ObjectSubscription:
     callback_holder: CallbackHolder
     _subscription_callback: Callable[[bool], None] | None
     _failed_subscription_callback: Callable[[bool], None] | None
+    _decorate_susbcription_task: asyncio.Task
 
     def __init__(
         self,
@@ -104,7 +105,9 @@ class ObjectSubscription:
         )
         self._subscription_object.task = asyncio.create_task(self._run())
 
-        self._subscription_object.task.add_done_callback(self._decorate_resubscribe)
+        self._decorate_susbcription_task = asyncio.create_task(
+            self._decorate_resubscribe()
+        )
 
     async def _run(self):
 
@@ -115,7 +118,7 @@ class ObjectSubscription:
         except BaseException:
             self._on_failed_subscription(True)
 
-    def _decorate_resubscribe(self, _):
+    async def _decorate_resubscribe(self):
 
         if self._subscription_object is None:
             return
@@ -124,6 +127,10 @@ class ObjectSubscription:
             self._subscription_object.address,
             self._subscription_object.process_identifier,
         )
+
+        # poll app dictionary until it assigns scm
+        while scm_key not in self._bacnet_client.this_application.app._cov_contexts:  # noqa: SLF001
+            await asyncio.sleep(0.1)
 
         # To add a callback on resubscription we need to go down to the BacPyPes3 layer
         # Specifically, we need to get the SubscriptionContextManager as this is what
