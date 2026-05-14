@@ -173,7 +173,7 @@ class ObjectSubscription:
         """
         Method to be called when subscription is started or refreshed (automatically)
 
-        first_attempt: should be True on subscription and False on resubscription
+        first_attempt: True on subscription and False on resubscription
         """
         if self.tracking:
             self._last_subscription = dt.now()
