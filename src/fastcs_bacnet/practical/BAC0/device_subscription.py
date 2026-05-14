@@ -130,6 +130,12 @@ class DeviceSubscription:
             return None
         return self._object_subscriptions[object_id]
 
+    def get_subscription_ids(self) -> set[SubscriptionID]:
+        return {
+            subscription.get_subscription_id()
+            for subscription in self._object_subscriptions.values()
+        }
+
     async def _listen_for_iam(self):
         """
         Indefinitely listens for an IAm message from the device this object represents

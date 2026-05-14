@@ -19,7 +19,6 @@ class BacnetClient:
     """
 
     _devices: dict[IPv4SocketAddress, DeviceSubscription]
-    _subscription_ids: set[SubscriptionID]
     _task_pool: set[asyncio.Task]
 
     def __init__(
@@ -44,7 +43,6 @@ class BacnetClient:
         self._bacnet_client = bacnet_client
 
         self._devices = {}
-        self._subscription_ids = set()
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
@@ -75,8 +73,6 @@ class BacnetClient:
             callback=callback,
         )
 
-        self._subscription_ids.add(subscription_id)
-
     def remove_subscription(self, subscription_id: SubscriptionID):
         """
         Removes a subscription from the dictionary
@@ -101,4 +97,8 @@ class BacnetClient:
         )
 
     def get_subscription_ids(self) -> set[SubscriptionID]:
-        return self._subscription_ids
+        subscription_ids: set[SubscriptionID] = set()
+        for device in self._devices.values():
+            subscription_ids = subscription_ids | device.get_subscription_ids()
+
+        return subscription_ids

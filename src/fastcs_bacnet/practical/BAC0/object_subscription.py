@@ -147,3 +147,6 @@ class ObjectSubscription:
         print("Object: ", self._subscription_id.object_key)
         if self._failed_subscription_callback is not None:
             self._failed_subscription_callback(first_attempt)
+
+    def get_subscription_id(self) -> SubscriptionID:
+        return self._subscription_id
