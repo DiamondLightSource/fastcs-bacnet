@@ -95,7 +95,7 @@ class DeviceSubscription:
 
         def release(property_indentifier: str, property_value: float):
             if self._subscription_lock.locked():
-                # Only releases if the object_key matches the one that locked it
+                # Only releases if the object_id matches the one that locked it
                 # This prevents other subscription notifications confirming a CoV
                 self._subscription_lock.release_with(object_id)
 
