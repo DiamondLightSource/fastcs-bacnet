@@ -1,12 +1,14 @@
 from fastcs.attributes import AttrR
 from fastcs.controllers import Controller
-from fastcs.datatypes import Float
+from fastcs.datatypes import Bool, Float
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 from fastcs_bacnet.practical.FastCS.bacnet_attributes import (
     AnalogAttributeIO,
     AnalogAttributeIORef,
+    BinaryAttributeIO,
+    BinaryAttributeIORef,
 )
 
 
@@ -31,7 +33,9 @@ class BacnetSubController(Controller):
         subscription_ids: list of subscriptions to make attributes for
             must be objects on the device (same ip and port)
         """
-        super().__init__(ios=[AnalogAttributeIO(bacnet_client)])
+        super().__init__(
+            ios=[AnalogAttributeIO(bacnet_client), BinaryAttributeIO(bacnet_client)]
+        )
 
         for subscription_id in subscription_ids:
             # TODO: Throw an error here instead
@@ -54,10 +58,24 @@ class BacnetSubController(Controller):
             attribute_name = (
                 f"{object_type_snake_case}_{subscription_id.object_key.object_instance}"
             )
-            self.add_attribute(
-                attribute_name,
-                AttrR(
-                    Float(),
-                    io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
-                ),
-            )
+
+            # TODO: change this to another process once DLS-BMS is integrated
+            if "analog" in attribute_name:
+                self.add_attribute(
+                    attribute_name,
+                    AttrR(
+                        Float(),
+                        io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
+                    ),
+                )
+            elif "binary" in attribute_name:
+                self.add_attribute(
+                    attribute_name,
+                    AttrR(
+                        Bool(),
+                        io_ref=BinaryAttributeIORef(subscription_id=subscription_id),
+                    ),
+                )
+
+            else:
+                print("error")
