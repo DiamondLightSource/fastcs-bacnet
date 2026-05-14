@@ -93,7 +93,7 @@ class DeviceSubscription:
 
         await self._subscription_lock.acquire_with(object_id)
 
-        def release(property_indentifier: str, property_value: float):
+        def release(_: str, __: float):
             if self._subscription_lock.locked():
                 # Only releases if the object_id matches the one that locked it
                 # This prevents other subscription notifications confirming a CoV
