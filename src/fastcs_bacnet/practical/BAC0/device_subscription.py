@@ -102,10 +102,10 @@ class DeviceSubscription:
             self.bacnet_client,
             subscription_id,
             lifetime=lifetime,
-            initial_callback=callback,
-            subscription_callback=self.check_for_restart,
             failed_subscription_callback=failed_subscription_callback,
         )
+        if callback is not None:
+            object_subscription.callback_holder.add(callback)
         object_subscription.callback_holder.add(release)
         object_subscription.callback_holder.add(self.check_for_restart)
         object_subscription.callback_holder.add(self._cancel_iam)

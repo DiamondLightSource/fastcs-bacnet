@@ -20,7 +20,6 @@ class ObjectSubscription:
     _subscription_object: COVSubscription | None = None
     _subscription_down: bool = True
     callback_holder: CallbackHolder
-    _subscription_callback: Callable[[bool], None] | None
     _failed_subscription_callback: Callable[[bool], None] | None
     _decorate_susbcription_task: asyncio.Task
 
@@ -30,8 +29,6 @@ class ObjectSubscription:
         subscription_id: SubscriptionID,
         lifetime: int = 60,
         tracking: bool = False,
-        initial_callback: Callable[[str, float], None] | None = None,
-        subscription_callback: Callable[[bool], None] | None = None,
         failed_subscription_callback: Callable[[bool], None] | None = None,
     ):
         """
@@ -63,7 +60,6 @@ class ObjectSubscription:
         self.tracking = tracking
         self.callback_holder = CallbackHolder()
 
-        self._subscription_callback = subscription_callback
         self._failed_subscription_callback = failed_subscription_callback
 
         if tracking:
@@ -74,9 +70,6 @@ class ObjectSubscription:
                 self._last_update = dt.now()
 
             self.callback_holder.add(update_last_update)
-
-        if initial_callback is not None:
-            self.callback_holder.add(initial_callback)
 
         self.restart_subscription()
 
@@ -177,8 +170,6 @@ class ObjectSubscription:
         """
         if self.tracking:
             self._last_subscription = dt.now()
-        if self._subscription_callback is not None:
-            self._subscription_callback(first_attempt)
 
     def _on_failed_subscription(self, first_attempt: bool):
         """
