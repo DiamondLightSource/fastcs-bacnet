@@ -14,7 +14,7 @@ from fastcs_bacnet.practical.BAC0.subscription_id import (
 )
 
 
-class SubscriptionLock(Lock):
+class SubscriptionLock:
     """
     Lock object specifically for Bacnet subscriptions
 
@@ -22,14 +22,18 @@ class SubscriptionLock(Lock):
     Must be released with the same ObjectIdentifier
     """
 
+    _lock: Lock
     _acquired_by: ObjectIdentifier
+
+    def __init__(self):
+        self._lock = Lock()
 
     async def acquire_with(self, acquired_by: ObjectIdentifier):
         """
         Acquires the lock with a specific ObjectIdentifier
         It can only be unlocked by passing this same ObjectIdentifier as an argument
         """
-        valid = await super().acquire()
+        valid = await self._lock.acquire()
 
         if valid:
             self._acquired_by = acquired_by
@@ -44,8 +48,11 @@ class SubscriptionLock(Lock):
 
         if released_by != self._acquired_by:
             return False
-        super().release()
+        self._lock.release()
         return True
+
+    def locked(self) -> bool:
+        return self._lock.locked()
 
 
 class DeviceSubscription:
