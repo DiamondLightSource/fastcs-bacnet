@@ -26,7 +26,7 @@ class BacnetClient:
         self,
         bacnet_client: lite,
         initial_subscriptions: list[SubscriptionID] | None = None,
-        subscription_lifetime: int = 60,
+        subscription_lifetime: int = 3600,
     ):
         """
         bacnet_client: python bacnet object used to interact with actual bacnet objects

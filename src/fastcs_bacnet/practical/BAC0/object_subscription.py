@@ -24,7 +24,7 @@ class ObjectSubscription:
         self,
         bacnet_client: lite,
         subscription_id: SubscriptionID,
-        lifetime: int = 60,
+        lifetime: int = 3600,
         failed_subscription_callback: Callable[[bool], None] | None = None,
     ):
         """
