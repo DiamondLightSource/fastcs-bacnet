@@ -14,9 +14,9 @@ background_tasks = set()
 
 
 @dataclass
-class AnalogOutputAttributeIORef(AttributeIORef):
+class BacnetAttributeIORef(AttributeIORef):
     """
-    Dataclass for referencing and analog output subscription
+    Dataclass for referencing any subscription
     Basically just uses subscription id dataclass
     Update period must be once as this sets the attribute update callback
     """
@@ -25,9 +25,23 @@ class AnalogOutputAttributeIORef(AttributeIORef):
     subscription_id: SubscriptionID | None = None
 
 
-class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
+@dataclass
+class AnalogAttributeIORef(BacnetAttributeIORef):
     """
-    Handler for analog output attributes
+    BacnetAttributeIORef specifically for analog objects
+    """
+
+
+@dataclass
+class BinaryAttributeIORef(BacnetAttributeIORef):
+    """
+    BacnetAttributeIORef specifically for analog objects
+    """
+
+
+class BacnetAttributeIO(AttributeIO[float, BacnetAttributeIORef]):
+    """
+    Handler for bacnet attributes
     """
 
     def __init__(self, bacnet_client: BacnetClient):
@@ -41,7 +55,7 @@ class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
 
         self.bacnet_client = bacnet_client
 
-    async def update(self, attr: AttrR[float, AnalogOutputAttributeIORef]):
+    async def update(self, attr: AttrR[float, BacnetAttributeIORef]):
         """
         Misnomer, does not actually update the variable in this case
         It doesnt start the subscription either
@@ -95,7 +109,7 @@ class BacnetSubController(Controller):
         subscription_ids: list of subscriptions to make attributes for
             must be objects on the device (same ip and port)
         """
-        super().__init__(ios=[AnalogOutputAttributeIO(bacnet_client)])
+        super().__init__(ios=[BacnetAttributeIO(bacnet_client)])
 
         for subscription_id in subscription_ids:
             # TODO: Throw an error here instead
@@ -122,6 +136,6 @@ class BacnetSubController(Controller):
                 attribute_name,
                 AttrR(
                     Float(),
-                    io_ref=AnalogOutputAttributeIORef(subscription_id=subscription_id),
+                    io_ref=BacnetAttributeIORef(subscription_id=subscription_id),
                 ),
             )
