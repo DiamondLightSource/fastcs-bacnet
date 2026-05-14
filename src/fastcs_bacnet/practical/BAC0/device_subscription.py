@@ -94,29 +94,24 @@ class DeviceSubscription:
 
         subscription_id = SubscriptionID(self.ip_socket, object_id)
 
-        def failed_subscription_callback(_):
+        def handle_failed_subscription(_):
             if object_subscription is not None:
                 release("", 0.0)
-                self._handle_failed_subscription(subscription_id.object_key)
+                self.down_subscription_ids.add(subscription_id.object_key)
 
         object_subscription = ObjectSubscription(
             self.bacnet_client,
             subscription_id,
             lifetime=lifetime,
-            failed_subscription_callback=failed_subscription_callback,
+            failed_subscription_callback=handle_failed_subscription,
         )
+
         if callback is not None:
             object_subscription.callback_holder.add(callback)
         object_subscription.callback_holder.add(release)
         object_subscription.callback_holder.add(self._restart_failed_subscriptions)
 
         self.object_subscriptions[object_id] = object_subscription
-
-    def _handle_failed_subscription(self, subscription_id: ObjectIdentifier):
-        """
-        The callback that is run when a subscription or resubscription fails
-        """
-        self.down_subscription_ids.add(subscription_id)
 
     def remove_subscription(self, object_id: ObjectIdentifier):
         self.object_subscriptions.pop(object_id)
