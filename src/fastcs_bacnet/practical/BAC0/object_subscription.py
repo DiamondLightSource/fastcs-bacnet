@@ -18,7 +18,7 @@ class ObjectSubscription:
     _subscription_down: bool = True
     callback_holder: CallbackHolder
     _failed_subscription_callback: Callable[[bool], None] | None
-    _decorate_subscription_task: asyncio.Task
+    _decorate_subscription_task: asyncio.Task | None
 
     def __init__(
         self,
@@ -130,6 +130,8 @@ class ObjectSubscription:
                 subscription_context_manager.refresh_subscription
             )
         )
+
+        self._decorate_subscription_task = None
 
     def _on_failed_subscription(self, first_attempt: bool):
         """
