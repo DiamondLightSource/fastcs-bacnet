@@ -188,7 +188,7 @@ class DeviceSubscription:
             # subscription already restarted
             return
 
-        # asume the restart will work
+        # assume the restart will work
         # if it doesnt, the id will be added to this set again
         self._down_subscription_ids.discard(object_identifier)
         object_subscription = self._object_subscriptions[object_identifier]
