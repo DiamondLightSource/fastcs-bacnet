@@ -9,7 +9,17 @@ from fastcs_bacnet.practical.FastCS.bacnet_controller import BacnetController
 
 
 async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
+    """
+    Runs the fastcs-bacnet application on the passed in subscriptions
 
+    This will start a FastCS EPICS IOC that can be used to query the
+    subscribed to objects
+
+    subscriptions: The bacnet objects to subscribe to
+    """
+
+    # Use a context provider so if application errors out or is closed
+    # BAC0 client is shut down correctly
     async with start() as bac0:
         bacnet_client = BacnetClient(bac0)
         await bacnet_client.add_subscriptions(subscriptions)
