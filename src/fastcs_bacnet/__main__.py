@@ -13,7 +13,13 @@ __all__ = ["main"]
 
 
 def main(args: Sequence[str] | None = None) -> None:
-    """Argument parser for the CLI."""
+    """
+    Entrypoint for the fastcs-bacnet program
+
+    Use option -f to specify filepath of the EDE file
+    This will automatically subscribe to bacnet devices
+    and create an IOC to query Bacnet objects
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "-v",
@@ -30,12 +36,9 @@ def main(args: Sequence[str] | None = None) -> None:
     python_argument_object = parser.parse_args(args)
 
     if python_argument_object.file_path is None:
-        print("file path cannot be None")
-        return
+        raise ValueError("Must specify a filepath for fastcs-bacnet program")
 
     subscription_ids = parse_csv(python_argument_object.file_path)
-    if len(subscription_ids) == 0:
-        return
 
     asyncio.run(fastcs_bacnet(subscription_ids))
 
