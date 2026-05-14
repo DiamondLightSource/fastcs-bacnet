@@ -143,9 +143,7 @@ class DeviceSubscription:
 
         device_found = []
         while len(device_found) == 0:
-            who_is_future = WhoIsFuture(
-                app, Address(str(self.ip_socket)), None, None, 3600
-            )
+            who_is_future = WhoIsFuture(app, Address(self.ip_socket), None, None, 3600)
             # need to add the future to the list or the future will raise an exception
             app._who_is_futures.append(who_is_future)  # noqa: SLF001
 
