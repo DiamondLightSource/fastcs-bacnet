@@ -59,7 +59,6 @@ class DeviceSubscription:
     subscription_lock: SubscriptionLock
     down_subscription_ids: set[ObjectIdentifier]
     task_pool: set[asyncio.Task]
-    iam_listen_task: asyncio.Task | None = None
 
     def __init__(self, bacnet_client: lite, ip_socket: IPv4SocketAddress):
 
@@ -69,6 +68,8 @@ class DeviceSubscription:
         self.subscription_lock = SubscriptionLock()
         self.down_subscription_ids = set()
         self.task_pool = set()
+
+        asyncio.create_task(self._listen_for_iam())
 
     async def add_subscription(
         self,
@@ -108,7 +109,6 @@ class DeviceSubscription:
             object_subscription.callback_holder.add(callback)
         object_subscription.callback_holder.add(release)
         object_subscription.callback_holder.add(self._restart_failed_subscriptions)
-        object_subscription.callback_holder.add(self._cancel_iam)
 
         self.object_subscriptions[object_id] = object_subscription
 
@@ -117,12 +117,6 @@ class DeviceSubscription:
         The callback that is run when a subscription or resubscription fails
         """
         self.down_subscription_ids.add(subscription_id)
-
-        # all subscriptions are down
-        if self.down_subscription_ids == set(self.object_subscriptions.keys()):
-            self.iam_listen_task = asyncio.create_task(
-                self._listen_for_iam(self._restart_failed_subscriptions)
-            )
 
     def remove_subscription(self, object_id: ObjectIdentifier):
         self.object_subscriptions.pop(object_id)
@@ -134,7 +128,7 @@ class DeviceSubscription:
             return None
         return self.object_subscriptions[object_id]
 
-    async def _listen_for_iam(self, callback: Callable[[], None]):
+    async def _listen_for_iam(self):
         """
         Indefinitely listens for an IAm message from the device this object represents
         """
@@ -160,14 +154,12 @@ class DeviceSubscription:
             device_found = await who_is_future.future
 
         # maybe a comparison here to make sure it actually found the right device??
-        callback()
+        self._restart_failed_subscriptions()
 
-        self.iam_listen_task = None
-
-    def _cancel_iam(self, *_):
-        if self.iam_listen_task is not None:
-            self.iam_listen_task.cancel()
-            self.iam_listen_task = None
+        # restarts the listening task
+        task = asyncio.create_task(self._listen_for_iam())
+        self.task_pool.add(task)
+        task.add_done_callback(self.task_pool.discard)
 
     def _restart_failed_subscriptions(self, *_):
         """
