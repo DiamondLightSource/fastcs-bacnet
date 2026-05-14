@@ -18,7 +18,7 @@ class ObjectSubscription:
     _subscription_down: bool = True
     callback_holder: CallbackHolder
     _failed_subscription_callback: Callable[[bool], None] | None
-    _decorate_susbcription_task: asyncio.Task
+    _decorate_subscription_task: asyncio.Task
 
     def __init__(
         self,
@@ -69,7 +69,7 @@ class ObjectSubscription:
         )
         self._subscription_object.task = asyncio.create_task(self._run())
 
-        self._decorate_susbcription_task = asyncio.create_task(
+        self._decorate_subscription_task = asyncio.create_task(
             self._decorate_resubscribe()
         )
 
