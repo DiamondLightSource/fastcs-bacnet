@@ -195,7 +195,7 @@ class DeviceSubscription:
 
         object_subscription.restart_subscription()
 
-        # Trust that the object subscription still has its its release() method on
+        # Trust that the object subscription still has its release() method on
         # the callback holder??
         # There is no reason to remove it but callback_holder is public and not
         # releasing the lock would be very bad
