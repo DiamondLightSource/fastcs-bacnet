@@ -184,7 +184,7 @@ class ObjectSubscription:
         """
         Method to be called when subscription or resubscription fails
 
-        first_attempt: should be True on subscription and False on resubscription
+        first_attempt: True on subscription and False on resubscription
         """
         if first_attempt:
             print("subscription failed")
