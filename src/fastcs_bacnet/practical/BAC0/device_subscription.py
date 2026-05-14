@@ -59,7 +59,7 @@ class DeviceSubscription:
     """
     Handles all subscriptions to a specific device
 
-    An intermediate between BacnetCleint and ObjectSubscription s
+    An intermediate between BacnetClient and ObjectSubscription s
     """
 
     _object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
