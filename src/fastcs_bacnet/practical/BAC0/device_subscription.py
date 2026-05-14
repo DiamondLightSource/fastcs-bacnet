@@ -67,10 +67,10 @@ class DeviceSubscription:
     _down_subscription_ids: set[ObjectIdentifier]
     _task_pool: set[asyncio.Task]
 
-    def __init__(self, bacnet_client: lite, ip_socket: IPv4SocketAddress):
+    def __init__(self, bacnet_client: lite, socket_address: IPv4SocketAddress):
 
         self.bacnet_client = bacnet_client
-        self.ip_socket = ip_socket
+        self.socket_address = socket_address
         self._object_subscriptions = {}
         self._subscription_lock = SubscriptionLock()
         self._down_subscription_ids = set()
@@ -99,7 +99,7 @@ class DeviceSubscription:
                 # This prevents other subscription notifications confirming a CoV
                 self._subscription_lock.release_with(object_id)
 
-        subscription_id = SubscriptionID(self.ip_socket, object_id)
+        subscription_id = SubscriptionID(self.socket_address, object_id)
 
         def handle_failed_subscription(_):
             if object_subscription is not None:
@@ -149,7 +149,9 @@ class DeviceSubscription:
 
         device_found = []
         while len(device_found) == 0:
-            who_is_future = WhoIsFuture(app, Address(self.ip_socket), None, None, 3600)
+            who_is_future = WhoIsFuture(
+                app, Address(self.socket_address), None, None, 3600
+            )
             # need to add the future to the list or the future will raise an exception
             app._who_is_futures.append(who_is_future)  # noqa: SLF001
 
