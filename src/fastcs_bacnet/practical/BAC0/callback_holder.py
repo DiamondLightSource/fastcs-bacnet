@@ -1,7 +1,7 @@
 import asyncio
 from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
-from typing import TypeGuard
+from typing import Any, TypeGuard
 
 
 class CallbackHolder:
@@ -11,8 +11,8 @@ class CallbackHolder:
     Adding callbacks that manipulate common state is undefined behaviour
     """
 
-    type SyncCallback = Callable[[str, float], None]
-    type AsyncCallback = Callable[[str, float], Coroutine[None, None, None]]
+    type SyncCallback = Callable[[str, Any], None]
+    type AsyncCallback = Callable[[str, Any], Coroutine[None, None, None]]
     type Callback = SyncCallback | AsyncCallback
 
     _sync_callbacks: list[SyncCallback]
@@ -78,7 +78,7 @@ class CallbackHolder:
         self._sync_callbacks = []
         self._async_callbacks = []
 
-    async def run_callbacks(self, property_identifier: str, property_value: float):
+    async def run_callbacks(self, property_identifier: str, property_value: Any):
         """
         Calls all callbacks added to the holder
 

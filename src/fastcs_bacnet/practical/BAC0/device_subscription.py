@@ -1,6 +1,7 @@
 import asyncio
 from asyncio import Lock
 from collections.abc import Callable
+from typing import Any
 
 from BAC0 import lite
 from bacpypes3.pdu import Address
@@ -82,7 +83,7 @@ class DeviceSubscription:
         self,
         object_id: ObjectIdentifier,
         lifetime: int,
-        callback: Callable[[str, float], None] | None = None,
+        callback: Callable[[str, Any], None] | None = None,
     ):
         """
         Creates an ObjectSubscription that is handled by this object
@@ -93,7 +94,7 @@ class DeviceSubscription:
 
         await self._subscription_lock.acquire_with(object_id)
 
-        def release(_: str, __: float):
+        def release(_: str, __: Any):
             if self._subscription_lock.locked():
                 # Only releases if the object_id matches the one that locked it
                 # This prevents other subscription notifications confirming a CoV
