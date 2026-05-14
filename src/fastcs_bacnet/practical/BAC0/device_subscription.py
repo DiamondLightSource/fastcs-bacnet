@@ -107,7 +107,7 @@ class DeviceSubscription:
         if callback is not None:
             object_subscription.callback_holder.add(callback)
         object_subscription.callback_holder.add(release)
-        object_subscription.callback_holder.add(self.check_for_restart)
+        object_subscription.callback_holder.add(self._restart_failed_subscriptions)
         object_subscription.callback_holder.add(self._cancel_iam)
 
         self.object_subscriptions[object_id] = object_subscription
@@ -133,16 +133,6 @@ class DeviceSubscription:
         if object_id not in self.object_subscriptions:
             return None
         return self.object_subscriptions[object_id]
-
-    def check_for_restart(self, *_):
-        """
-        Checks if any subscriptions are down, tries to restart them if so
-
-        Arguments are not used, parameter is there to make the function
-        more versatile
-        """
-        if len(self.down_subscription_ids) != 0:
-            self._restart_failed_subscriptions()
 
     async def _listen_for_iam(self, callback: Callable[[], None]):
         """
@@ -179,7 +169,7 @@ class DeviceSubscription:
             self.iam_listen_task.cancel()
             self.iam_listen_task = None
 
-    def _restart_failed_subscriptions(self):
+    def _restart_failed_subscriptions(self, *_):
         """
         Loops through all subscriptions in the down subscriptions set and restarts them
         """
