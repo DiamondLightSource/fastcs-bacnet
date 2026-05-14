@@ -79,7 +79,7 @@ class BacnetClient:
             )
 
         await self._devices[subscription_id.socket_address].add_subscription(
-            subscription_id.object_key,
+            subscription_id.object_id,
             self._subscription_lifetime,
             callback=callback,
         )
@@ -93,7 +93,7 @@ class BacnetClient:
             print("raise error here")
 
         self._devices[subscription_id.socket_address].remove_subscription(
-            subscription_id.object_key
+            subscription_id.object_id
         )
 
     def get_subscription(
@@ -104,7 +104,7 @@ class BacnetClient:
             return None
 
         return self._devices[subscription_id.socket_address].get_subscription(
-            subscription_id.object_key
+            subscription_id.object_id
         )
 
     def get_subscription_ids(self) -> set[SubscriptionID]:

@@ -78,7 +78,7 @@ class ObjectSubscription:
         # https://github.com/ChristianTremblay/BAC0/blob/main/BAC0/scripts/Lite.py#L516
         self._subscription_object = COVSubscription(
             address=str(self._subscription_id.socket_address),  # type: ignore
-            objectID=self._subscription_id.object_key.to_tuple(),
+            objectID=self._subscription_id.object_id.to_tuple(),
             lifetime=self._lifetime,
             confirmed=False,
             callback=self.callback_holder.run_callbacks,
@@ -163,7 +163,7 @@ class ObjectSubscription:
             print("resubscription failed")
         self._subscription_status = SubscriptionStatus.INACTIVE
         print("IP: ", self._subscription_id.socket_address)
-        print("Object: ", self._subscription_id.object_key)
+        print("Object: ", self._subscription_id.object_id)
         if self._failed_subscription_callback is not None:
             self._failed_subscription_callback(first_attempt)
 

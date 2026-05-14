@@ -64,11 +64,11 @@ class BacnetSubController(Controller):
                 print("raise error??")
                 return
 
-            object_type_snake_case = subscription_id.object_key.object_type.replace(
+            object_type_snake_case = subscription_id.object_id.object_type.replace(
                 "-", "_"
             )
             attribute_name = (
-                f"{object_type_snake_case}_{subscription_id.object_key.object_instance}"
+                f"{object_type_snake_case}_{subscription_id.object_id.object_instance}"
             )
 
             # TODO: change this to another process once DLS-BMS is integrated
