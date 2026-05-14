@@ -19,6 +19,7 @@ class BacnetClient:
 
     _devices: dict[IPv4SocketAddress, DeviceSubscription]
     _subscription_ids: set[SubscriptionID]
+    _task_pool: set[asyncio.Task]
 
     def __init__(
         self,
@@ -46,7 +47,9 @@ class BacnetClient:
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
-                asyncio.create_task(self.add_subscription(subscription_id))
+                task = asyncio.create_task(self.add_subscription(subscription_id))
+                self._task_pool.add(task)
+                task.add_done_callback(self._task_pool.discard)
 
     async def add_subscription(
         self,
