@@ -153,7 +153,6 @@ class DeviceSubscription:
             # empty list means nothing was returned
             device_found = await who_is_future.future
 
-        # maybe a comparison here to make sure it actually found the right device??
         self._restart_failed_subscriptions()
 
         # restarts the listening task
