@@ -190,7 +190,7 @@ class DeviceSubscription:
 
         # assume the restart will work
         # if it doesnt, the id will be added to this set again
-        self._down_subscription_ids.discard(object_identifier)
+        self._down_subscription_ids.remove(object_identifier)
         object_subscription = self._object_subscriptions[object_identifier]
 
         object_subscription.restart_subscription()
