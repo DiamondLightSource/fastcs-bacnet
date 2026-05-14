@@ -112,7 +112,6 @@ class ObjectSubscription:
         # manual decoration funciton
         def decorate_refresh_subscription(refresh_subscription):
 
-            # decorated function calls _on_subscription_attempt first
             # then tries to refresh subscription
             # and calls _on_failed_subscription if it doesnt work
             async def decorated_refresh_subscription(*args):
@@ -124,7 +123,7 @@ class ObjectSubscription:
 
             return decorated_refresh_subscription
 
-        # replace resfresh_subscription with its decorated version
+        # replace refresh_subscription with its decorated version
         subscription_context_manager.refresh_subscription = (
             decorate_refresh_subscription(
                 subscription_context_manager.refresh_subscription
