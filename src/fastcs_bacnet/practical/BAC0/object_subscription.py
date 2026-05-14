@@ -11,7 +11,7 @@ from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
 class ObjectSubscription:
     """
-    Handles and tracks subscriptions to bacnet objects
+    Handles subscriptions to bacnet objects
     """
 
     _subscription_object: COVSubscription | None = None
@@ -31,19 +31,6 @@ class ObjectSubscription:
         bacnet_client: python bacnet device that can interact with bacnet objects
         subscription_id: dataclass used to identify an object on a bacnet device
         lifetime: length of subscription (in seconds)
-        auto_renew: whether the object automatically restarts its subscription
-            This will happen half way through the subscriptions lifetime
-            You can still use the subscribe method to restart the subscription manually
-        tracking: whether the object tracks:
-            last subscription time
-            last update from device subscription
-        initial_callback: procedure to run when subscription object recieves an
-            update from the device
-            Parameters are the objects property identifier and the new value
-        subscription_callback: procedure that runs when a cov request is sent out
-            The boolean parameter argument is True when it is the initial subscription
-            request and False when refreshing the subscription (automatically done by
-            BAC0)
         failed_subscription_callback: procedure that runs when a cov request is sent out
             and fails
             The boolean parameter argument is True when it is the initial subscription
@@ -62,8 +49,6 @@ class ObjectSubscription:
     def restart_subscription(self):
         """
         Restarts the subscription to the bacnet object
-
-        Records time this method was called
         """
         if not self._subscription_down:
             print("subscrption is already up")
