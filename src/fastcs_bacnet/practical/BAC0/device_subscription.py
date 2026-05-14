@@ -62,19 +62,19 @@ class DeviceSubscription:
     An intermediate between BacnetCleint and ObjectSubscription s
     """
 
-    object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
-    subscription_lock: SubscriptionLock
-    down_subscription_ids: set[ObjectIdentifier]
-    task_pool: set[asyncio.Task]
+    _object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
+    _subscription_lock: SubscriptionLock
+    _down_subscription_ids: set[ObjectIdentifier]
+    _task_pool: set[asyncio.Task]
 
     def __init__(self, bacnet_client: lite, ip_socket: IPv4SocketAddress):
 
         self.bacnet_client = bacnet_client
         self.ip_socket = ip_socket
-        self.object_subscriptions = {}
-        self.subscription_lock = SubscriptionLock()
-        self.down_subscription_ids = set()
-        self.task_pool = set()
+        self._object_subscriptions = {}
+        self._subscription_lock = SubscriptionLock()
+        self._down_subscription_ids = set()
+        self._task_pool = set()
 
         asyncio.create_task(self._listen_for_iam())
 
@@ -91,20 +91,20 @@ class DeviceSubscription:
         until the subscription is confirmed
         """
 
-        await self.subscription_lock.acquire_with(object_id)
+        await self._subscription_lock.acquire_with(object_id)
 
         def release(property_indentifier: str, property_value: float):
-            if self.subscription_lock.locked():
+            if self._subscription_lock.locked():
                 # Only releases if the object_key matches the one that locked it
                 # This prevents other subscription notifications confirming a CoV
-                self.subscription_lock.release_with(object_id)
+                self._subscription_lock.release_with(object_id)
 
         subscription_id = SubscriptionID(self.ip_socket, object_id)
 
         def handle_failed_subscription(_):
             if object_subscription is not None:
                 release("", 0.0)
-                self.down_subscription_ids.add(subscription_id.object_key)
+                self._down_subscription_ids.add(subscription_id.object_key)
 
         object_subscription = ObjectSubscription(
             self.bacnet_client,
@@ -118,17 +118,17 @@ class DeviceSubscription:
         object_subscription.callback_holder.add(release)
         object_subscription.callback_holder.add(self._restart_failed_subscriptions)
 
-        self.object_subscriptions[object_id] = object_subscription
+        self._object_subscriptions[object_id] = object_subscription
 
     def remove_subscription(self, object_id: ObjectIdentifier):
-        self.object_subscriptions.pop(object_id)
+        self._object_subscriptions.pop(object_id)
 
     def get_subscription(
         self, object_id: ObjectIdentifier
     ) -> ObjectSubscription | None:
-        if object_id not in self.object_subscriptions:
+        if object_id not in self._object_subscriptions:
             return None
-        return self.object_subscriptions[object_id]
+        return self._object_subscriptions[object_id]
 
     async def _listen_for_iam(self):
         """
@@ -160,40 +160,40 @@ class DeviceSubscription:
 
         # restarts the listening task
         task = asyncio.create_task(self._listen_for_iam())
-        self.task_pool.add(task)
-        task.add_done_callback(self.task_pool.discard)
+        self._task_pool.add(task)
+        task.add_done_callback(self._task_pool.discard)
 
     def _restart_failed_subscriptions(self, *_):
         """
         Loops through all subscriptions in the down subscriptions set and restarts them
         """
 
-        for down_object_subscription_id in self.down_subscription_ids:
+        for down_object_subscription_id in self._down_subscription_ids:
             task = asyncio.create_task(
                 self._restart_single_subscription(down_object_subscription_id)
             )
-            self.task_pool.add(task)
-            task.add_done_callback(self.task_pool.remove)
+            self._task_pool.add(task)
+            task.add_done_callback(self._task_pool.remove)
 
     async def _restart_single_subscription(self, object_identifier: ObjectIdentifier):
         """
         Restarts a single object subscription on this device
         """
 
-        object_subscription = self.object_subscriptions[object_identifier]
-        if object_subscription not in self.down_subscription_ids:
+        object_subscription = self._object_subscriptions[object_identifier]
+        if object_subscription not in self._down_subscription_ids:
             print("raise error")
 
-        await self.subscription_lock.acquire_with(object_identifier)
+        await self._subscription_lock.acquire_with(object_identifier)
 
-        if object_identifier not in self.down_subscription_ids:
+        if object_identifier not in self._down_subscription_ids:
             # subscription already restarted
             return
 
         # asume the restart will work
         # if it doesnt, the id will be added to this set again
-        self.down_subscription_ids.discard(object_identifier)
-        object_subscription = self.object_subscriptions[object_identifier]
+        self._down_subscription_ids.discard(object_identifier)
+        object_subscription = self._object_subscriptions[object_identifier]
 
         object_subscription.restart_subscription()
 
