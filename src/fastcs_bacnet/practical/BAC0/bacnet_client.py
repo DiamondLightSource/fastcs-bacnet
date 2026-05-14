@@ -13,7 +13,8 @@ from fastcs_bacnet.practical.BAC0.subscription_id import (
 
 class BacnetClient:
     """
-    Creates and stores subscription objects to bacnet objects
+    Creates and stores DeviceSubscription s
+
     Does NOT handle them
     """
 
