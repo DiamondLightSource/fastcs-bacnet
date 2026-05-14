@@ -123,7 +123,7 @@ class ObjectSubscription:
 
     async def _decorate_resubscribe(self):
         """
-        Implements callbcaks into resubscription method
+        Implements callbacks into resubscription method
         """
 
         if self._subscription_object is None:
