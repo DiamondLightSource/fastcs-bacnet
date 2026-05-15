@@ -1,2 +1,0 @@
-class InvalidFileFormat(BaseException):
-    pass

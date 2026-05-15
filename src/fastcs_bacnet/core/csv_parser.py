@@ -1,9 +1,12 @@
-from fastcs_bacnet.core.exceptions import InvalidFileFormat
 from fastcs_bacnet.practical.BAC0.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
     SubscriptionID,
 )
+
+
+class InvalidFileFormat(BaseException):
+    pass
 
 
 def parse_csv(filepath: str) -> list[SubscriptionID]:
