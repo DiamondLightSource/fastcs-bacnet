@@ -13,7 +13,7 @@ from fastcs_bacnet.practical.BAC0.subscription_id import (
 
 class BacnetClient:
     """
-    Creates and stores DeviceSubscription s
+    Creates and stores DeviceSubscription s for given SubscriptionIDs
 
     Does NOT handle them
     """
@@ -28,14 +28,10 @@ class BacnetClient:
         subscription_lifetime: int = 3600,
     ):
         """
-        bacnet_client: python bacnet object used to interact with actual bacnet objects
-            can use this classes disconnect method to disconnect it
-            or disconnect manually outside
-        initial_subscriptions: A list of SubsciptionIDs the object can use
-            to make subscriptions in the constructor
-            Just loops through this list and calls add_subscription
+        bacnet_client: BAC0 object used to interact with actual bacnet objects
+        initial_subscriptions: The subscriptions that are started on construction
         subscription_lifetime: Time that subscriptions last (in seconds)
-            this will affect the amount of traffic on the network (a message
+            This WILL affect the amount of traffic on the network (a message
             must be sent to renew the subscription)
         """
         self._subscription_lifetime = subscription_lifetime
@@ -54,7 +50,11 @@ class BacnetClient:
         """
         Adds a list of subscriptions at one time
 
-        Faster than adding them one by one and waiting on each
+        Faster than adding them one by one and waiting after each
+        Better than creating a task for each add_subscription because
+        you can know when it finishes
+
+        subscription_ids: Subscriptions to add
         """
 
         async with asyncio.TaskGroup() as task_group:
@@ -67,9 +67,12 @@ class BacnetClient:
         callback: CovCallback | None = None,
     ):
         """
-        Adds a new subscription object to the dictionary
-        subscription_id: identifier used to find the object to subscribe to
-        callback: Procedure that is called when a new value is recieved from the device
+        Creates a subscription to a device on an object
+
+        subscription_id: Identifier used to find the object to subscribe to
+        callback: Procedure that is called when a change of value (CoV) update is
+            received from the device
+            Parameters are property_type and property_value
             If None no callback function will be used
         """
 
@@ -84,24 +87,12 @@ class BacnetClient:
             callback=callback,
         )
 
-    def remove_subscription(self, subscription_id: SubscriptionID):
-        """
-        Removes a subscription from the dictionary
-        subscription_id: identifier used to find the object to subscribe to
-        """
+    def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
         if subscription_id.socket_address not in self._devices:
-            print("raise error here")
-
-        self._devices[subscription_id.socket_address].remove_subscription(
-            subscription_id.object_id
-        )
-
-    def get_subscription(
-        self, subscription_id: SubscriptionID
-    ) -> ObjectSubscription | None:
-        if subscription_id.socket_address not in self._devices:
-            print("raise error here")
-            return None
+            raise KeyError(
+                "No subscription in BacnetClient to device "
+                + str(subscription_id.socket_address)
+            )
 
         return self._devices[subscription_id.socket_address].get_subscription(
             subscription_id.object_id
