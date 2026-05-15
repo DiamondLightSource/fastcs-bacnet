@@ -33,12 +33,12 @@ def main(args: Sequence[str] | None = None) -> None:
         type=str,
         help="Filepath to the EDE file",
     )
-    python_argument_object = parser.parse_args(args)
+    args_dict = parser.parse_args(args)
 
-    if python_argument_object.file_path is None:
+    if args_dict.file_path is None:
         raise ValueError("Must specify an input file")
 
-    subscription_ids = parse_csv(python_argument_object.file_path)
+    subscription_ids = parse_csv(args_dict.file_path)
 
     asyncio.run(fastcs_bacnet(subscription_ids))
 
