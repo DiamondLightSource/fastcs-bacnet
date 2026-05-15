@@ -34,7 +34,8 @@ class SubscriptionLock:
     async def acquire_with(self, acquired_by: ObjectIdentifier):
         """
         Acquires the lock with a specific ObjectIdentifier
-        It can only be unlocked by passing this same ObjectIdentifier as an argument
+
+        Object can only be unlocked by passing this same ObjectIdentifier as an argument
         """
         valid = await self._lock.acquire()
 
@@ -45,8 +46,13 @@ class SubscriptionLock:
 
     def release_with(self, released_by: ObjectIdentifier) -> bool:
         """
-        ObjectIdentifier must match the ObjectIdentifier the lock was acquired with
-        Otherwise lock will not be released and False will be returned
+        Attempts to release the lock with an ObjectIdentifier
+
+        released_by: ObjectIdentifier to release the lock with
+            will only unlock if the ObjectIdentifier matches the one
+            the lock was acquired with
+
+        return: True if unlocked successfully, False otherwise
         """
 
         if released_by != self._acquired_by:
@@ -60,8 +66,9 @@ class SubscriptionLock:
 
 class DeviceSubscription:
     """
-    Handles all subscriptions to a specific device
+    Stores all subscriptions to a specific device
 
+    For recording and handling down subscriptions
     An intermediate between BacnetClient and ObjectSubscription s
     """
 
@@ -70,9 +77,15 @@ class DeviceSubscription:
     _task_pool: set[asyncio.Task]
 
     def __init__(self, bacnet_client: lite, socket_address: IPv4SocketAddress):
+        """
+        Initialises variables and starts Iam listening process
 
-        self.bacnet_client = bacnet_client
-        self.socket_address = socket_address
+        bacnet_client: BAC0 device object for listening to Bacnet network
+        socket_address: Address of the device this object represents
+        """
+
+        self._bacnet_client = bacnet_client
+        self._socket_address = socket_address
         self._object_subscriptions = {}
         self._subscription_lock = SubscriptionLock()
         self._task_pool = set()
@@ -86,11 +99,19 @@ class DeviceSubscription:
         callback: CovCallback | None = None,
     ):
         """
-        Creates an ObjectSubscription that is handled by this object
-
-        Subscriptions can only be created one at a time so the lock is acquired
-        until the subscription is confirmed
+        Creates a subscription object to a bacnet device but does not start it
         """
+
+        # cant add a subscription twice
+        # restart it instead if its down
+        if object_id in self._object_subscriptions:
+            raise ValueError(
+                "Subscription "
+                + str(object_id)
+                + " for device "
+                + str(self._socket_address)
+                + " already exists"
+            )
 
         def release(*_):
             if self._subscription_lock.locked():
@@ -98,14 +119,14 @@ class DeviceSubscription:
                 # This prevents other subscription notifications confirming a CoV
                 self._subscription_lock.release_with(object_id)
 
-        subscription_id = SubscriptionID(self.socket_address, object_id)
+        subscription_id = SubscriptionID(self._socket_address, object_id)
 
         def on_subscription_fail(_):
             if object_subscription is not None:
                 release()
 
         object_subscription = ObjectSubscription(
-            self.bacnet_client,
+            self._bacnet_client,
             subscription_id,
             lifetime=lifetime,
             failed_subscription_callback=on_subscription_fail,
@@ -113,6 +134,8 @@ class DeviceSubscription:
 
         if callback is not None:
             object_subscription.callback_holder.add(callback)
+        # If the CoV request comes back with a valid response release the lock
+        # this will happen every time a CoV update is recieved but it wont matter
         object_subscription.callback_holder.add(release)
         object_subscription.callback_holder.add(
             lambda *_: self._start_subscriptions_from_state(SubscriptionStatus.INACTIVE)
@@ -127,7 +150,13 @@ class DeviceSubscription:
         self, object_id: ObjectIdentifier
     ) -> ObjectSubscription | None:
         if object_id not in self._object_subscriptions:
-            return None
+            # TODO: replace with logging an error (preferably using the fastcs system)
+            raise KeyError(
+                "No object subscription in device "
+                + str(self._socket_address)
+                + " to object "
+                + str(object_id)
+            )
         return self._object_subscriptions[object_id]
 
     def get_subscription_ids(self) -> set[SubscriptionID]:
@@ -139,10 +168,12 @@ class DeviceSubscription:
     async def _listen_for_iam(self):
         """
         Indefinitely listens for an IAm message from the device this object represents
-        """
-        app = self.bacnet_client.this_application.app
 
-        # this looks stupid but its exactly how they do it in BACpypes3
+        When one is recieved, all down subscriptions are restarted
+        """
+        app = self._bacnet_client.this_application.app
+
+        # This looks stupid but its exactly how they do it in BACpypes3
         # https://github.com/JoelBender/BACpypes3/blob/main/bacpypes3/service/device.py#L184
         if not hasattr(app, "_who_is_futures"):
             app._who_is_futures = []  # noqa: SLF001
@@ -150,12 +181,13 @@ class DeviceSubscription:
         device_found = []
         while len(device_found) == 0:
             who_is_future = WhoIsFuture(
-                app, Address(str(self.socket_address)), None, None, 3600
+                app, Address(str(self._socket_address)), None, None, 3600
             )
-            # need to add the future to the list or the future will raise an exception
+            # In future handling code app needs to remove future from the list
+            # An exception will be raised if we dont add it
             app._who_is_futures.append(who_is_future)  # noqa: SLF001
 
-            # this will wait until it hears an IAm from the given IP address
+            # This will wait until it hears an IAm from the given IP address
             # OR until it times out (hardcoded to an hour right now)
             # returns a list of IAms that match the IP
             # empty list means nothing was returned
