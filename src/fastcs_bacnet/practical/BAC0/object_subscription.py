@@ -17,6 +17,10 @@ class SubscriptionStatus(Enum):
     INACTIVE = 3
 
 
+class SusbcriptionObjectNotIntialisedError(Exception):
+    pass
+
+
 class ObjectSubscription:
     """
     Represents a single change of value subscription to a bacnet object
@@ -24,7 +28,13 @@ class ObjectSubscription:
 
     _subscription_object: COVSubscription | None = None
     _subscription_status: SubscriptionStatus = SubscriptionStatus.NOT_STARTED
-    callback_holder: CovCallbackHolder
+    cov_callback_holder: CovCallbackHolder
+    """
+    Callback run when a subscription or resubscription fails
+
+    Boolean parameter: True if this is the first subscription,
+        False if its a resubscription
+    """
     _failed_subscription_callback: Callable[[bool], None] | None
     _decorate_subscription_task: asyncio.Task | None
 
@@ -36,7 +46,9 @@ class ObjectSubscription:
         failed_subscription_callback: Callable[[bool], None] | None = None,
     ):
         """
-        bacnet_client: python bacnet device that can interact with bacnet objects
+        Initialises variables and starts a subscription to a bacnet object
+
+        bacnet_client: BAC0 bacnet device that can interact with bacnet objects
         subscription_id: dataclass used to identify an object on a bacnet device
         lifetime: length of subscription (in seconds)
         failed_subscription_callback: procedure that runs when a cov request is sent out
@@ -48,13 +60,13 @@ class ObjectSubscription:
         self._bacnet_client = bacnet_client
         self._subscription_id = subscription_id
         self._lifetime = lifetime
-        self.callback_holder = CovCallbackHolder()
+        self.cov_callback_holder = CovCallbackHolder()
 
         # If we recieve a CoV update we know the subscription is active
         def set_active(*_):
             self._subscription_status = SubscriptionStatus.ACTIVE
 
-        self.callback_holder.add(set_active)
+        self.cov_callback_holder.add(set_active)
 
         self._failed_subscription_callback = failed_subscription_callback
 
@@ -81,7 +93,7 @@ class ObjectSubscription:
             objectID=self._subscription_id.object_id.to_tuple(),
             lifetime=self._lifetime,
             confirmed=False,
-            callback=self.callback_holder.run_callbacks,
+            callback=self.cov_callback_holder.run_callbacks,
             BAC0App=self._bacnet_client,  # type: ignore
         )
         self._subscription_object.task = asyncio.create_task(self._run())
@@ -94,7 +106,9 @@ class ObjectSubscription:
 
     async def _run(self):
         """
-        Calls subscription object run method with callbacks
+        Starts the subscription
+
+        Calls failed subscription callback if an error occurs
         """
 
         try:
@@ -105,18 +119,21 @@ class ObjectSubscription:
 
     async def _decorate_resubscribe(self):
         """
-        Implements callbacks into resubscription method
+        Decorates resubscription method so that failed subscription
+        callback is called if an error occurs
         """
 
         if self._subscription_object is None:
-            return
+            # TODO: change to logging
+            raise SusbcriptionObjectNotIntialisedError
 
+        # scm: subscription context manager
         scm_key = (
             self._subscription_object.address,
             self._subscription_object.process_identifier,
         )
 
-        # poll app dictionary until it assigns scm
+        # poll app cov dictionary until it assigns scm
         while scm_key not in self._bacnet_client.this_application.app._cov_contexts:  # noqa: SLF001
             await asyncio.sleep(0.1)
 
@@ -153,10 +170,11 @@ class ObjectSubscription:
 
     def _on_failed_subscription(self, first_attempt: bool):
         """
-        Method to be called when subscription or resubscription fails
+        Called when subscription or resubscription fails
 
         first_attempt: True on subscription and False on resubscription
         """
+        # TODO: Change to logging
         if first_attempt:
             print("subscription failed")
         else:

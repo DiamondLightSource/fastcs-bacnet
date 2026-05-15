@@ -98,4 +98,4 @@ def set_subscription_callback(object_subscription: ObjectSubscription, attr: Att
         if property_identifier == PropertyIdentifier.presentValue:
             await attr.update(property_value)
 
-    object_subscription.callback_holder.add(update_attribute_callback)
+    object_subscription.cov_callback_holder.add(update_attribute_callback)

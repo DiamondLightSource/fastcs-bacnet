@@ -133,11 +133,11 @@ class DeviceSubscription:
         )
 
         if callback is not None:
-            object_subscription.callback_holder.add(callback)
+            object_subscription.cov_callback_holder.add(callback)
         # If the CoV request comes back with a valid response release the lock
         # this will happen every time a CoV update is recieved but it wont matter
-        object_subscription.callback_holder.add(release)
-        object_subscription.callback_holder.add(
+        object_subscription.cov_callback_holder.add(release)
+        object_subscription.cov_callback_holder.add(
             lambda *_: self._start_subscriptions_from_state(SubscriptionStatus.INACTIVE)
         )
 
@@ -146,9 +146,7 @@ class DeviceSubscription:
     def remove_subscription(self, object_id: ObjectIdentifier):
         self._object_subscriptions.pop(object_id)
 
-    def get_subscription(
-        self, object_id: ObjectIdentifier
-    ) -> ObjectSubscription | None:
+    def get_subscription(self, object_id: ObjectIdentifier) -> ObjectSubscription:
         if object_id not in self._object_subscriptions:
             # TODO: replace with logging an error (preferably using the fastcs system)
             raise KeyError(
