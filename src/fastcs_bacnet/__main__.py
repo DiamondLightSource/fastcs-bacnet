@@ -31,12 +31,12 @@ def main(args: Sequence[str] | None = None) -> None:
         action="version",
         version=__version__,
     )
-    args_dict = parser.parse_args(args)
+    args_namespace = parser.parse_args(args)
 
-    if args_dict.file_path is None:
+    if args_namespace.file_path is None:
         raise ValueError("Must specify an input file")
 
-    subscription_ids = parse_csv(args_dict.file_path)
+    subscription_ids = parse_csv(args_namespace.file_path)
 
     asyncio.run(fastcs_bacnet(subscription_ids))
 
