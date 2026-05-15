@@ -36,7 +36,7 @@ def main(args: Sequence[str] | None = None) -> None:
     python_argument_object = parser.parse_args(args)
 
     if python_argument_object.file_path is None:
-        raise ValueError("Must specify a filepath for fastcs-bacnet program")
+        raise ValueError("Must specify an input file")
 
     subscription_ids = parse_csv(python_argument_object.file_path)
 
