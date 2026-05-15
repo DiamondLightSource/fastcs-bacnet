@@ -13,15 +13,12 @@ __all__ = ["main"]
 
 
 def main(args: Sequence[str] | None = None) -> None:
-    usage = """
-    Specify path to EDE file using file_path parameter
-    """
-    description = """
-    Entrypoint for the fastcs-bacnet program
+    description = (
+        "Start a FastCS IOC with PVs and Bacnet object subscriptions defined "
+        + "from input file"
+    )
 
-    Creates an IOC with PVs for all specified bacnet objects
-    """
-    parser = ArgumentParser(usage=usage, description=description)
+    parser = ArgumentParser(description=description)
     parser.add_argument(
         "file_path",
         type=str,
