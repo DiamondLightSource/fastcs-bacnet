@@ -1,51 +1,31 @@
 import asyncio
-from asyncio import Lock
-from collections import defaultdict
 from collections.abc import Callable
 
 from BAC0 import lite
 
+from fastcs_bacnet.practical.BAC0.device_subscription import DeviceSubscription
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 from fastcs_bacnet.practical.BAC0.subscription_id import (
     IPv4SocketAddress,
-    ObjectIdentifier,
     SubscriptionID,
 )
 
 
-class SubscriptionLock(Lock):
-    _acquired_by: ObjectIdentifier
-
-    async def acquire_with(self, acquired_by: ObjectIdentifier):
-        valid = await super().acquire()
-
-        if valid:
-            self._acquired_by = acquired_by
-
-        return valid
-
-    def release_with(self, released_by: ObjectIdentifier) -> bool:
-
-        if released_by != self._acquired_by:
-            return False
-        super().release()
-        return True
-
-
 class BacnetClient:
     """
-    Creates and stores subscription objects to bacnet objects
+    Creates and stores DeviceSubscription s
+
     Does NOT handle them
     """
 
-    _down_subscriptions: defaultdict[IPv4SocketAddress, list[ObjectSubscription]]
-    _locked_devices: defaultdict[IPv4SocketAddress, SubscriptionLock]
+    _devices: dict[IPv4SocketAddress, DeviceSubscription]
+    _task_pool: set[asyncio.Task]
 
     def __init__(
         self,
         bacnet_client: lite,
         initial_subscriptions: list[SubscriptionID] | None = None,
-        subscription_lifetime: int = 60,
+        subscription_lifetime: int = 3600,
     ):
         """
         bacnet_client: python bacnet object used to interact with actual bacnet objects
@@ -62,13 +42,13 @@ class BacnetClient:
 
         self._bacnet_client = bacnet_client
 
-        self._subscriptions: dict[SubscriptionID, ObjectSubscription] = {}
-        self._down_subscriptions = defaultdict(list)
-        self._locked_devices = defaultdict(SubscriptionLock)
+        self._devices = {}
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
-                asyncio.create_task(self.add_subscription(subscription_id))
+                task = asyncio.create_task(self.add_subscription(subscription_id))
+                self._task_pool.add(task)
+                task.add_done_callback(self._task_pool.discard)
 
     async def add_subscription(
         self,
@@ -82,55 +62,43 @@ class BacnetClient:
             If None no callback function will be used
         """
 
-        await self._locked_devices[subscription_id.socket_address].acquire_with(
-            subscription_id.object_key
+        if subscription_id.socket_address not in self._devices:
+            self._devices[subscription_id.socket_address] = DeviceSubscription(
+                self._bacnet_client, subscription_id.socket_address
+            )
+
+        await self._devices[subscription_id.socket_address].add_subscription(
+            subscription_id.object_key,
+            self._subscription_lifetime,
+            callback=callback,
         )
-
-        def release(property_indentifier: str, property_value: float):
-            if self._locked_devices[subscription_id.socket_address].locked():
-                # Only releases if the object_key matches the one that locked it
-                # This prevents other subscription notifications confirming a CoV
-                self._locked_devices[subscription_id.socket_address].release_with(
-                    subscription_id.object_key
-                )
-
-        def failed_subscription_callback(_):
-            if object_subscription is not None:
-                self._down_subscriptions[subscription_id.socket_address].append(
-                    object_subscription
-                )
-
-        object_subscription = ObjectSubscription(
-            self._bacnet_client,
-            subscription_id,
-            lifetime=self._subscription_lifetime,
-            initial_callback=callback,
-            failed_subscription_callback=failed_subscription_callback,
-        )
-        object_subscription.callback_holder.add(release)
-
-        self._subscriptions[subscription_id] = object_subscription
 
     def remove_subscription(self, subscription_id: SubscriptionID):
         """
         Removes a subscription from the dictionary
         subscription_id: identifier used to find the object to subscribe to
         """
-        self._subscriptions.pop(subscription_id)
+        if subscription_id.socket_address not in self._devices:
+            print("raise error here")
 
-    def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
-        return self._subscriptions[subscription_id]
+        self._devices[subscription_id.socket_address].remove_subscription(
+            subscription_id.object_key
+        )
 
-    def get_subscription_ids(self) -> list[SubscriptionID]:
-        return list(self._subscriptions.keys())
+    def get_subscription(
+        self, subscription_id: SubscriptionID
+    ) -> ObjectSubscription | None:
+        if subscription_id.socket_address not in self._devices:
+            print("raise error here")
+            return None
 
-    async def disconnect(self):
-        """
-        You should run this method when you are done with the python object
-        The python object will essentially be useless after this
-        Also stops all subscriptions
-        """
+        return self._devices[subscription_id.socket_address].get_subscription(
+            subscription_id.object_key
+        )
 
-        for subscription_id in self.get_subscription_ids():
-            self.remove_subscription(subscription_id=subscription_id)
-        await self._bacnet_client.disconnect()
+    def get_subscription_ids(self) -> set[SubscriptionID]:
+        subscription_ids: set[SubscriptionID] = set()
+        for device in self._devices.values():
+            subscription_ids = subscription_ids | device.get_subscription_ids()
+
+        return subscription_ids

@@ -59,6 +59,10 @@ class AnalogOutputAttributeIO(AttributeIO[float, AnalogOutputAttributeIORef]):
             attr.io_ref.subscription_id
         )
 
+        if subscription_object is None:
+            print("raise error")
+            return
+
         def actual_update(property_indentifier: str, property_value: float):
             if property_indentifier == PropertyIdentifier.presentValue:
                 # could add tracking data here

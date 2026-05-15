@@ -55,7 +55,7 @@ class SubscriptionID:
 
 
 def sort_subscriptions(
-    subscription_ids: list[SubscriptionID],
+    subscription_ids: set[SubscriptionID],
 ) -> dict[IPv4SocketAddress, list[SubscriptionID]]:
     """
     Sorts a list of subscription ids into lists of IPv4SocketAddress (ip-port pairs)
