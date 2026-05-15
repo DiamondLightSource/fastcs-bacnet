@@ -1,5 +1,3 @@
-import asyncio
-
 from BAC0 import start
 from fastcs.launch import FastCS
 from fastcs.transports.epics import EpicsIOCOptions
@@ -21,4 +19,4 @@ async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
 
         fastcs = FastCS(bacnet_controller, [epics_ca])
 
-        await asyncio.create_task(fastcs.serve(interactive=False))
+        await fastcs.serve(interactive=False)
