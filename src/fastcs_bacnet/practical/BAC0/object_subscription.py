@@ -6,7 +6,7 @@ from BAC0 import lite
 from BAC0.core.functions.CoV import COVSubscription
 from bacpypes3.service.cov import SubscriptionContextManager
 
-from fastcs_bacnet.practical.BAC0.callback_holder import CallbackHolder
+from fastcs_bacnet.practical.BAC0.callback_holder import CovCallbackHolder
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
 
@@ -19,12 +19,12 @@ class SubscriptionStatus(Enum):
 
 class ObjectSubscription:
     """
-    Handles subscriptions to bacnet objects
+    Represents a single change of value subscription to a bacnet object
     """
 
     _subscription_object: COVSubscription | None = None
     _subscription_status: SubscriptionStatus = SubscriptionStatus.NOT_STARTED
-    callback_holder: CallbackHolder
+    callback_holder: CovCallbackHolder
     _failed_subscription_callback: Callable[[bool], None] | None
     _decorate_subscription_task: asyncio.Task | None
 
@@ -48,7 +48,7 @@ class ObjectSubscription:
         self._bacnet_client = bacnet_client
         self._subscription_id = subscription_id
         self._lifetime = lifetime
-        self.callback_holder = CallbackHolder()
+        self.callback_holder = CovCallbackHolder()
 
         # If we recieve a CoV update we know the subscription is active
         def set_active(*_):
