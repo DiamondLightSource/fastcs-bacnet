@@ -10,9 +10,11 @@ background_tasks = set()
 @dataclass
 class BacnetAttributeIORef(AttributeIORef):
     """
-    Dataclass for referencing any subscription
-    Basically just uses subscription id dataclass
-    Update period must be once as this sets the attribute update callback
+    FastCS attribute reference for any bacnet object
+
+    subscription_id: id of the object this is referencing
+        Should never be None, another issue with extending the
+        existing AttributeIORef class
     """
 
     subscription_id: SubscriptionID
@@ -25,14 +27,14 @@ class BacnetAttributeIORef(AttributeIORef):
 @dataclass(init=False)
 class AnalogAttributeIORef(BacnetAttributeIORef):
     """
-    BacnetAttributeIORef specifically for analog objects
+    FastCS attribute reference for analog bacnet object
     """
 
 
 @dataclass(init=False)
 class BinaryAttributeIORef(BacnetAttributeIORef):
     """
-    BacnetAttributeIORef specifically for binary objects
+    FastCS attribute reference for binary bacnet object
     """
 
 
