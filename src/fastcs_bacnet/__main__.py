@@ -31,7 +31,7 @@ def main(args: Sequence[str] | None = None) -> None:
         "-f",
         "--file_path",
         type=str,
-        help="Filepath to the EDE file (or dummy equivalent)",
+        help="Filepath to the EDE file",
     )
     python_argument_object = parser.parse_args(args)
 
