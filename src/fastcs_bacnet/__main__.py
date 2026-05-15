@@ -13,24 +13,26 @@ __all__ = ["main"]
 
 
 def main(args: Sequence[str] | None = None) -> None:
+    usage = """
+    Specify path to EDE file using file_path parameter
     """
+    description = """
     Entrypoint for the fastcs-bacnet program
 
-    Use option -f to specify filepath of the EDE file
-    This will automatically subscribe to bacnet devices
-    and create an IOC to query Bacnet objects
+    Creates an IOC with PVs for all specified bacnet objects
     """
-    parser = ArgumentParser()
+    parser = ArgumentParser(usage=usage, description=description)
+    parser.add_argument(
+        "file_path",
+        type=str,
+        help="Filepath to the EDE file",
+    )
+
     parser.add_argument(
         "-v",
         "--version",
         action="version",
         version=__version__,
-    )
-    parser.add_argument(
-        "file_path",
-        type=str,
-        help="Filepath to the EDE file",
     )
     args_dict = parser.parse_args(args)
 
