@@ -21,6 +21,4 @@ async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
 
         fastcs = FastCS(bacnet_controller, [epics_ca])
 
-        asyncio.create_task(fastcs.serve(interactive=False))
-
-        await asyncio.Event().wait()
+        await asyncio.create_task(fastcs.serve(interactive=False))
