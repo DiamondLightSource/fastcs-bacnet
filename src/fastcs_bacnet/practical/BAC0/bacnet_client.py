@@ -50,7 +50,7 @@ class BacnetClient:
                 self._task_pool.add(task)
                 task.add_done_callback(self._task_pool.discard)
 
-    async def group_add_subscriptions(self, subscription_ids: list[SubscriptionID]):
+    async def add_subscriptions(self, subscription_ids: list[SubscriptionID]):
         """
         Adds a list of subscriptions at one time
 

@@ -14,7 +14,7 @@ async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
 
     async with start() as bac0:
         bacnet_client = BacnetClient(bac0)
-        await bacnet_client.group_add_subscriptions(subscriptions)
+        await bacnet_client.add_subscriptions(subscriptions)
 
         epics_ca = EpicsCATransport(epicsca=EpicsIOCOptions(pv_prefix="FASTCSBACNET"))
         bacnet_controller = BacnetController(bacnet_client)
