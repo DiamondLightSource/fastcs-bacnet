@@ -28,8 +28,7 @@ def main(args: Sequence[str] | None = None) -> None:
         version=__version__,
     )
     parser.add_argument(
-        "-f",
-        "--file_path",
+        "file_path",
         type=str,
         help="Filepath to the EDE file",
     )
