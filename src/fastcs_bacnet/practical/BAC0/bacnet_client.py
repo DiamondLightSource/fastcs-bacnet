@@ -50,6 +50,17 @@ class BacnetClient:
                 self._task_pool.add(task)
                 task.add_done_callback(self._task_pool.discard)
 
+    async def add_subscriptions(self, subscription_ids: list[SubscriptionID]):
+        """
+        Adds a list of subscriptions at one time
+
+        Faster than adding them one by one and waiting on each
+        """
+
+        async with asyncio.TaskGroup() as task_group:
+            for subscription_id in subscription_ids:
+                task_group.create_task(self.add_subscription(subscription_id))
+
     async def add_subscription(
         self,
         subscription_id: SubscriptionID,

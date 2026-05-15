@@ -36,6 +36,7 @@ dev = [
 
 [project.scripts]
 fastcs-bacnet = "fastcs_bacnet.__main__:main"
+dummy-device = "fastcs_bacnet.example.example_device:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/fastcs-bacnet"
