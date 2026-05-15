@@ -1,3 +1,5 @@
+import csv
+
 from fastcs_bacnet.practical.BAC0.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
@@ -18,15 +20,21 @@ def parse_csv(filepath: str) -> list[SubscriptionID]:
 
     # escalates file not found exception
     with open(filepath) as file:
-        for line in file:
-            cells = line.split(", ")
+        reader = csv.DictReader(
+            file, ["ip_address", "port", "object_type", "object_instance"]
+        )
+        for line in reader:
             try:
-                socket_address = IPv4SocketAddress(cells[0], int(cells[1]))
-                object_id = ObjectIdentifier(cells[2], int(cells[3]))
+                socket_address = IPv4SocketAddress(
+                    line["ip_address"], int(line["port"])
+                )
+                object_id = ObjectIdentifier(
+                    line["object_type"], int(line["object_instance"])
+                )
                 subscription_ids.append(SubscriptionID(socket_address, object_id))
             except BaseException:
                 raise InvalidFileFormat(
-                    "Couldnt convert row to a SubscriptionID: \n" + line
+                    "Couldnt convert row to a SubscriptionID: \n" + str(line)
                 ) from BaseException
 
     if len(subscription_ids) == 0:
