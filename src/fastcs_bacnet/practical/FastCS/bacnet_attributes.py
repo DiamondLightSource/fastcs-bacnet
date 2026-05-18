@@ -109,7 +109,7 @@ class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef], BacnetAttribut
 
 class BinaryAttributeIO(AttributeIO[float, BinaryAttributeIORef], BacnetAttribute):
     """
-    Handler for bacnet analog attributes
+    Handler for bacnet binary attributes
     """
 
     def __init__(self, bacnet_client: BacnetClient):
