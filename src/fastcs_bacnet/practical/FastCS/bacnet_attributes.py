@@ -27,14 +27,14 @@ class BacnetAttributeIORef(AttributeIORef):
         self.subscription_id = subscription_id
 
 
-@dataclass
+@dataclass(init=False)
 class AnalogAttributeIORef(BacnetAttributeIORef):
     """
     BacnetAttributeIORef specifically for analog objects
     """
 
 
-@dataclass
+@dataclass(init=False)
 class BinaryAttributeIORef(BacnetAttributeIORef):
     """
     BacnetAttributeIORef specifically for binary objects
