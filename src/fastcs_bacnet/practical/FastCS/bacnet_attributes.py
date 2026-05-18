@@ -34,7 +34,7 @@ class AnalogAttributeIORef(BacnetAttributeIORef):
 @dataclass
 class BinaryAttributeIORef(BacnetAttributeIORef):
     """
-    BacnetAttributeIORef specifically for analog objects
+    BacnetAttributeIORef specifically for binary objects
     """
 
 
