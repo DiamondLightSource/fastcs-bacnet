@@ -3,6 +3,10 @@ from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
 from typing import Any, TypeGuard
 
+type SyncCovCallback = Callable[[str, Any], None]
+type AsyncCovCallback = Callable[[str, Any], Coroutine[None, None, None]]
+type CovCallback = SyncCovCallback | AsyncCovCallback
+
 
 class CallbackHolder:
     """
@@ -11,22 +15,18 @@ class CallbackHolder:
     Adding callbacks that manipulate common state is undefined behaviour
     """
 
-    type SyncCallback = Callable[[str, Any], None]
-    type AsyncCallback = Callable[[str, Any], Coroutine[None, None, None]]
-    type Callback = SyncCallback | AsyncCallback
-
-    _sync_callbacks: list[SyncCallback]
-    _async_callbacks: list[AsyncCallback]
+    _sync_callbacks: list[SyncCovCallback]
+    _async_callbacks: list[AsyncCovCallback]
 
     _next_callback_index: int = 0
-    _callback_dict: dict[int, Callback]
+    _callback_dict: dict[int, CovCallback]
 
     def __init__(self):
         self._sync_callbacks = []
         self._async_callbacks = []
         self._callback_dict = {}
 
-    def add(self, f: Callback) -> int:
+    def add(self, f: CovCallback) -> int:
         """
         Adds a callback function / coroutine to the stack
 
@@ -49,7 +49,7 @@ class CallbackHolder:
 
         return callback_key
 
-    def get(self, key: int) -> Callback | None:
+    def get(self, key: int) -> CovCallback | None:
         """
         Returns callback when given the key
         """
@@ -105,8 +105,8 @@ class CallbackHolder:
                     print(e)
 
     # seems silly to have 2 inverse functions but they are necessary as they are guards
-    def is_sync_callback(self, callback: Callback) -> TypeGuard[SyncCallback]:
+    def is_sync_callback(self, callback: CovCallback) -> TypeGuard[SyncCovCallback]:
         return not iscoroutinefunction(callback)
 
-    def is_async_callback(self, callback: Callback) -> TypeGuard[AsyncCallback]:
+    def is_async_callback(self, callback: CovCallback) -> TypeGuard[AsyncCovCallback]:
         return iscoroutinefunction(callback)
