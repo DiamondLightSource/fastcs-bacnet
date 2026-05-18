@@ -70,8 +70,8 @@ class BacnetAttribute:
             return
 
         subscription_object.callback_holder.add(
-            lambda property_indentifier, property_value: self.update_attribute_callback(
-                attr, property_indentifier, property_value
+            lambda property_identifier, property_value: self.update_attribute_callback(
+                attr, property_identifier, property_value
             )
         )
 
