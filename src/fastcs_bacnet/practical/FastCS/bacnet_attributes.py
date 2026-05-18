@@ -20,8 +20,12 @@ class BacnetAttributeIORef(AttributeIORef):
     Update period must be once as this sets the attribute update callback
     """
 
+    subscription_id: SubscriptionID
     update_period: float | None = ONCE
-    subscription_id: SubscriptionID | None = None
+
+    def __init__(self, subscription_id: SubscriptionID):
+        self.update_period = ONCE
+        self.subscription_id = subscription_id
 
 
 @dataclass
