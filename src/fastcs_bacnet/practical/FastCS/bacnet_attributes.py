@@ -78,10 +78,10 @@ class BacnetAttribute:
     def actual_update(
         self,
         attr: AttrR[Any, BacnetAttributeIORef],
-        property_indentifier: str,
+        property_identifier: str,
         property_value: Any,
     ):
-        if property_indentifier == PropertyIdentifier.presentValue:
+        if property_identifier == PropertyIdentifier.presentValue:
             # could add tracking data here
             task = asyncio.create_task(attr.update(property_value))
             background_tasks.add(task)
