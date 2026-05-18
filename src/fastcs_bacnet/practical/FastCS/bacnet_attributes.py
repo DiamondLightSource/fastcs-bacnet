@@ -41,7 +41,7 @@ class BinaryAttributeIORef(BacnetAttributeIORef):
     """
 
 
-class BacnetAttribute:
+class BacnetAttributeMixin:
     """
     Handler for bacnet attributes
     """
@@ -52,7 +52,19 @@ class BacnetAttribute:
     #     use the reference to get the object subscription from the bacnet_client
     bacnet_client: BacnetClient
 
-    def set_update_attribute_callback(self, attr: AttrR[Any, BacnetAttributeIORef]):
+    def __init__(self, bacnet_client: BacnetClient, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.bacnet_client = bacnet_client
+
+    async def update(self, attr: AttrR[Any, BacnetAttributeIORef]):
+        """
+        Perform one-time initialization that is called by FastCS during startup.
+
+        This creates the link between the Bacnet Change-of-Value updates and the
+        updating of the FastCS attribute's value.
+        """
+
         # subscription_id should never be none
         # finicky with default arguments
         if attr.io_ref.subscription_id is None:
@@ -86,43 +98,13 @@ class BacnetAttribute:
             task.add_done_callback(background_tasks.discard)
 
 
-class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef], BacnetAttribute):
+class AnalogAttributeIO(BacnetAttributeMixin, AttributeIO[float, AnalogAttributeIORef]):
     """
     Handler for bacnet analog attributes
     """
 
-    def __init__(self, bacnet_client: BacnetClient):
-        super().__init__()
 
-        self.bacnet_client = bacnet_client
-
-    async def update(self, attr: AttrR[float, AnalogAttributeIORef]):
-        """
-        Perform one-time initialization that is called by FastCS during startup.
-
-        This creates the link between the Bacnet Change-of-Value updates and the
-        updating of the FastCS attribute's value.
-        """
-
-        super().set_update_attribute_callback(attr)
-
-
-class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef], BacnetAttribute):
+class BinaryAttributeIO(BacnetAttributeMixin, AttributeIO[bool, BinaryAttributeIORef]):
     """
     Handler for bacnet binary attributes
     """
-
-    def __init__(self, bacnet_client: BacnetClient):
-        super().__init__()
-
-        self.bacnet_client = bacnet_client
-
-    async def update(self, attr: AttrR[bool, BinaryAttributeIORef]):
-        """
-        Perform one-time initialization that is called by FastCS during startup.
-
-        This creates the link between the Bacnet Change-of-Value updates and the
-        updating of the FastCS attribute's value.
-        """
-
-        super().set_update_attribute_callback(attr)
