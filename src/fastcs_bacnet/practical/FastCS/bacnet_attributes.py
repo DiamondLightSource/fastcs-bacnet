@@ -55,7 +55,7 @@ class BacnetAttribute:
         # subscription_id should never be none
         # finicky with default arguments
         if attr.io_ref.subscription_id is None:
-            raise ValueError
+            raise ValueError("Reference subscription id cannot be None")
 
         subscription_object = self.bacnet_client.get_subscription(
             attr.io_ref.subscription_id
