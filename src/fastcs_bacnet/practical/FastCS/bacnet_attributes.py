@@ -47,12 +47,10 @@ class BacnetAttribute:
     Handler for bacnet attributes
     """
 
-    """
-    bacnet_client: NOT a BAC0.lite object but a BacnetClient object
-        This is used to get ObjectSubscriptions using SubscriptionIDs
-        You cant just pass the object susbscriptions in, you need to
-        use the reference to get the object subscription from the bacnet_client
-    """
+    # bacnet_client: NOT a BAC0.lite object but a BacnetClient object
+    #     This is used to get ObjectSubscriptions using SubscriptionIDs
+    #     You cant just pass the object susbscriptions in, you need to
+    #     use the reference to get the object subscription from the bacnet_client
     bacnet_client: BacnetClient
 
     def set_update_attribute_callback(self, attr: AttrR[Any, BacnetAttributeIORef]):
