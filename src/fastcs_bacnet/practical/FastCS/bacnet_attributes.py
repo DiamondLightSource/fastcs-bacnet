@@ -21,10 +21,9 @@ class BacnetAttributeIORef(AttributeIORef):
     """
 
     subscription_id: SubscriptionID
-    update_period: float | None = ONCE
 
     def __init__(self, subscription_id: SubscriptionID):
-        self.update_period = ONCE
+        super().__init__(update_period=ONCE)
         self.subscription_id = subscription_id
 
 
