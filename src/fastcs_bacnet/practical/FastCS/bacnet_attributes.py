@@ -55,7 +55,7 @@ class BacnetAttribute:
     """
     bacnet_client: BacnetClient
 
-    def set_actual_update(self, attr: AttrR[Any, BacnetAttributeIORef]):
+    def set_update_attribute_callback(self, attr: AttrR[Any, BacnetAttributeIORef]):
         # subscription_id should never be none
         # finicky with default arguments
         if attr.io_ref.subscription_id is None:
@@ -70,12 +70,12 @@ class BacnetAttribute:
             return
 
         subscription_object.callback_holder.add(
-            lambda property_indentifier, property_value: self.actual_update(
+            lambda property_indentifier, property_value: self.update_attribute_callback(
                 attr, property_indentifier, property_value
             )
         )
 
-    def actual_update(
+    def update_attribute_callback(
         self,
         attr: AttrR[Any, BacnetAttributeIORef],
         property_identifier: str,
@@ -108,7 +108,7 @@ class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef], BacnetAttribut
         This is why it only needs to be run once
         """
 
-        super().set_actual_update(attr)
+        super().set_update_attribute_callback(attr)
 
 
 class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef], BacnetAttribute):
@@ -130,4 +130,4 @@ class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef], BacnetAttribute
         This is why it only needs to be run once
         """
 
-        super().set_actual_update(attr)
+        super().set_update_attribute_callback(attr)
