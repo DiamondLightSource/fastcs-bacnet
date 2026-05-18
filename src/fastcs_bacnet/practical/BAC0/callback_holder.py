@@ -3,8 +3,8 @@ from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
 from typing import Any, TypeGuard
 
-type SyncCovCallback = Callable[[str, Any], None]
-type AsyncCovCallback = Callable[[str, Any], Coroutine[None, None, None]]
+type SyncCovCallback = Callable[[str, float | bool], None]
+type AsyncCovCallback = Callable[[str, float | bool], Coroutine[None, None, None]]
 type CovCallback = SyncCovCallback | AsyncCovCallback
 
 
