@@ -99,11 +99,10 @@ class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef], BacnetAttribut
 
     async def update(self, attr: AttrR[float, AnalogAttributeIORef]):
         """
-        Misnomer, does not actually update the variable in this case
-        It doesnt start the subscription either
-        It changes the callback on the subscription to update the attribute
-        (this is the actual_update procedure)
-        This is why it only needs to be run once
+        Perform one-time initialization that is called by FastCS during startup.
+
+        This creates the link between the Bacnet Change-of-Value updates and the
+        updating of the FastCS attribute's value.
         """
 
         super().set_update_attribute_callback(attr)
@@ -121,11 +120,10 @@ class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef], BacnetAttribute
 
     async def update(self, attr: AttrR[bool, BinaryAttributeIORef]):
         """
-        Misnomer, does not actually update the variable in this case
-        It doesnt start the subscription either
-        It changes the callback on the subscription to update the attribute
-        (this is the actual_update procedure)
-        This is why it only needs to be run once
+        Perform one-time initialization that is called by FastCS during startup.
+
+        This creates the link between the Bacnet Change-of-Value updates and the
+        updating of the FastCS attribute's value.
         """
 
         super().set_update_attribute_callback(attr)
