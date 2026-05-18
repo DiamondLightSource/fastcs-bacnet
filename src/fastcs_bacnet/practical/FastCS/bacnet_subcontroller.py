@@ -34,7 +34,10 @@ class BacnetSubController(Controller):
             must be objects on the device (same ip and port)
         """
         super().__init__(
-            ios=[AnalogAttributeIO(bacnet_client), BinaryAttributeIO(bacnet_client)]
+            ios=[
+                AnalogAttributeIO(bacnet_client),
+                BinaryAttributeIO(bacnet_client),
+            ]
         )
 
         for subscription_id in subscription_ids:

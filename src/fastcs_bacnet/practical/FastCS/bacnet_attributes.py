@@ -41,7 +41,7 @@ class BinaryAttributeIORef(BacnetAttributeIORef):
     """
 
 
-class BacnetAttributeMixin:
+class BacnetAttributeIO[T: float | bool, U: BacnetAttributeIORef](AttributeIO[T, U]):
     """
     Handler for bacnet attributes
     """
@@ -98,13 +98,13 @@ class BacnetAttributeMixin:
             task.add_done_callback(background_tasks.discard)
 
 
-class AnalogAttributeIO(BacnetAttributeMixin, AttributeIO[float, AnalogAttributeIORef]):
+class AnalogAttributeIO(BacnetAttributeIO[float, AnalogAttributeIORef]):
     """
     Handler for bacnet analog attributes
     """
 
 
-class BinaryAttributeIO(BacnetAttributeMixin, AttributeIO[bool, BinaryAttributeIORef]):
+class BinaryAttributeIO(BacnetAttributeIO[bool, BinaryAttributeIORef]):
     """
     Handler for bacnet binary attributes
     """
