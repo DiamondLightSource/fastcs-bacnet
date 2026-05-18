@@ -107,7 +107,7 @@ class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef], BacnetAttribut
         super().set_actual_update(attr)
 
 
-class BinaryAttributeIO(AttributeIO[float, BinaryAttributeIORef], BacnetAttribute):
+class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef], BacnetAttribute):
     """
     Handler for bacnet binary attributes
     """
@@ -117,7 +117,7 @@ class BinaryAttributeIO(AttributeIO[float, BinaryAttributeIORef], BacnetAttribut
 
         self.bacnet_client = bacnet_client
 
-    async def update(self, attr: AttrR[float, BinaryAttributeIORef]):
+    async def update(self, attr: AttrR[bool, BinaryAttributeIORef]):
         """
         Misnomer, does not actually update the variable in this case
         It doesnt start the subscription either
