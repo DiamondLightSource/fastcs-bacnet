@@ -1,8 +1,12 @@
+from typing import Any
+
+from bacpypes3.primitivedata import PropertyIdentifier
 from fastcs.attributes import AttrR
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Float
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
+from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 from fastcs_bacnet.practical.FastCS.bacnet_attributes import (
     AnalogAttributeIO,
@@ -54,6 +58,11 @@ class BacnetSubController(Controller):
                     Subcontroller port: {port}
                     Subscription port: {subscription_id.socket_address.port}
                 """)
+            object_subscription = bacnet_client.get_subscription(subscription_id)
+
+            if object_subscription is None:
+                print("raise error??")
+                return
 
             object_type_snake_case = subscription_id.object_key.object_type.replace(
                 "-", "_"
@@ -64,21 +73,29 @@ class BacnetSubController(Controller):
 
             # TODO: change this to another process once DLS-BMS is integrated
             if "analog" in attribute_name:
-                self.add_attribute(
-                    attribute_name,
-                    AttrR(
-                        Float(),
-                        io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
-                    ),
+                attr = AttrR(
+                    Float(),
+                    io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
                 )
+                self.add_attribute(attribute_name, attr)
+                set_subscription_callback(object_subscription, attr)
+
             elif "binary" in attribute_name:
-                self.add_attribute(
-                    attribute_name,
-                    AttrR(
-                        Bool(),
-                        io_ref=BinaryAttributeIORef(subscription_id=subscription_id),
-                    ),
+                attr = AttrR(
+                    Bool(),
+                    io_ref=BinaryAttributeIORef(subscription_id=subscription_id),
                 )
+                self.add_attribute(attribute_name, attr)
+                set_subscription_callback(object_subscription, attr)
 
             else:
                 print("error")
+
+
+def set_subscription_callback(object_subscription: ObjectSubscription, attr: AttrR):
+
+    async def update_attribute_callback(property_identifier: str, property_value: Any):
+        if property_identifier == PropertyIdentifier.presentValue:
+            await attr.update(property_value)
+
+    object_subscription.callback_holder.add(update_attribute_callback)

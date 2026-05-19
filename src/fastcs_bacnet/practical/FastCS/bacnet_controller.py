@@ -41,3 +41,6 @@ class BacnetController(Controller):
             )
 
             subcontroller_index += 1
+
+    def post_initialise(self):
+        super().post_initialise()

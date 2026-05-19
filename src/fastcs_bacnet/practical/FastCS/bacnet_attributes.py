@@ -65,37 +65,7 @@ class BacnetAttributeIO[T: float | bool, U: BacnetAttributeIORef](AttributeIO[T,
         updating of the FastCS attribute's value.
         """
 
-        # subscription_id should never be none
-        # finicky with default arguments
-        if attr.io_ref.subscription_id is None:
-            raise ValueError("Reference subscription id cannot be None")
-
-        subscription_object = self.bacnet_client.get_subscription(
-            attr.io_ref.subscription_id
-        )
-
-        if subscription_object is None:
-            print("raise error")
-            return
-
-        subscription_object.callback_holder.add(
-            lambda property_identifier, property_value: self.update_attribute_callback(
-                attr, property_identifier, property_value
-            )
-        )
-
-    def update_attribute_callback(
-        self,
-        attr: AttrR[Any, BacnetAttributeIORef],
-        property_identifier: str,
-        property_value: Any,
-    ):
-        if property_identifier == PropertyIdentifier.presentValue:
-            # could add tracking data here
-            task = asyncio.create_task(attr.update(property_value))
-            background_tasks.add(task)
-            # removes task from set when the task is done
-            task.add_done_callback(background_tasks.discard)
+        print("update")
 
 
 class AnalogAttributeIO(BacnetAttributeIO[float, AnalogAttributeIORef]):
