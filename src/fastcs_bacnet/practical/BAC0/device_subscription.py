@@ -92,8 +92,6 @@ class DeviceSubscription:
         until the subscription is confirmed
         """
 
-        await self._subscription_lock.acquire_with(object_id)
-
         def release(*_):
             if self._subscription_lock.locked():
                 # Only releases if the object_id matches the one that locked it
@@ -119,8 +117,6 @@ class DeviceSubscription:
         object_subscription.callback_holder.add(self._restart_inactive_subscriptions)
 
         self._object_subscriptions[object_id] = object_subscription
-
-        self._subscription_lock.release_with(subscription_id.object_key)
 
     def remove_subscription(self, object_id: ObjectIdentifier):
         self._object_subscriptions.pop(object_id)
