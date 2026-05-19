@@ -32,6 +32,10 @@ dev = [
     "ruff",
     "tox-uv",
     "types-mock",
+    "pandas",
+    "configobj",
+    "xlrd",
+    "openpyxl",
 ]
 
 [project.scripts]
