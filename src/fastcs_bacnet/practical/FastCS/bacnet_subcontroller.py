@@ -39,8 +39,8 @@ class BacnetSubController(Controller):
         """
         super().__init__(
             ios=[
-                AnalogAttributeIO(bacnet_client),
-                BinaryAttributeIO(bacnet_client),
+                AnalogAttributeIO(),
+                BinaryAttributeIO(),
             ]
         )
 
