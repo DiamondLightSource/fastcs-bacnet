@@ -1,5 +1,6 @@
 import asyncio
 from collections.abc import Callable
+from enum import Enum
 
 from BAC0 import lite
 from BAC0.core.functions.CoV import COVSubscription
@@ -9,13 +10,20 @@ from fastcs_bacnet.practical.BAC0.callback_holder import CallbackHolder
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
 
 
+class SubscriptionStatus(Enum):
+    NOT_STARTED = 0
+    STARTING = 1
+    ACTIVE = 2
+    INACTIVE = 3
+
+
 class ObjectSubscription:
     """
     Handles subscriptions to bacnet objects
     """
 
     _subscription_object: COVSubscription | None = None
-    _subscription_down: bool = True
+    _subscription_status: SubscriptionStatus = SubscriptionStatus.NOT_STARTED
     callback_holder: CallbackHolder
     _failed_subscription_callback: Callable[[bool], None] | None
     _decorate_subscription_task: asyncio.Task | None
@@ -42,6 +50,12 @@ class ObjectSubscription:
         self._lifetime = lifetime
         self.callback_holder = CallbackHolder()
 
+        # If we recieve a CoV update we know the subscription is active
+        def set_active(*_):
+            self._subscription_status = SubscriptionStatus.ACTIVE
+
+        self.callback_holder.add(set_active)
+
         self._failed_subscription_callback = failed_subscription_callback
 
     def restart_subscription(self):
@@ -51,10 +65,10 @@ class ObjectSubscription:
         This method should ONLY be called by DeviceSubscription objects
         Unless you are handling the object subscription yourself
         """
-        if not self._subscription_down:
-            print("subscrption is already up")
+        if self._subscription_status != SubscriptionStatus.INACTIVE:
+            print("Subscription is not down")
             return
-        self._subscription_down = False
+        self._subscription_status = SubscriptionStatus.STARTING
 
         # This is EXACTLY how address is assigned in lite.cov()
         # using a string in place of the complicated Address metaclass
@@ -143,7 +157,7 @@ class ObjectSubscription:
             print("subscription failed")
         else:
             print("resubscription failed")
-        self._subscription_down = True
+        self._subscription_status = SubscriptionStatus.INACTIVE
         print("IP: ", self._subscription_id.socket_address)
         print("Object: ", self._subscription_id.object_key)
         if self._failed_subscription_callback is not None:
