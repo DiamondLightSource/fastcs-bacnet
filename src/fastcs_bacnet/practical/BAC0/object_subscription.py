@@ -58,28 +58,13 @@ class ObjectSubscription:
 
         self._failed_subscription_callback = failed_subscription_callback
 
-    def restart_subscription(self) -> bool:
+    def start_subscription_with_state(self, state: SubscriptionStatus) -> bool:
         """
-        Restarts the subscription to the bacnet object
+        Starts the subscription to the bacnet object if it matches the input state
 
-        Returns False if the subscription is not inactive
+        Returns False if the subscription is not in the state
         """
-        if self._subscription_status != SubscriptionStatus.INACTIVE:
-            print("Subscription is not down")
-            return False
-        self._subscription_status = SubscriptionStatus.STARTING
-
-        self._make_new_subscription_object()
-        return True
-
-    def start_subscription(self) -> bool:
-        """
-        Starts the subscription to the bacnet object
-
-        Returns False if the subscription has already been started
-        """
-        if self._subscription_status != SubscriptionStatus.NOT_STARTED:
-            print("Subscription has already been started")
+        if self._subscription_status != state:
             return False
         self._subscription_status = SubscriptionStatus.STARTING
 
