@@ -179,7 +179,7 @@ class DeviceSubscription:
             object_identifier,
             object_subscription,
         ) in self._object_subscriptions.items():
-            if object_subscription.get_status == SubscriptionStatus.INACTIVE:
+            if object_subscription.get_status() == SubscriptionStatus.INACTIVE:
                 await self._subscription_lock.acquire_with(object_identifier)
 
                 # If the restart doesnt work release the lock
@@ -195,7 +195,7 @@ class DeviceSubscription:
             object_identifier,
             object_subscription,
         ) in self._object_subscriptions.items():
-            if object_subscription.get_status == SubscriptionStatus.NOT_STARTED:
+            if object_subscription.get_status() == SubscriptionStatus.NOT_STARTED:
                 await self._subscription_lock.acquire_with(object_identifier)
 
                 # If the restart doesnt work release the lock
