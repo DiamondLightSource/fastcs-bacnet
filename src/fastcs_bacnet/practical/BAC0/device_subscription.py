@@ -1,13 +1,15 @@
 import asyncio
 from asyncio import Lock
-from typing import Any
 
 from BAC0 import lite
 from bacpypes3.pdu import Address
 from bacpypes3.service.device import WhoIsFuture
 
 from fastcs_bacnet.practical.BAC0.callback_holder import CovCallback
-from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
+from fastcs_bacnet.practical.BAC0.object_subscription import (
+    ObjectSubscription,
+    SubscriptionStatus,
+)
 from fastcs_bacnet.practical.BAC0.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
@@ -65,7 +67,6 @@ class DeviceSubscription:
 
     _object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
     _subscription_lock: SubscriptionLock
-    _failed_subscription_ids: set[ObjectIdentifier]
     _task_pool: set[asyncio.Task]
 
     def __init__(self, bacnet_client: lite, socket_address: IPv4SocketAddress):
@@ -74,7 +75,6 @@ class DeviceSubscription:
         self.socket_address = socket_address
         self._object_subscriptions = {}
         self._subscription_lock = SubscriptionLock()
-        self._failed_subscription_ids = set()
         self._task_pool = set()
 
         asyncio.create_task(self._listen_for_iam())
@@ -94,7 +94,7 @@ class DeviceSubscription:
 
         await self._subscription_lock.acquire_with(object_id)
 
-        def release(_: str, __: Any):
+        def release(*_):
             if self._subscription_lock.locked():
                 # Only releases if the object_id matches the one that locked it
                 # This prevents other subscription notifications confirming a CoV
@@ -102,16 +102,15 @@ class DeviceSubscription:
 
         subscription_id = SubscriptionID(self.socket_address, object_id)
 
-        def handle_failed_subscription(_):
+        def on_subscription_fail(_):
             if object_subscription is not None:
-                release("", 0.0)
-                self._failed_subscription_ids.add(subscription_id.object_key)
+                release()
 
         object_subscription = ObjectSubscription(
             self.bacnet_client,
             subscription_id,
             lifetime=lifetime,
-            failed_subscription_callback=handle_failed_subscription,
+            failed_subscription_callback=on_subscription_fail,
         )
 
         if callback is not None:
@@ -121,7 +120,6 @@ class DeviceSubscription:
 
         self._object_subscriptions[object_id] = object_subscription
 
-        self._failed_subscription_ids.add(subscription_id.object_key)
         self._subscription_lock.release_with(subscription_id.object_key)
 
     def remove_subscription(self, object_id: ObjectIdentifier):
@@ -178,12 +176,16 @@ class DeviceSubscription:
         set and restarts them
         """
 
-        for failed_object_subscription_id in self._failed_subscription_ids:
-            task = asyncio.create_task(
-                self._restart_single_subscription(failed_object_subscription_id)
-            )
-            self._task_pool.add(task)
-            task.add_done_callback(self._task_pool.remove)
+        for (
+            object_identifier,
+            object_subscription,
+        ) in self._object_subscriptions.items():
+            if object_subscription.get_status == SubscriptionStatus.INACTIVE:
+                task = asyncio.create_task(
+                    self._restart_single_subscription(object_identifier)
+                )
+                self._task_pool.add(task)
+                task.add_done_callback(self._task_pool.remove)
 
     async def _restart_single_subscription(self, object_identifier: ObjectIdentifier):
         """
@@ -191,23 +193,9 @@ class DeviceSubscription:
         """
 
         object_subscription = self._object_subscriptions[object_identifier]
-        if object_identifier not in self._failed_subscription_ids:
-            # subscription already restarted
-            # log an error here
-            return
-
-        # Prevent it from trying to restart again
-        self._failed_subscription_ids.remove(object_identifier)
 
         await self._subscription_lock.acquire_with(object_identifier)
 
-        # assume the restart will work
-        # if it doesnt, the id will be added to this set again
-        object_subscription = self._object_subscriptions[object_identifier]
-
-        object_subscription.restart_subscription()
-
-        # Trust that the object subscription still has its release() method on
-        # the callback holder??
-        # There is no reason to remove it but callback_holder is public and not
-        # releasing the lock would be very bad
+        # If the restart doesnt work release the lock
+        if not object_subscription.restart_subscription():
+            self._subscription_lock.release_with(object_identifier)

@@ -58,16 +58,15 @@ class ObjectSubscription:
 
         self._failed_subscription_callback = failed_subscription_callback
 
-    def restart_subscription(self):
+    def restart_subscription(self) -> bool:
         """
         Restarts the subscription to the bacnet object
 
-        This method should ONLY be called by DeviceSubscription objects
-        Unless you are handling the object subscription yourself
+        If False is returned the subscription is not inactive
         """
         if self._subscription_status != SubscriptionStatus.INACTIVE:
             print("Subscription is not down")
-            return
+            return False
         self._subscription_status = SubscriptionStatus.STARTING
 
         # This is EXACTLY how address is assigned in lite.cov()
@@ -87,6 +86,8 @@ class ObjectSubscription:
         self._decorate_subscription_task = asyncio.create_task(
             self._decorate_resubscribe()
         )
+
+        return True
 
     async def _run(self):
         """
@@ -165,3 +166,6 @@ class ObjectSubscription:
 
     def get_subscription_id(self) -> SubscriptionID:
         return self._subscription_id
+
+    def get_status(self) -> SubscriptionStatus:
+        return self._subscription_status
