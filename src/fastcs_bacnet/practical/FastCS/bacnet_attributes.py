@@ -40,11 +40,11 @@ class BinaryAttributeIORef(BacnetAttributeIORef):
 
 class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef]):
     """
-    Attribute for analog Bacnet objects
+    FastCS attribute for analog Bacnet objects
     """
 
 
 class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef]):
     """
-    Attribute for binary Bacnet objects
+    FastCS attribute for binary Bacnet objects
     """
