@@ -114,6 +114,6 @@ class BacnetClient:
 
         return subscription_ids
 
-    def start_subscriptions(self):
+    async def start_subscriptions(self):
         for device in self._devices.values():
-            device.restart_failed_subscriptions()
+            await device.start_subscriptions()

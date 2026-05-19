@@ -1,3 +1,5 @@
+import asyncio
+
 from fastcs.controllers import Controller
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
@@ -44,4 +46,4 @@ class BacnetController(Controller):
 
     def post_initialise(self):
         super().post_initialise()
-        self.bacnet_client.start_subscriptions()
+        asyncio.create_task(self.bacnet_client.start_subscriptions())
