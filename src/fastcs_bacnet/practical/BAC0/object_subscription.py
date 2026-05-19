@@ -62,13 +62,31 @@ class ObjectSubscription:
         """
         Restarts the subscription to the bacnet object
 
-        If False is returned the subscription is not inactive
+        Returns False if the subscription is not inactive
         """
         if self._subscription_status != SubscriptionStatus.INACTIVE:
             print("Subscription is not down")
             return False
         self._subscription_status = SubscriptionStatus.STARTING
 
+        self._make_new_subscription_object()
+        return True
+
+    def start_subscription(self) -> bool:
+        """
+        Starts the subscription to the bacnet object
+
+        Returns False if the subscription has already been started
+        """
+        if self._subscription_status != SubscriptionStatus.NOT_STARTED:
+            print("Subscription has already been started")
+            return False
+        self._subscription_status = SubscriptionStatus.STARTING
+
+        self._make_new_subscription_object()
+        return True
+
+    def _make_new_subscription_object(self):
         # This is EXACTLY how address is assigned in lite.cov()
         # using a string in place of the complicated Address metaclass
         # using a BAC0.lite in place of BAC0Application
