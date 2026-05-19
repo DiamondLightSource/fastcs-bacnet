@@ -17,8 +17,9 @@ class BacnetController(Controller):
     def __init__(self, bacnet_client: BacnetClient):
         """
         Creates a FastCS controller (and subcontrollers) from a BacnetClient object
+
         bacnet_client: NOT a BAC0.lite object but a BacnetClient object
-            Will create subcontrollers for each device the BacnetClient is subscribed to
+            Will create subcontrollers for each subscription
         """
         super().__init__(ios=[])
 
@@ -47,6 +48,9 @@ class BacnetController(Controller):
             subcontroller_index += 1
 
     def post_initialise(self):
+        """
+        Sends out CoV subscriptions to all Bacnet objects
+        """
         super().post_initialise()
         self._start_subscriptions_task = asyncio.create_task(
             self.bacnet_client.start_subscriptions()
