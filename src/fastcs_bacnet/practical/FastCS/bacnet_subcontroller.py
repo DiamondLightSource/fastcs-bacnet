@@ -16,9 +16,17 @@ from fastcs_bacnet.practical.FastCS.bacnet_attributes import (
 )
 
 
+class InvalidSubscriptionIDError(BaseException):
+    pass
+
+
+class InvalidObjectTypeError(BaseException):
+    pass
+
+
 class BacnetSubController(Controller):
     """
-    A controller for a single device (IP-port pair)
+    A controller for a single bacnet device (IP-port pair)
     """
 
     def __init__(
@@ -30,7 +38,10 @@ class BacnetSubController(Controller):
     ):
         """
         Creates attributes for each subscription id given in the list
+
         Makes sure the ip address and the port matches each subscription
+        And links CoV update callback to the FastCS Attribute
+
         bacnet_client: NOT a BAC0.lite object but a BacnetClient object
         ip_address: ip address of the device this controls
         port: the port number the device uses for bacnet communication (default 47808)
@@ -47,22 +58,18 @@ class BacnetSubController(Controller):
         for subscription_id in subscription_ids:
             # TODO: Throw an error here instead
             if subscription_id.socket_address.ip_address != ip_address:
-                print(f"""
+                raise InvalidSubscriptionIDError(f"""
                     Subcontroller address does not match subscription address
                     Subcontroller address: {ip_address}
                     Subscription address: {subscription_id.socket_address.ip_address}
                 """)
             if subscription_id.socket_address.port != port:
-                print(f"""
+                raise InvalidSubscriptionIDError(f"""
                     Subcontroller port does not match subscription port
                     Subcontroller port: {port}
                     Subscription port: {subscription_id.socket_address.port}
                 """)
             object_subscription = bacnet_client.get_subscription(subscription_id)
-
-            if object_subscription is None:
-                print("raise error??")
-                return
 
             object_type_snake_case = subscription_id.object_id.object_type.replace(
                 "-", "_"
@@ -89,10 +96,17 @@ class BacnetSubController(Controller):
                 set_subscription_callback(object_subscription, attr)
 
             else:
-                print("error")
+                raise InvalidObjectTypeError(
+                    "Bacnet object type was not recognised by BacnetSubcontroller"
+                )
 
 
 def set_subscription_callback(object_subscription: ObjectSubscription, attr: AttrR):
+    """
+    Links an object subscription to a FastCS Attribute
+
+    Adds a CoV callback that updates the FastCS Attribute with its value
+    """
 
     async def update_attribute_callback(property_identifier: str, property_value: Any):
         if property_identifier == PropertyIdentifier.presentValue:
