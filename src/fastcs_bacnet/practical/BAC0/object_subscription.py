@@ -44,11 +44,12 @@ class ObjectSubscription:
 
         self._failed_subscription_callback = failed_subscription_callback
 
-        self.restart_subscription()
-
     def restart_subscription(self):
         """
         Restarts the subscription to the bacnet object
+
+        This method should ONLY be called by DeviceSubscription objects
+        Unless you are handling the object subscription yourself
         """
         if not self._subscription_down:
             print("subscrption is already up")

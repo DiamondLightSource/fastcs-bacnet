@@ -117,9 +117,12 @@ class DeviceSubscription:
         if callback is not None:
             object_subscription.callback_holder.add(callback)
         object_subscription.callback_holder.add(release)
-        object_subscription.callback_holder.add(self._restart_failed_subscriptions)
+        object_subscription.callback_holder.add(self.restart_failed_subscriptions)
 
         self._object_subscriptions[object_id] = object_subscription
+
+        self._failed_subscription_ids.add(subscription_id.object_key)
+        self._subscription_lock.release_with(subscription_id.object_key)
 
     def remove_subscription(self, object_id: ObjectIdentifier):
         self._object_subscriptions.pop(object_id)
@@ -162,14 +165,14 @@ class DeviceSubscription:
             # empty list means nothing was returned
             device_found = await who_is_future.future
 
-        self._restart_failed_subscriptions()
+        self.restart_failed_subscriptions()
 
         # restarts the listening task
         task = asyncio.create_task(self._listen_for_iam())
         self._task_pool.add(task)
         task.add_done_callback(self._task_pool.discard)
 
-    def _restart_failed_subscriptions(self, *_):
+    def restart_failed_subscriptions(self, *_):
         """
         Loops through all subscriptions in the failed subscriptions
         set and restarts them
@@ -188,18 +191,18 @@ class DeviceSubscription:
         """
 
         object_subscription = self._object_subscriptions[object_identifier]
-        if object_subscription not in self._failed_subscription_ids:
-            print("raise error")
+        if object_identifier not in self._failed_subscription_ids:
+            # subscription already restarted
+            # log an error here
+            return
+
+        # Prevent it from trying to restart again
+        self._failed_subscription_ids.remove(object_identifier)
 
         await self._subscription_lock.acquire_with(object_identifier)
 
-        if object_identifier not in self._failed_subscription_ids:
-            # subscription already restarted
-            return
-
         # assume the restart will work
         # if it doesnt, the id will be added to this set again
-        self._failed_subscription_ids.remove(object_identifier)
         object_subscription = self._object_subscriptions[object_identifier]
 
         object_subscription.restart_subscription()

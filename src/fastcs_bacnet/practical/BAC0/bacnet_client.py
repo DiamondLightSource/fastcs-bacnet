@@ -113,3 +113,7 @@ class BacnetClient:
             subscription_ids = subscription_ids | device.get_subscription_ids()
 
         return subscription_ids
+
+    def start_subscriptions(self):
+        for device in self._devices.values():
+            device.restart_failed_subscriptions()

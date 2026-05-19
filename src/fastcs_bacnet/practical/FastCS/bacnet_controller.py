@@ -44,3 +44,4 @@ class BacnetController(Controller):
 
     def post_initialise(self):
         super().post_initialise()
+        self.bacnet_client.start_subscriptions()
