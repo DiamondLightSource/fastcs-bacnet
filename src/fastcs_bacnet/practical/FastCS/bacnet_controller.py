@@ -12,6 +12,8 @@ class BacnetController(Controller):
     A FastCS controller for bacnet subscriptions
     """
 
+    _start_subscriptions_task: asyncio.Task | None = None
+
     def __init__(self, bacnet_client: BacnetClient):
         """
         Creates a FastCS controller (and subcontrollers) from a BacnetClient object
@@ -46,4 +48,13 @@ class BacnetController(Controller):
 
     def post_initialise(self):
         super().post_initialise()
-        asyncio.create_task(self.bacnet_client.start_subscriptions())
+        self._start_subscriptions_task = asyncio.create_task(
+            self.bacnet_client.start_subscriptions()
+        )
+
+        def remove_start_subscriptions_task(*_):
+            self._start_subscriptions_task = None
+
+        self._start_subscriptions_task.add_done_callback(
+            remove_start_subscriptions_task
+        )
