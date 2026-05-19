@@ -38,11 +38,11 @@ class BinaryAttributeIORef(BacnetAttributeIORef):
 
 class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef]):
     """
-    Docstring
+    Attribute for analog Bacnet objects
     """
 
 
 class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef]):
     """
-    Docstring
+    Attribute for binary Bacnet objects
     """
