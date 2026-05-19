@@ -116,7 +116,7 @@ class DeviceSubscription:
         if callback is not None:
             object_subscription.callback_holder.add(callback)
         object_subscription.callback_holder.add(release)
-        object_subscription.callback_holder.add(self.restart_failed_subscriptions)
+        object_subscription.callback_holder.add(self._restart_inactive_subscriptions)
 
         self._object_subscriptions[object_id] = object_subscription
 
@@ -163,17 +163,16 @@ class DeviceSubscription:
             # empty list means nothing was returned
             device_found = await who_is_future.future
 
-        self.restart_failed_subscriptions()
+        await self._restart_inactive_subscriptions()
 
         # restarts the listening task
         task = asyncio.create_task(self._listen_for_iam())
         self._task_pool.add(task)
         task.add_done_callback(self._task_pool.discard)
 
-    def restart_failed_subscriptions(self, *_):
+    async def _restart_inactive_subscriptions(self, *_):
         """
-        Loops through all subscriptions in the failed subscriptions
-        set and restarts them
+        Loops through all subscriptions and restart the inactive ones
         """
 
         for (
@@ -181,21 +180,24 @@ class DeviceSubscription:
             object_subscription,
         ) in self._object_subscriptions.items():
             if object_subscription.get_status == SubscriptionStatus.INACTIVE:
-                task = asyncio.create_task(
-                    self._restart_single_subscription(object_identifier)
-                )
-                self._task_pool.add(task)
-                task.add_done_callback(self._task_pool.remove)
+                await self._subscription_lock.acquire_with(object_identifier)
 
-    async def _restart_single_subscription(self, object_identifier: ObjectIdentifier):
+                # If the restart doesnt work release the lock
+                if not object_subscription.restart_subscription():
+                    self._subscription_lock.release_with(object_identifier)
+
+    async def start_subscriptions(self, *_):
         """
-        Restarts a single object subscription on this device
+        Loops through all subscriptions and starts the not started ones
         """
 
-        object_subscription = self._object_subscriptions[object_identifier]
+        for (
+            object_identifier,
+            object_subscription,
+        ) in self._object_subscriptions.items():
+            if object_subscription.get_status == SubscriptionStatus.NOT_STARTED:
+                await self._subscription_lock.acquire_with(object_identifier)
 
-        await self._subscription_lock.acquire_with(object_identifier)
-
-        # If the restart doesnt work release the lock
-        if not object_subscription.restart_subscription():
-            self._subscription_lock.release_with(object_identifier)
+                # If the restart doesnt work release the lock
+                if not object_subscription.start_subscription():
+                    self._subscription_lock.release_with(object_identifier)
