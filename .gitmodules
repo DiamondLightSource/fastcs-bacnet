@@ -1,0 +1,3 @@
+[submodule "src/dls_bms"]
+	path = src/dls_bms
+	url = https://gitlab.diamond.ac.uk/controls/python3/dls_bms.git
