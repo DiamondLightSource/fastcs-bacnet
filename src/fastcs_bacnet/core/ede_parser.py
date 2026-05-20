@@ -62,9 +62,7 @@ def parse_ede(
 
         pv_names_dict[subscription_id] = pv_name
 
-    checkUniquePvNames(
-        [subcription_name_pair[1] for subcription_name_pair in pv_names_dict]
-    )
+    checkUniquePvNames(list(pv_names_dict.keys()))
 
     return pv_names_dict
 
