@@ -6,7 +6,7 @@ from collections.abc import Sequence
 
 from fastcs.logging import configure_logging
 
-from fastcs_bacnet.core.csv_parser import parse_csv
+from fastcs_bacnet.core.ede_parser import parse_ede
 from fastcs_bacnet.core.fastcs_bacnet import fastcs_bacnet
 
 from . import __version__
@@ -30,6 +30,12 @@ def main(args: Sequence[str] | None = None) -> None:
     )
 
     parser.add_argument(
+        "config_dir", type=str, help="Filepath to the directory with the bms.ini file"
+    )
+
+    parser.add_argument("-r", "--header_rows", type=int, default=0)
+
+    parser.add_argument(
         "-v",
         "--version",
         action="version",
@@ -37,7 +43,9 @@ def main(args: Sequence[str] | None = None) -> None:
     )
     args_namespace = parser.parse_args(args)
 
-    subscription_ids = parse_csv(args_namespace.file_path)
+    subscription_ids = parse_ede(
+        args_namespace.file_path, args_namespace.header_rows, args_namespace.config_dir
+    )
 
     asyncio.run(fastcs_bacnet(subscription_ids))
 
