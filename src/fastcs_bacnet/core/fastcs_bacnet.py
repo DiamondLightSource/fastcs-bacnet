@@ -7,7 +7,7 @@ from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
 from fastcs_bacnet.core.FastCS.bacnet_controller import BacnetController
 
 
-async def fastcs_bacnet(subscriptions_and_pv_names: list[tuple[SubscriptionID, str]]):
+async def fastcs_bacnet(pv_names_dict: dict[SubscriptionID, str]):
     """
     Runs the fastcs-bacnet application on the passed in subscriptions
 
@@ -16,10 +16,7 @@ async def fastcs_bacnet(subscriptions_and_pv_names: list[tuple[SubscriptionID, s
     subscriptions: The bacnet objects to subscribe to
     """
 
-    subscriptions = [
-        subscription_name_pair[0]
-        for subscription_name_pair in subscriptions_and_pv_names
-    ]
+    subscriptions = list(pv_names_dict.keys())
 
     # Use a context provider so if application errors out or is closed
     # BAC0 client is shut down correctly

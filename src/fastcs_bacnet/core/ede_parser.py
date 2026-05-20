@@ -23,9 +23,9 @@ from fastcs_bacnet.practical.BAC0.subscription_id import (
 
 def parse_ede(
     file_path: str, header_rows: int, config_dir: str
-) -> list[tuple[SubscriptionID, str]]:
+) -> dict[SubscriptionID, str]:
 
-    subscriptions_with_names = []
+    pv_names_dict = {}
 
     config_file = getBMSConfig(getIniFile(config_dir))
 
@@ -60,13 +60,13 @@ def parse_ede(
         # do some final checks, raise exceptions, log warnings / errors
         checkPvNameLength(pv_name)
 
-        subscriptions_with_names.append((subscription_id, pv_name))
+        pv_names_dict[subscription_id] = pv_name
 
     checkUniquePvNames(
-        [subcription_name_pair[1] for subcription_name_pair in subscriptions_with_names]
+        [subcription_name_pair[1] for subcription_name_pair in pv_names_dict]
     )
 
-    return subscriptions_with_names
+    return pv_names_dict
 
 
 def ip_from_row(row: list[str]) -> str:

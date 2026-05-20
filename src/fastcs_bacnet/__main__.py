@@ -43,11 +43,11 @@ def main(args: Sequence[str] | None = None) -> None:
     )
     args_namespace = parser.parse_args(args)
 
-    subscription_ids = parse_ede(
+    pv_names_dict = parse_ede(
         args_namespace.file_path, args_namespace.header_rows, args_namespace.config_dir
     )
 
-    asyncio.run(fastcs_bacnet(subscription_ids))
+    asyncio.run(fastcs_bacnet(pv_names_dict))
 
 
 if __name__ == "__main__":
