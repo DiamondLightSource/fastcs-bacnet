@@ -4,6 +4,8 @@ from bacpypes3.primitivedata import ObjectType
 
 from dls_bms.bms import (
     IFM_FILE_TYPE,
+    checkPvNameLength,
+    checkUniquePvNames,
     createPvName,
     extractData,
     getBMSConfig,
@@ -54,9 +56,15 @@ def parse_ede(
         pv_name = createPvName(
             object_instance_str, object_name, config_file, device_instance
         )
+
         # do some final checks, raise exceptions, log warnings / errors
+        checkPvNameLength(pv_name)
 
         subscriptions_with_names.append((subscription_id, pv_name))
+
+    checkUniquePvNames(
+        [subcription_name_pair[1] for subcription_name_pair in subscriptions_with_names]
+    )
 
     return subscriptions_with_names
 
