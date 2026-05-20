@@ -24,7 +24,7 @@ async def fastcs_bacnet(pv_names_dict: dict[SubscriptionID, str]):
         bacnet_client = BacnetClient(bac0, initial_subscriptions=subscriptions)
 
         epics_ca = EpicsCATransport()
-        bacnet_controller = BacnetController(bacnet_client)
+        bacnet_controller = BacnetController(bacnet_client, pv_names_dict)
         bacnet_controller.set_path(["FASTCS_BACNET"])
 
         fastcs = FastCS(bacnet_controller, [epics_ca])

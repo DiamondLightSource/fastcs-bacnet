@@ -3,7 +3,7 @@ import asyncio
 from fastcs.controllers import Controller
 
 from fastcs_bacnet.core.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.core.BAC0.subscription_id import sort_subscriptions
+from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID, sort_subscriptions
 from fastcs_bacnet.core.FastCS.bacnet_subcontroller import BacnetSubController
 
 
@@ -14,7 +14,11 @@ class BacnetController(Controller):
 
     _start_subscriptions_task: asyncio.Task | None = None
 
-    def __init__(self, bacnet_client: BacnetClient):
+    def __init__(
+        self,
+        bacnet_client: BacnetClient,
+        pv_names_dict: dict[SubscriptionID, str],
+    ):
         """
         Creates a FastCS controller (and subcontrollers) from a BacnetClient object
 
@@ -39,6 +43,7 @@ class BacnetController(Controller):
                 self.bacnet_client,
                 socket_address.ip_address,
                 device_subscription_ids,
+                pv_names_dict,
                 port=socket_address.port,
             )
 
