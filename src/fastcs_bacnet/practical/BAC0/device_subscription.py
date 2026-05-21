@@ -1,12 +1,15 @@
 import asyncio
 from asyncio import Lock
-from collections.abc import Callable
 
 from BAC0 import lite
 from bacpypes3.pdu import Address
 from bacpypes3.service.device import WhoIsFuture
 
-from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
+from fastcs_bacnet.practical.BAC0.callback_holder import CovCallback
+from fastcs_bacnet.practical.BAC0.object_subscription import (
+    ObjectSubscription,
+    SubscriptionStatus,
+)
 from fastcs_bacnet.practical.BAC0.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
@@ -64,7 +67,6 @@ class DeviceSubscription:
 
     _object_subscriptions: dict[ObjectIdentifier, ObjectSubscription]
     _subscription_lock: SubscriptionLock
-    _failed_subscription_ids: set[ObjectIdentifier]
     _task_pool: set[asyncio.Task]
 
     def __init__(self, bacnet_client: lite, socket_address: IPv4SocketAddress):
@@ -73,7 +75,6 @@ class DeviceSubscription:
         self.socket_address = socket_address
         self._object_subscriptions = {}
         self._subscription_lock = SubscriptionLock()
-        self._failed_subscription_ids = set()
         self._task_pool = set()
 
         asyncio.create_task(self._listen_for_iam())
@@ -82,7 +83,7 @@ class DeviceSubscription:
         self,
         object_id: ObjectIdentifier,
         lifetime: int,
-        callback: Callable[[str, float], None] | None = None,
+        callback: CovCallback | None = None,
     ):
         """
         Creates an ObjectSubscription that is handled by this object
@@ -91,9 +92,7 @@ class DeviceSubscription:
         until the subscription is confirmed
         """
 
-        await self._subscription_lock.acquire_with(object_id)
-
-        def release(_: str, __: float):
+        def release(*_):
             if self._subscription_lock.locked():
                 # Only releases if the object_id matches the one that locked it
                 # This prevents other subscription notifications confirming a CoV
@@ -101,22 +100,23 @@ class DeviceSubscription:
 
         subscription_id = SubscriptionID(self.socket_address, object_id)
 
-        def handle_failed_subscription(_):
+        def on_subscription_fail(_):
             if object_subscription is not None:
-                release("", 0.0)
-                self._failed_subscription_ids.add(subscription_id.object_key)
+                release()
 
         object_subscription = ObjectSubscription(
             self.bacnet_client,
             subscription_id,
             lifetime=lifetime,
-            failed_subscription_callback=handle_failed_subscription,
+            failed_subscription_callback=on_subscription_fail,
         )
 
         if callback is not None:
             object_subscription.callback_holder.add(callback)
         object_subscription.callback_holder.add(release)
-        object_subscription.callback_holder.add(self._restart_failed_subscriptions)
+        object_subscription.callback_holder.add(
+            lambda *_: self._start_subscriptions_from_state(SubscriptionStatus.INACTIVE)
+        )
 
         self._object_subscriptions[object_id] = object_subscription
 
@@ -150,7 +150,7 @@ class DeviceSubscription:
         device_found = []
         while len(device_found) == 0:
             who_is_future = WhoIsFuture(
-                app, Address(self.socket_address), None, None, 3600
+                app, Address(str(self.socket_address)), None, None, 3600
             )
             # need to add the future to the list or the future will raise an exception
             app._who_is_futures.append(who_is_future)  # noqa: SLF001
@@ -161,49 +161,28 @@ class DeviceSubscription:
             # empty list means nothing was returned
             device_found = await who_is_future.future
 
-        self._restart_failed_subscriptions()
+        await self._start_subscriptions_from_state(SubscriptionStatus.INACTIVE)
 
         # restarts the listening task
         task = asyncio.create_task(self._listen_for_iam())
         self._task_pool.add(task)
         task.add_done_callback(self._task_pool.discard)
 
-    def _restart_failed_subscriptions(self, *_):
-        """
-        Loops through all subscriptions in the failed subscriptions
-        set and restarts them
-        """
+    async def start_subscriptions(self):
+        await self._start_subscriptions_from_state(SubscriptionStatus.NOT_STARTED)
 
-        for failed_object_subscription_id in self._failed_subscription_ids:
-            task = asyncio.create_task(
-                self._restart_single_subscription(failed_object_subscription_id)
-            )
-            self._task_pool.add(task)
-            task.add_done_callback(self._task_pool.remove)
-
-    async def _restart_single_subscription(self, object_identifier: ObjectIdentifier):
+    async def _start_subscriptions_from_state(self, state: SubscriptionStatus):
         """
-        Restarts a single object subscription on this device
+        Loops through all subscriptions and starts the ones in a specific state
         """
 
-        object_subscription = self._object_subscriptions[object_identifier]
-        if object_subscription not in self._failed_subscription_ids:
-            print("raise error")
+        for (
+            object_identifier,
+            object_subscription,
+        ) in self._object_subscriptions.items():
+            if object_subscription.get_status() == state:
+                await self._subscription_lock.acquire_with(object_identifier)
 
-        await self._subscription_lock.acquire_with(object_identifier)
-
-        if object_identifier not in self._failed_subscription_ids:
-            # subscription already restarted
-            return
-
-        # assume the restart will work
-        # if it doesnt, the id will be added to this set again
-        self._failed_subscription_ids.remove(object_identifier)
-        object_subscription = self._object_subscriptions[object_identifier]
-
-        object_subscription.restart_subscription()
-
-        # Trust that the object subscription still has its release() method on
-        # the callback holder??
-        # There is no reason to remove it but callback_holder is public and not
-        # releasing the lock would be very bad
+                # If the restart doesnt work release the lock
+                if not object_subscription.start_subscription_with_state(state):
+                    self._subscription_lock.release_with(object_identifier)

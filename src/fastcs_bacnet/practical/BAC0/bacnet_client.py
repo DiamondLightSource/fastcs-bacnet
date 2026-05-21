@@ -1,8 +1,8 @@
 import asyncio
-from collections.abc import Callable
 
 from BAC0 import lite
 
+from fastcs_bacnet.practical.BAC0.callback_holder import CovCallback
 from fastcs_bacnet.practical.BAC0.device_subscription import DeviceSubscription
 from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
 from fastcs_bacnet.practical.BAC0.subscription_id import (
@@ -64,7 +64,7 @@ class BacnetClient:
     async def add_subscription(
         self,
         subscription_id: SubscriptionID,
-        callback: Callable[[str, float], None] | None = None,
+        callback: CovCallback | None = None,
     ):
         """
         Adds a new subscription object to the dictionary
@@ -113,3 +113,7 @@ class BacnetClient:
             subscription_ids = subscription_ids | device.get_subscription_ids()
 
         return subscription_ids
+
+    async def start_subscriptions(self):
+        for device in self._devices.values():
+            await device.start_subscriptions()

@@ -21,7 +21,9 @@ def parse_csv(filepath: str) -> list[SubscriptionID]:
     # escalates file not found exception
     with open(filepath) as file:
         reader = csv.DictReader(
-            file, ["ip_address", "port", "object_type", "object_instance"]
+            file,
+            ["ip_address", "port", "object_type", "object_instance"],
+            skipinitialspace=True,
         )
         for line in reader:
             try:
