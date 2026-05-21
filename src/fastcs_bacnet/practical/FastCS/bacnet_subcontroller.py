@@ -56,7 +56,6 @@ class BacnetSubController(Controller):
         )
 
         for subscription_id in subscription_ids:
-            # TODO: Throw an error here instead
             if subscription_id.socket_address.ip_address != ip_address:
                 raise InvalidSubscriptionIDError(f"""
                     Subcontroller address does not match subscription address
