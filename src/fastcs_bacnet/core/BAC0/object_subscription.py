@@ -178,7 +178,6 @@ class ObjectSubscription:
 
         first_attempt: True on subscription and False on resubscription
         """
-        # TODO: Change to logging
         if first_attempt:
             logger.warning("Subscription failed: " + str(self._subscription_id))
         else:
