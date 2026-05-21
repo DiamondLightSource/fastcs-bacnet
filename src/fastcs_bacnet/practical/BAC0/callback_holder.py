@@ -3,6 +3,8 @@ from collections.abc import Callable, Coroutine
 from inspect import iscoroutinefunction
 from typing import Any, TypeGuard
 
+from fastcs.logging import logger
+
 type SyncCovCallback = Callable[[str, float | bool], None]
 type AsyncCovCallback = Callable[[str, float | bool], Coroutine[None, None, None]]
 type CovCallback = SyncCovCallback | AsyncCovCallback
@@ -49,8 +51,7 @@ class CovCallbackHolder:
         elif self.is_async_callback(callback):
             self._async_callbacks.append(callback)
         else:
-            # TODO: change this to logging
-            raise ValueError
+            logger.warning("Callback added to CovCallbackHolder is not callable")
 
         callback_key = self._next_callback_key
         self._next_callback_key += 1
@@ -66,8 +67,9 @@ class CovCallbackHolder:
         key: corresponding key to the callback
         """
         if key not in self._callback_dict:
-            # TODO: replace with logging
-            raise KeyError
+            raise KeyError(
+                "Callback not found in CovCallbackHolder with key " + str(key)
+            )
         return self._callback_dict[key]
 
     def remove(self, key: int):
@@ -109,9 +111,7 @@ class CovCallbackHolder:
             try:
                 sync_callback(property_identifier, property_value)
             except BaseException as e:
-                # TODO: log error here
-                print("excepted in synchronous task")
-                print(e)
+                logger.error("Error raised in CoV sync callback: " + str(e))
 
         async with asyncio.TaskGroup() as group:
             for async_callback in self._async_callbacks:
@@ -120,9 +120,7 @@ class CovCallbackHolder:
                         async_callback(property_identifier, property_value)
                     )
                 except BaseException as e:
-                    # TODO: log error here
-                    print("excepted in asynchronous task")
-                    print(e)
+                    logger.error("Error raised in CoV async callback: " + str(e))
 
     # seems silly to have 2 inverse functions but they are necessary as they are guards
     def is_sync_callback(self, callback: CovCallback) -> TypeGuard[SyncCovCallback]:
