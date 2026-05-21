@@ -13,8 +13,6 @@ class BacnetAttributeIORef(AttributeIORef):
     FastCS attribute reference for any bacnet object
 
     subscription_id: id of the object this is referencing
-        Should never be None, another issue with extending the
-        existing AttributeIORef class
     """
 
     subscription_id: SubscriptionID
