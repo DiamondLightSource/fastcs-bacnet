@@ -29,7 +29,9 @@ class BacnetClient:
     ):
         """
         bacnet_client: BAC0 object used to interact with actual bacnet objects
-        initial_subscriptions: The subscriptions that are started on construction
+        initial_subscriptions: The subscriptions that are created on construction
+            Subscriptions are NOT automatically started after being created,
+            a start_subscriptions() call must be made
         subscription_lifetime: Time that subscriptions last (in seconds)
             This WILL affect the amount of traffic on the network (a message
            must be sent to renew the subscription) and so should be set to 1+ hours
