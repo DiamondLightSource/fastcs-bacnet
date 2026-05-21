@@ -4,6 +4,8 @@ import asyncio
 from argparse import ArgumentParser
 from collections.abc import Sequence
 
+from fastcs.logging import configure_logging, logger
+
 from fastcs_bacnet.core.csv_parser import parse_csv
 from fastcs_bacnet.core.fastcs_bacnet import fastcs_bacnet
 
@@ -13,6 +15,9 @@ __all__ = ["main"]
 
 
 def main(args: Sequence[str] | None = None) -> None:
+    configure_logging()
+    logger.info("FastCS logger configured")
+
     description = (
         "Start a FastCS IOC with PVs and Bacnet object subscriptions defined "
         + "from input file"
