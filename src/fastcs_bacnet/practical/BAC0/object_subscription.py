@@ -5,6 +5,7 @@ from enum import Enum
 from BAC0 import lite
 from BAC0.core.functions.CoV import COVSubscription
 from bacpypes3.service.cov import SubscriptionContextManager
+from fastcs.logging import logger
 
 from fastcs_bacnet.practical.BAC0.callback_holder import CovCallbackHolder
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
@@ -124,8 +125,13 @@ class ObjectSubscription:
         """
 
         if self._subscription_object is None:
-            # TODO: change to logging
-            raise SusbcriptionObjectNotIntialisedError
+            logger.error(
+                "Cant decorate subscription as subcription "
+                + "object has not been initialised"
+                + "subscription: "
+                + str(self._subscription_id)
+            )
+            return
 
         # scm: subscription context manager
         scm_key = (
@@ -176,12 +182,10 @@ class ObjectSubscription:
         """
         # TODO: Change to logging
         if first_attempt:
-            print("subscription failed")
+            logger.warning("Subscription failed: " + str(self._subscription_id))
         else:
-            print("resubscription failed")
+            logger.warning("Resubscription failed: " + str(self._subscription_id))
         self._subscription_status = SubscriptionStatus.INACTIVE
-        print("IP: ", self._subscription_id.socket_address)
-        print("Object: ", self._subscription_id.object_id)
         if self._failed_subscription_callback is not None:
             self._failed_subscription_callback(first_attempt)
 
