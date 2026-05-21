@@ -89,17 +89,9 @@ class CovCallbackHolder:
         if self.is_sync_callback(callback_instance):
             if callback_instance in self._sync_callbacks:
                 self._sync_callbacks.remove(callback_instance)
-            else:
-                raise DictListCallbackMismatchError(
-                    "Sync callback in dict but not in list"
-                )
         elif self.is_async_callback(callback_instance):
             if callback_instance in self._async_callbacks:
                 self._async_callbacks.remove(callback_instance)
-            else:
-                raise DictListCallbackMismatchError(
-                    "Async callback in dict but not in list"
-                )
 
     def remove_all(self):
         self._sync_callbacks = []
