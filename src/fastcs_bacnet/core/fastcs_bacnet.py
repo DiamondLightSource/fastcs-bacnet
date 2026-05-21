@@ -19,8 +19,7 @@ async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
     # Use a context provider so if application errors out or is closed
     # BAC0 client is shut down correctly
     async with start() as bac0:
-        bacnet_client = BacnetClient(bac0)
-        await bacnet_client.add_subscriptions(subscriptions)
+        bacnet_client = BacnetClient(bac0, initial_subscriptions=subscriptions)
 
         epics_ca = EpicsCATransport()
         bacnet_controller = BacnetController(bacnet_client)

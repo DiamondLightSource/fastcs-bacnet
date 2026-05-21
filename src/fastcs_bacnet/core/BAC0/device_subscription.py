@@ -124,7 +124,7 @@ class DeviceSubscription:
 
         asyncio.create_task(self._listen_for_iam())
 
-    async def add_subscription(
+    def add_subscription(
         self,
         object_id: ObjectIdentifier,
         lifetime: int,
