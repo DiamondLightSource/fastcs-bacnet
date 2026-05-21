@@ -108,8 +108,8 @@ class ObjectSubscription:
 
         if self._subscription_object is None:
             raise SusbcriptionObjectNotIntialisedError(
-                f"""Subscription {self._subscription_id} started before
-                  its COVSubscription has been created"""
+                f"Subscription {self._subscription_id} started before"
+                f"its COVSubscription has been created"
             )
         try:
             await self._subscription_object.run()
