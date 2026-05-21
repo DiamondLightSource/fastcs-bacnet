@@ -125,10 +125,10 @@ class ObjectSubscription:
 
         if self._subscription_object is None:
             logger.error(
-                "Cant decorate subscription as subcription "
-                + "object has not been initialised"
-                + "subscription: "
-                + str(self._subscription_id)
+                f"Cant decorate subscription as subcription "
+                f"object has not been initialised"
+                f"subscription: "
+                f"{self._subscription_id}"
             )
             return
 
@@ -181,8 +181,8 @@ class ObjectSubscription:
         first_attempt: True on subscription and False on resubscription
         """
         logger.warning(
-            f"""{"Subscription" if first_attempt else "Resubscription"} failed:
-            {self._subscription_id}"""
+            f"{'Subscription' if first_attempt else 'Resubscription'} failed: "
+            f"{self._subscription_id}"
         )
         self._subscription_status = SubscriptionStatus.INACTIVE
         if self._failed_subscription_callback is not None:
