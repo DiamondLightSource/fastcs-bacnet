@@ -138,10 +138,10 @@ class DeviceSubscription:
         # restart it instead if its down
         if object_id in self._object_subscriptions:
             logger.error(
-                "Subscription for object "
-                + str(object_id)
-                + " already exists on device "
-                + str(object_id)
+                f"""Subscription for object
+                 {str(object_id)}
+                already exists on device
+                {str(object_id)} """
             )
             return
 
