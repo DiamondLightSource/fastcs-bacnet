@@ -15,6 +15,10 @@ dependencies = [
     "BAC0",
     "fastcs[epicsca] >= 0.14.0",
     "epicscorelibs",
+    "pandas",
+    "configobj",
+    "xlrd",
+    "openpyxl",
 ] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
 license.file = "LICENSE"
@@ -32,10 +36,6 @@ dev = [
     "ruff",
     "tox-uv",
     "types-mock",
-    "pandas",
-    "configobj",
-    "xlrd",
-    "openpyxl",
 ]
 
 [project.scripts]

@@ -609,17 +609,18 @@ name = "fastcs-bacnet"
 source = { editable = "." }
 dependencies = [
     { name = "bac0" },
+    { name = "configobj" },
     { name = "epicscorelibs" },
     { name = "fastcs", extra = ["epicsca"] },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "xlrd" },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "configobj" },
     { name = "copier" },
     { name = "matplotlib" },
-    { name = "openpyxl" },
-    { name = "pandas" },
     { name = "pre-commit" },
     { name = "pyright" },
     { name = "pytest" },
@@ -627,23 +628,23 @@ dev = [
     { name = "ruff" },
     { name = "tox-uv" },
     { name = "types-mock" },
-    { name = "xlrd" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "bac0" },
+    { name = "configobj" },
     { name = "epicscorelibs" },
     { name = "fastcs", extras = ["epicsca"], specifier = ">=0.14.0" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "xlrd" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "configobj" },
     { name = "copier" },
     { name = "matplotlib" },
-    { name = "openpyxl" },
-    { name = "pandas" },
     { name = "pre-commit" },
     { name = "pyright" },
     { name = "pytest" },
@@ -651,7 +652,6 @@ dev = [
     { name = "ruff" },
     { name = "tox-uv" },
     { name = "types-mock" },
-    { name = "xlrd" },
 ]
 
 [[package]]
