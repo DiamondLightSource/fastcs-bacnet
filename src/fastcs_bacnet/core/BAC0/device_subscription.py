@@ -44,20 +44,10 @@ class SubscriptionLock:
 
         if valid:
             self._acquired_by = acquired_by
-            logger.debug(
-                "Lock "
-                + str(self._socket_address)
-                + " acquired by "
-                + str(acquired_by)
-                + ""
-            )
+            logger.debug(f"Lock {self._socket_address} acquired by {acquired_by}")
         else:
             logger.debug(
-                "Lock "
-                + str(self._socket_address)
-                + " failed to be acquired by "
-                + str(acquired_by)
-                + ""
+                f"Lock {self._socket_address} failed to be acquired by {acquired_by}"
             )
 
         return valid
@@ -75,20 +65,10 @@ class SubscriptionLock:
 
         if released_by != self._acquired_by:
             logger.debug(
-                "Lock "
-                + str(self._socket_address)
-                + " failed to be released by "
-                + str(released_by)
-                + ""
+                f"Lock {self._socket_address} failed to be released by {released_by}"
             )
             return False
-        logger.debug(
-            "Lock "
-            + str(self._socket_address)
-            + " released by "
-            + str(released_by)
-            + ""
-        )
+        logger.debug(f"Lock {self._socket_address} released by {released_by}")
         self._lock.release()
         return True
 
@@ -136,10 +116,10 @@ class DeviceSubscription:
 
         if object_id in self._object_subscriptions:
             logger.error(
-                f"""Subscription for object
-                 {str(object_id)}
-                already exists on device
-                {str(object_id)} """
+                f"Subscription for object "
+                f"{str(object_id)}"
+                f" already exists on device "
+                f"{str(object_id)}"
             )
             return
 
