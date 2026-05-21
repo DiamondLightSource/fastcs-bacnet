@@ -66,7 +66,7 @@ def sort_subscriptions(
     subscription_ids: set[SubscriptionID],
 ) -> dict[IPv4SocketAddress, list[SubscriptionID]]:
     """
-    Sorts a list of subscription ids into lists of common socket addresses
+    Sorts a list of subscription ids into lists of subscriptions grouped by their socket address
 
     A dictionary is returned that maps IPv4SocketAddress s to all SubscriptionID s
     that use that socket address
