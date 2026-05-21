@@ -213,7 +213,7 @@ class DeviceSubscription:
             # empty list means nothing was returned
             device_found = await who_is_future.future
 
-        logger.debug("Recieved Iam from device " + str(self._socket_address))
+        logger.debug(f"Recieved Iam from device {self._socket_address}")
 
         await self._start_subscriptions_from_state(SubscriptionStatus.INACTIVE)
 
