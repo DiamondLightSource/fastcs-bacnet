@@ -606,7 +606,7 @@ dev = [
 requires-dist = [
     { name = "bac0" },
     { name = "epicscorelibs" },
-    { name = "fastcs", extras = ["epicsca"] },
+    { name = "fastcs", extras = ["epicsca"], specifier = ">=0.14.0" },
 ]
 
 [package.metadata.requires-dev]

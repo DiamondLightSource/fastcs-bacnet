@@ -13,7 +13,7 @@ classifiers = [
 description = "Reads bacnet data to an IOC"
 dependencies = [
     "BAC0",
-    "fastcs[epicsca]",
+    "fastcs[epicsca] >= 0.14.0",
     "epicscorelibs",
 ] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
