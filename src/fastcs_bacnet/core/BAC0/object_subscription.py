@@ -113,7 +113,8 @@ class ObjectSubscription:
             )
         try:
             await self._subscription_object.run()
-        except BaseException:
+        except BaseException as e:
+            logger.exception(e)
             self._on_failed_subscription(True)
 
     async def _decorate_resubscribe(self):
@@ -158,7 +159,8 @@ class ObjectSubscription:
 
                 try:
                     await refresh_subscription(*args)
-                except BaseException:
+                except BaseException as e:
+                    logger.exception(e)
                     self._on_failed_subscription(False)
 
             return decorated_refresh_subscription
