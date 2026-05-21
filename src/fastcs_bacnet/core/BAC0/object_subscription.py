@@ -106,9 +106,13 @@ class ObjectSubscription:
         Calls failed subscription callback if an error occurs
         """
 
+        if self._subscription_object is None:
+            raise SusbcriptionObjectNotIntialisedError(
+                f"""Subscription {self._subscription_id} started before
+                  its COVSubscription has been created"""
+            )
         try:
-            if self._subscription_object is not None:
-                await self._subscription_object.run()
+            await self._subscription_object.run()
         except BaseException:
             self._on_failed_subscription(True)
 
