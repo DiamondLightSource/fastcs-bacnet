@@ -167,7 +167,7 @@ class DeviceSubscription:
         if callback is not None:
             object_subscription.cov_callback_holder.add(callback)
         # If the CoV request comes back with a valid response release the lock
-        # this will happen every time a CoV update is recieved but it wont matter
+        # this will happen every time a CoV update is received but it wont matter
         object_subscription.cov_callback_holder.add(release)
         object_subscription.cov_callback_holder.add(
             lambda *_: self._start_subscriptions_from_state(SubscriptionStatus.INACTIVE)
