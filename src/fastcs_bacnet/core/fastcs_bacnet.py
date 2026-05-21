@@ -1,7 +1,6 @@
 from BAC0 import start
 from fastcs.launch import FastCS
 from fastcs.transports.epics.ca import EpicsCATransport
-from fastcs.transports.epics.options import EpicsIOCOptions
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
@@ -24,8 +23,9 @@ async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
         bacnet_client = BacnetClient(bac0)
         await bacnet_client.add_subscriptions(subscriptions)
 
-        epics_ca = EpicsCATransport(epicsca=EpicsIOCOptions(pv_prefix="FASTCSBACNET"))
+        epics_ca = EpicsCATransport()
         bacnet_controller = BacnetController(bacnet_client)
+        bacnet_controller.set_path(["FASTCS_BACNET"])
 
         fastcs = FastCS(bacnet_controller, [epics_ca])
 
