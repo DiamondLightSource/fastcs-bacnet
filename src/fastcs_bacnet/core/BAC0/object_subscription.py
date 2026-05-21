@@ -178,10 +178,10 @@ class ObjectSubscription:
 
         first_attempt: True on subscription and False on resubscription
         """
-        if first_attempt:
-            logger.warning("Subscription failed: " + str(self._subscription_id))
-        else:
-            logger.warning("Resubscription failed: " + str(self._subscription_id))
+        logger.warning(
+            f"""{"Subscription" if first_attempt else "Resubscription"} failed:
+            {self._subscription_id}"""
+        )
         self._subscription_status = SubscriptionStatus.INACTIVE
         if self._failed_subscription_callback is not None:
             self._failed_subscription_callback(first_attempt)
