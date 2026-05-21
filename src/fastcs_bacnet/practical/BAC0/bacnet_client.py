@@ -32,7 +32,7 @@ class BacnetClient:
         initial_subscriptions: The subscriptions that are started on construction
         subscription_lifetime: Time that subscriptions last (in seconds)
             This WILL affect the amount of traffic on the network (a message
-            must be sent to renew the subscription)
+           must be sent to renew the subscription) and so should be set to 1+ hours
         """
         self._subscription_lifetime = subscription_lifetime
 
