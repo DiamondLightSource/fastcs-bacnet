@@ -4,6 +4,7 @@ from asyncio import Lock
 from BAC0 import lite
 from bacpypes3.pdu import Address
 from bacpypes3.service.device import WhoIsFuture
+from fastcs.logging import logger
 
 from fastcs_bacnet.practical.BAC0.callback_holder import CovCallback
 from fastcs_bacnet.practical.BAC0.object_subscription import (
@@ -27,9 +28,11 @@ class SubscriptionLock:
 
     _lock: Lock
     _acquired_by: ObjectIdentifier
+    _socket_address: IPv4SocketAddress
 
-    def __init__(self):
+    def __init__(self, socket_address: IPv4SocketAddress):
         self._lock = Lock()
+        self._socket_address = socket_address
 
     async def acquire_with(self, acquired_by: ObjectIdentifier):
         """
@@ -41,6 +44,21 @@ class SubscriptionLock:
 
         if valid:
             self._acquired_by = acquired_by
+            logger.debug(
+                "Lock "
+                + str(self._socket_address)
+                + " acquired by "
+                + str(acquired_by)
+                + ""
+            )
+        else:
+            logger.debug(
+                "Lock "
+                + str(self._socket_address)
+                + " failed to be acquired by "
+                + str(acquired_by)
+                + ""
+            )
 
         return valid
 
@@ -56,7 +74,21 @@ class SubscriptionLock:
         """
 
         if released_by != self._acquired_by:
+            logger.debug(
+                "Lock "
+                + str(self._socket_address)
+                + " failed to be released by "
+                + str(released_by)
+                + ""
+            )
             return False
+        logger.debug(
+            "Lock "
+            + str(self._socket_address)
+            + " released by "
+            + str(released_by)
+            + ""
+        )
         self._lock.release()
         return True
 
@@ -87,7 +119,7 @@ class DeviceSubscription:
         self._bacnet_client = bacnet_client
         self._socket_address = socket_address
         self._object_subscriptions = {}
-        self._subscription_lock = SubscriptionLock()
+        self._subscription_lock = SubscriptionLock(socket_address)
         self._task_pool = set()
 
         asyncio.create_task(self._listen_for_iam())
@@ -105,13 +137,13 @@ class DeviceSubscription:
         # cant add a subscription twice
         # restart it instead if its down
         if object_id in self._object_subscriptions:
-            raise ValueError(
-                "Subscription "
+            logger.error(
+                "Subscription for object "
                 + str(object_id)
-                + " for device "
-                + str(self._socket_address)
-                + " already exists"
+                + " already exists on device "
+                + str(object_id)
             )
+            return
 
         def release(*_):
             if self._subscription_lock.locked():
@@ -148,7 +180,6 @@ class DeviceSubscription:
 
     def get_subscription(self, object_id: ObjectIdentifier) -> ObjectSubscription:
         if object_id not in self._object_subscriptions:
-            # TODO: replace with logging an error (preferably using the fastcs system)
             raise KeyError(
                 "No object subscription in device "
                 + str(self._socket_address)
@@ -190,6 +221,8 @@ class DeviceSubscription:
             # returns a list of IAms that match the IP
             # empty list means nothing was returned
             device_found = await who_is_future.future
+
+        logger.debug("Recieved Iam from device " + str(self._socket_address))
 
         await self._start_subscriptions_from_state(SubscriptionStatus.INACTIVE)
 
