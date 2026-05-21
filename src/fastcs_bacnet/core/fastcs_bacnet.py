@@ -11,8 +11,7 @@ async def fastcs_bacnet(subscriptions: list[SubscriptionID]):
     """
     Runs the fastcs-bacnet application on the passed in subscriptions
 
-    This will start a FastCS EPICS IOC that can be used to query the
-    subscribed to objects
+    This will start a FastCS EPICS IOC using the Channel Access protocol. 
 
     subscriptions: The bacnet objects to subscribe to
     """
