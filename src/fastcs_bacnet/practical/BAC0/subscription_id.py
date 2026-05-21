@@ -50,8 +50,6 @@ class SubscriptionID:
 
     This is a combination of an IPv4SocketAddress to identify the device and an
     ObjectIdentifier to identify the object on that device
-    This provides all necessary information to subscribe to an object on a device,
-    hence the name
 
     socket_address: IPv4SocketAddress dataclass object
         IP of device in combination with the port it is using for
