@@ -108,9 +108,8 @@ class CovCallbackHolder:
         for sync_callback in self._sync_callbacks:
             try:
                 sync_callback(property_identifier, property_value)
-            except BaseException as e:
-                logger.error("Error raised in CoV sync callback: ")
-                logger.exception(e)
+            except BaseException:
+                logger.exception("Error raised in CoV sync callback: ")
 
         async with asyncio.TaskGroup() as group:
             for async_callback in self._async_callbacks:
@@ -118,9 +117,8 @@ class CovCallbackHolder:
                     group.create_task(
                         async_callback(property_identifier, property_value)
                     )
-                except BaseException as e:
-                    logger.error("Error raised in CoV async callback: ")
-                    logger.exception(e)
+                except BaseException:
+                    logger.exception("Error raised in CoV async callback: ")
 
     # seems silly to have 2 inverse functions but they are necessary as they are guards
     def is_sync_callback(self, callback: CovCallback) -> TypeGuard[SyncCovCallback]:
