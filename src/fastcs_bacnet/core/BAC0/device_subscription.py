@@ -134,8 +134,6 @@ class DeviceSubscription:
         Creates a subscription to a bacnet device but does not start it
         """
 
-        # cant add a subscription twice
-        # restart it instead if its down
         if object_id in self._object_subscriptions:
             logger.error(
                 f"""Subscription for object
