@@ -131,7 +131,7 @@ class DeviceSubscription:
         callback: CovCallback | None = None,
     ):
         """
-        Creates a subscription object to a bacnet device but does not start it
+        Creates a subscription to a bacnet device but does not start it
         """
 
         # cant add a subscription twice
