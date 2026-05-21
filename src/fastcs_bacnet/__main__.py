@@ -16,7 +16,6 @@ __all__ = ["main"]
 
 def main(args: Sequence[str] | None = None) -> None:
     configure_logging()
-    # logger.info("FastCS logger configured")
 
     description = (
         "Start a FastCS IOC with PVs and Bacnet object subscriptions defined "
