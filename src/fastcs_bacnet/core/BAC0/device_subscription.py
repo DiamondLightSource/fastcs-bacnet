@@ -177,13 +177,6 @@ class DeviceSubscription:
         self._object_subscriptions.pop(object_id)
 
     def get_subscription(self, object_id: ObjectIdentifier) -> ObjectSubscription:
-        if object_id not in self._object_subscriptions:
-            raise KeyError(
-                "No object subscription in device "
-                + str(self._socket_address)
-                + " to object "
-                + str(object_id)
-            )
         return self._object_subscriptions[object_id]
 
     def get_subscription_ids(self) -> set[SubscriptionID]:
