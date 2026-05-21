@@ -1,7 +1,7 @@
 from BAC0 import start
 from fastcs.launch import FastCS
-from fastcs.transports.epics import EpicsIOCOptions
 from fastcs.transports.epics.ca import EpicsCATransport
+from fastcs.transports.epics.options import EpicsIOCOptions
 
 from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
