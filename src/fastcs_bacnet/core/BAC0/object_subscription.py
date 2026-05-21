@@ -30,12 +30,6 @@ class ObjectSubscription:
     _subscription_object: COVSubscription | None = None
     _subscription_status: SubscriptionStatus = SubscriptionStatus.NOT_STARTED
     cov_callback_holder: CovCallbackHolder
-    """
-    Callback run when a subscription or resubscription fails
-
-    Boolean parameter: True if this is the first subscription,
-        False if its a resubscription
-    """
     _failed_subscription_callback: Callable[[bool], None] | None
     _decorate_subscription_task: asyncio.Task | None
 
