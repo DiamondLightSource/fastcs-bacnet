@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from fastcs.attributes import AttributeIO, AttributeIORef
 
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
 
 background_tasks = set()
 

@@ -6,12 +6,12 @@ from bacpypes3.pdu import Address
 from bacpypes3.service.device import WhoIsFuture
 from fastcs.logging import logger
 
-from fastcs_bacnet.practical.BAC0.callback_holder import CovCallback
-from fastcs_bacnet.practical.BAC0.object_subscription import (
+from fastcs_bacnet.core.BAC0.callback_holder import CovCallback
+from fastcs_bacnet.core.BAC0.object_subscription import (
     ObjectSubscription,
     SubscriptionStatus,
 )
-from fastcs_bacnet.practical.BAC0.subscription_id import (
+from fastcs_bacnet.core.BAC0.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
     SubscriptionID,

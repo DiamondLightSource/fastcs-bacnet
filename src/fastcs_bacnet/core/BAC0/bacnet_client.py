@@ -2,10 +2,10 @@ import asyncio
 
 from BAC0 import lite
 
-from fastcs_bacnet.practical.BAC0.callback_holder import CovCallback
-from fastcs_bacnet.practical.BAC0.device_subscription import DeviceSubscription
-from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
-from fastcs_bacnet.practical.BAC0.subscription_id import (
+from fastcs_bacnet.core.BAC0.callback_holder import CovCallback
+from fastcs_bacnet.core.BAC0.device_subscription import DeviceSubscription
+from fastcs_bacnet.core.BAC0.object_subscription import ObjectSubscription
+from fastcs_bacnet.core.BAC0.subscription_id import (
     IPv4SocketAddress,
     SubscriptionID,
 )

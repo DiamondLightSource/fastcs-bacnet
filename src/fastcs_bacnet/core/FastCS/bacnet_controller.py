@@ -2,9 +2,9 @@ import asyncio
 
 from fastcs.controllers import Controller
 
-from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.subscription_id import sort_subscriptions
-from fastcs_bacnet.practical.FastCS.bacnet_subcontroller import BacnetSubController
+from fastcs_bacnet.core.BAC0.bacnet_client import BacnetClient
+from fastcs_bacnet.core.BAC0.subscription_id import sort_subscriptions
+from fastcs_bacnet.core.FastCS.bacnet_subcontroller import BacnetSubController
 
 
 class BacnetController(Controller):

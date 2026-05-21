@@ -5,10 +5,10 @@ from fastcs.attributes import AttrR
 from fastcs.controllers import Controller
 from fastcs.datatypes import Bool, Float
 
-from fastcs_bacnet.practical.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.practical.BAC0.object_subscription import ObjectSubscription
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
-from fastcs_bacnet.practical.FastCS.bacnet_attributes import (
+from fastcs_bacnet.core.BAC0.bacnet_client import BacnetClient
+from fastcs_bacnet.core.BAC0.object_subscription import ObjectSubscription
+from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.core.FastCS.bacnet_attributes import (
     AnalogAttributeIO,
     AnalogAttributeIORef,
     BinaryAttributeIO,

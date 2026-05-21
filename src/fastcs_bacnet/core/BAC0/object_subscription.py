@@ -7,8 +7,8 @@ from BAC0.core.functions.CoV import COVSubscription
 from bacpypes3.service.cov import SubscriptionContextManager
 from fastcs.logging import logger
 
-from fastcs_bacnet.practical.BAC0.callback_holder import CovCallbackHolder
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.core.BAC0.callback_holder import CovCallbackHolder
+from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
 
 
 class SubscriptionStatus(Enum):
