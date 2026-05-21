@@ -66,8 +66,8 @@ class SubscriptionLock:
         """
         Attempts to release the lock with an ObjectIdentifier
 
-        released_by: ObjectIdentifier to release the lock with
-            will only unlock if the ObjectIdentifier matches the one
+        released_by: ObjectIdentifier to release the lock with.
+            Will only unlock if the ObjectIdentifier matches the one
             the lock was acquired with
 
         return: True if unlocked successfully, False otherwise
