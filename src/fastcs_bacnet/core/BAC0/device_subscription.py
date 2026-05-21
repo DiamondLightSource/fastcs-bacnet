@@ -235,8 +235,9 @@ class DeviceSubscription:
             object_subscription,
         ) in self._object_subscriptions.items():
             if object_subscription.get_status() == state:
+                # Lock will be released when the initial subscription CoV is recieved
                 await self._subscription_lock.acquire_with(object_identifier)
 
-                # If the restart doesnt work release the lock
+                # Alternatively, if the restart doesnt work release the lock
                 if not object_subscription.start_subscription_with_state(state):
                     self._subscription_lock.release_with(object_identifier)
