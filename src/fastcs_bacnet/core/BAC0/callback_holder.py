@@ -14,6 +14,10 @@ class DictListCallbackMismatchError(Exception):
     pass
 
 
+class NotCallableError(Exception):
+    pass
+
+
 class CovCallbackHolder:
     """
     Stores callback functions and coroutines that run when a CoV update is recieved
@@ -51,7 +55,9 @@ class CovCallbackHolder:
         elif self.is_async_callback(callback):
             self._async_callbacks.append(callback)
         else:
-            logger.warning("Callback added to CovCallbackHolder is not callable")
+            raise NotCallableError(
+                "Callback added to CovCallbackHolder is not callable"
+            )
 
         callback_key = self._next_callback_key
         self._next_callback_key += 1
