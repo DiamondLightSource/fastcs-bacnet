@@ -75,12 +75,6 @@ class BacnetClient:
         )
 
     def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
-        if subscription_id.socket_address not in self._devices:
-            raise KeyError(
-                "No subscription in BacnetClient to device "
-                + str(subscription_id.socket_address)
-            )
-
         return self._devices[subscription_id.socket_address].get_subscription(
             subscription_id.object_id
         )
