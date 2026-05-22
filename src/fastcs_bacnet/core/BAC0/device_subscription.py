@@ -119,7 +119,7 @@ class DeviceSubscription:
                 f"Subscription for object "
                 f"{str(object_id)}"
                 f" already exists on device "
-                f"{str(object_id)}"
+                f"{str(self._socket_address)}"
             )
             return
 
