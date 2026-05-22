@@ -23,7 +23,7 @@ class IPv4SocketAddress:
     device_instance: int
 
     def __str__(self):
-        return self.ip_address + ":" + str(self.port)
+        return f"{self.ip_address} : {self.port}"
 
 
 @dataclass(frozen=True)
