@@ -10,10 +10,6 @@ type AsyncCovCallback = Callable[[str, float | bool], Coroutine[None, None, None
 type CovCallback = SyncCovCallback | AsyncCovCallback
 
 
-class DictListCallbackMismatchError(Exception):
-    pass
-
-
 class NotCallableError(Exception):
     pass
 
