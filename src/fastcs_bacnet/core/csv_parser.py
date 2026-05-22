@@ -18,7 +18,6 @@ def parse_csv(filepath: str) -> list[SubscriptionID]:
 
     subscription_ids: list[SubscriptionID] = []
 
-    # escalates file not found exception
     with open(filepath) as file:
         reader = csv.DictReader(
             file,
