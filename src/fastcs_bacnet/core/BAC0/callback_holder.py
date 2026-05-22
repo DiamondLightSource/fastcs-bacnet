@@ -66,28 +66,22 @@ class CovCallbackHolder:
         """
         Returns callback
 
-        key: corresponding key to the callback
+        key: Corresponding key to the callback
         """
-        if key not in self._callback_dict:
-            raise KeyError(
-                "Callback not found in CovCallbackHolder with key " + str(key)
-            )
         return self._callback_dict[key]
 
     def remove(self, key: int):
         """
         Removes a callback
 
-        key: corresponding key to the callback
+        key: Corresponding key to the callback
         """
         callback_instance = self._callback_dict.pop(key)
 
         if self.is_sync_callback(callback_instance):
-            if callback_instance in self._sync_callbacks:
-                self._sync_callbacks.remove(callback_instance)
+            self._sync_callbacks.remove(callback_instance)
         elif self.is_async_callback(callback_instance):
-            if callback_instance in self._async_callbacks:
-                self._async_callbacks.remove(callback_instance)
+            self._async_callbacks.remove(callback_instance)
 
     def remove_all(self):
         self._sync_callbacks = []
