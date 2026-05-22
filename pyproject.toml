@@ -103,7 +103,7 @@ commands = [
         "pyright",
         "--pythonpath",
         "{env:VIRTUAL_ENV}/bin/python",
-        "src",
+        "src/fastcs_bacnet",
         "tests",
         { replace = "posargs", default = [
         ], extend = true },
