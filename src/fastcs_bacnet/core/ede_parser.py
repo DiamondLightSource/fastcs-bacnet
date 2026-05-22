@@ -14,7 +14,7 @@ from dls_bms.bms import (
     openExcelFile,
     skipHeader,
 )
-from fastcs_bacnet.practical.BAC0.subscription_id import (
+from fastcs_bacnet.core.BAC0.subscription_id import (
     IPv4SocketAddress,
     ObjectIdentifier,
     SubscriptionID,
@@ -47,7 +47,7 @@ def parse_ede(
         ip = ip_from_row(row)
 
         subscription_id = SubscriptionID(
-            IPv4SocketAddress(ip, 47808),
+            IPv4SocketAddress(ip, 47808, int(device_instance)),
             ObjectIdentifier(
                 object_type_as_string(object_type_int), int(object_instance_str)
             ),
