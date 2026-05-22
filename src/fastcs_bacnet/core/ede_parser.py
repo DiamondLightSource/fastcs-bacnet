@@ -65,7 +65,6 @@ def parse_ede(
             object_instance_str, object_name, config_file, device_instance
         )
 
-        # do some final checks, raise exceptions, log warnings / errors
         checkPvNameLength(pv_name)
 
         pv_names_dict[subscription_id] = pv_name
