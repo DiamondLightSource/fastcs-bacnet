@@ -14,7 +14,6 @@ from ._version import __version__
 file_path = os.path.realpath(__file__)
 
 path_to_src = file_path.replace("fastcs_bacnet/__init__.py", "")
-print(path_to_src + "dls_bms")
 
 sys.path.append(path_to_src + "dls_bms")
 
