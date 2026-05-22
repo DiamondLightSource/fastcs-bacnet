@@ -108,13 +108,13 @@ class ObjectSubscription:
 
         if self._subscription_object is None:
             raise SusbcriptionObjectNotIntialisedError(
-                f"Subscription {self._subscription_id} started before"
+                f"Subscription {self._subscription_id} started before "
                 f"its COVSubscription has been created"
             )
         try:
             await self._subscription_object.run()
-        except BaseException as e:
-            logger.exception(e)
+        except BaseException:
+            logger.exception("Exception in starting subscription: ")
             self._on_failed_subscription(True)
 
     async def _decorate_resubscribe(self):
@@ -126,7 +126,7 @@ class ObjectSubscription:
         if self._subscription_object is None:
             logger.error(
                 f"Cant decorate subscription as subcription "
-                f"object has not been initialised"
+                f"object has not been initialised. "
                 f"subscription: "
                 f"{self._subscription_id}"
             )
@@ -159,8 +159,8 @@ class ObjectSubscription:
 
                 try:
                     await refresh_subscription(*args)
-                except BaseException as e:
-                    logger.exception(e)
+                except BaseException:
+                    logger.exception("Exception in refreshing subscription: ")
                     self._on_failed_subscription(False)
 
             return decorated_refresh_subscription
