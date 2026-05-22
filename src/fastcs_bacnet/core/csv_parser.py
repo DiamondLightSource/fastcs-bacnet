@@ -22,13 +22,13 @@ def parse_csv(filepath: str) -> list[SubscriptionID]:
     with open(filepath) as file:
         reader = csv.DictReader(
             file,
-            ["ip_address", "port", "object_type", "object_instance"],
+            ["ip_address", "port", "object_type", "object_instance", "device_instance"],
             skipinitialspace=True,
         )
         for line in reader:
             try:
                 socket_address = IPv4SocketAddress(
-                    line["ip_address"], int(line["port"])
+                    line["ip_address"], int(line["port"]), int(line["device_instance"])
                 )
                 object_id = ObjectIdentifier(
                     line["object_type"], int(line["object_instance"])
