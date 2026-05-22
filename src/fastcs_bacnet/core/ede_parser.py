@@ -2,7 +2,7 @@ import csv
 
 from bacpypes3.primitivedata import ObjectType
 
-from dls_bms.bms import (
+from dls_bms.dls_bms.bms import (
     IFM_FILE_TYPE,
     checkPvNameLength,
     checkUniquePvNames,
