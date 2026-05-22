@@ -25,6 +25,8 @@ class BacnetController(Controller):
         bacnet_client: NOT a BAC0.lite object but a BacnetClient object
             Will create subcontrollers for each device
             and attributes for each subscription
+        pv_names_dict: A mapping from SubscriptionID s (representing objects on devices)
+            to the name of the name its repsective EPICS PV should be given
         """
         super().__init__(ios=[])
 
