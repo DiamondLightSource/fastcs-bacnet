@@ -59,7 +59,6 @@ class BacnetClient:
         subscription_id: Identifier used to find the object to subscribe to
         callback: Procedure that is called when a change of value (CoV) update is
             received from the device
-            Parameters are property_type and property_value
             If None no callback function will be used
         """
 

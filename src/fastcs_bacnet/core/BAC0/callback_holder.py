@@ -5,8 +5,13 @@ from typing import Any, TypeGuard
 
 from fastcs.logging import logger
 
+# Type of function that gets called when a CoV update is recieved
 type SyncCovCallback = Callable[[str, float | bool], None]
+# Type of coroutine that gets called when a CoV update is recieved
 type AsyncCovCallback = Callable[[str, float | bool], Coroutine[None, None, None]]
+# Generic representation of a callback that can be called when a CoV update is recieved
+# The string argument is for property_type of the changed object property
+# The float or bool argument is for the new value of the changed object property
 type CovCallback = SyncCovCallback | AsyncCovCallback
 
 
