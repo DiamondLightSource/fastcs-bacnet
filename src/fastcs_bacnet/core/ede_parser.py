@@ -22,8 +22,16 @@ from fastcs_bacnet.core.BAC0.subscription_id import (
 
 
 def parse_ede(
-    file_path: str, header_rows: int, config_dir: str
+    file_path: str, config_dir: str, header_rows: int = 0
 ) -> dict[SubscriptionID, str]:
+    """
+    Creates a mapping of subscriptions to PV names from an EDE and config file
+
+    file_path: Path to the EDE file as a string
+    config_dir: Path to the directory containing the bms config file as a string
+        The file will be named bms.ini
+    header_rows: Number of row before data starts on the EDE file
+    """
 
     pv_names_dict = {}
 
@@ -68,10 +76,16 @@ def parse_ede(
 
 
 def ip_from_row(row: list[str]) -> str:
+    """
+    Get IP address from a row of an EDE file
+    """
     return row[17]
 
 
 def object_type_as_string(object_type: int) -> str:
+    """
+    Maps integer object type to its string representation
+    """
 
     object_type_enum = ObjectType(object_type)
 
