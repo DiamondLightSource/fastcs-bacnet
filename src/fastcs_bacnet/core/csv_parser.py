@@ -35,7 +35,7 @@ def parse_csv(filepath: str) -> list[SubscriptionID]:
                 subscription_ids.append(SubscriptionID(socket_address, object_id))
             except BaseException:
                 raise InvalidFileFormat(
-                    "Couldnt convert row to a SubscriptionID: \n" + str(line)
+                    f"Couldnt convert row to a SubscriptionID: {line}"
                 ) from BaseException
 
     if len(subscription_ids) == 0:
