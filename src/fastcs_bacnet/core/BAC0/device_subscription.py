@@ -117,9 +117,9 @@ class DeviceSubscription:
         if object_id in self._object_subscriptions:
             logger.error(
                 f"Subscription for object "
-                f"{str(object_id)}"
+                f"{object_id}"
                 f" already exists on device "
-                f"{str(self._socket_address)}"
+                f"{self._socket_address}"
             )
             return
 
