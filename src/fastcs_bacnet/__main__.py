@@ -19,7 +19,7 @@ def main(args: Sequence[str] | None = None) -> None:
 
     description = (
         "Start a FastCS IOC with PVs and Bacnet object subscriptions defined "
-        + "from input file"
+        + "from an EDE file and a BMS config file"
     )
 
     parser = ArgumentParser(description=description)
@@ -33,7 +33,13 @@ def main(args: Sequence[str] | None = None) -> None:
         "config_dir", type=str, help="Filepath to the directory with the bms.ini file"
     )
 
-    parser.add_argument("-r", "--header_rows", type=int, default=0)
+    parser.add_argument(
+        "-r",
+        "--header_rows",
+        type=int,
+        default=0,
+        help="Number of rows before data in the EDE file",
+    )
 
     parser.add_argument(
         "-v",
