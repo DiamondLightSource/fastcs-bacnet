@@ -13,7 +13,8 @@ async def fastcs_bacnet(pv_names_dict: dict[SubscriptionID, str]):
 
     This will start a FastCS EPICS IOC using the Channel Access protocol.
 
-    subscriptions: The bacnet objects to subscribe to
+    pv_names_dict: A mapping from SubscriptionID s (representing objects on devices)
+        to the name of the name its repsective EPICS PV should be given
     """
 
     subscriptions = list(pv_names_dict.keys())
