@@ -58,14 +58,14 @@ class BacnetSubController(Controller):
         for subscription_id in subscription_ids:
             if subscription_id.socket_address.ip_address != ip_address:
                 raise InvalidSubscriptionIDError(
-                    f"Subcontroller address does not match subscription address"
-                    f"Subcontroller address: {ip_address}"
+                    f"Subcontroller address does not match subscription address "
+                    f"Subcontroller address: {ip_address} "
                     f"Subscription address: {subscription_id.socket_address.ip_address}"
                 )
             if subscription_id.socket_address.port != port:
                 raise InvalidSubscriptionIDError(
-                    f"Subcontroller port does not match subscription port"
-                    f"Subcontroller port: {port}"
+                    f"Subcontroller port does not match subscription port "
+                    f"Subcontroller port: {port} "
                     f"Subscription port: {subscription_id.socket_address.port}"
                 )
             object_subscription = bacnet_client.get_subscription(subscription_id)
@@ -96,7 +96,8 @@ class BacnetSubController(Controller):
 
             else:
                 raise InvalidObjectTypeError(
-                    "Bacnet object type was not recognised by BacnetSubcontroller"
+                    f"Bacnet object type was not recognised by BacnetSubcontroller "
+                    f"object type: {subscription_id.object_id.object_type}"
                 )
 
 
