@@ -5,9 +5,10 @@ from enum import Enum
 from BAC0 import lite
 from BAC0.core.functions.CoV import COVSubscription
 from bacpypes3.service.cov import SubscriptionContextManager
+from fastcs.logging import logger
 
-from fastcs_bacnet.practical.BAC0.callback_holder import CallbackHolder
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.core.BAC0.callback_holder import CovCallbackHolder
+from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
 
 
 class SubscriptionStatus(Enum):
@@ -17,14 +18,18 @@ class SubscriptionStatus(Enum):
     INACTIVE = 3
 
 
+class SusbcriptionObjectNotIntialisedError(Exception):
+    pass
+
+
 class ObjectSubscription:
     """
-    Handles subscriptions to bacnet objects
+    Represents a single change of value subscription to a bacnet object
     """
 
     _subscription_object: COVSubscription | None = None
     _subscription_status: SubscriptionStatus = SubscriptionStatus.NOT_STARTED
-    callback_holder: CallbackHolder
+    cov_callback_holder: CovCallbackHolder
     _failed_subscription_callback: Callable[[bool], None] | None
     _decorate_subscription_task: asyncio.Task | None
 
@@ -36,7 +41,9 @@ class ObjectSubscription:
         failed_subscription_callback: Callable[[bool], None] | None = None,
     ):
         """
-        bacnet_client: python bacnet device that can interact with bacnet objects
+        Initialises variables and starts a subscription to a bacnet object
+
+        bacnet_client: BAC0 bacnet device that can interact with bacnet objects
         subscription_id: dataclass used to identify an object on a bacnet device
         lifetime: length of subscription (in seconds)
         failed_subscription_callback: procedure that runs when a cov request is sent out
@@ -48,13 +55,13 @@ class ObjectSubscription:
         self._bacnet_client = bacnet_client
         self._subscription_id = subscription_id
         self._lifetime = lifetime
-        self.callback_holder = CallbackHolder()
+        self.cov_callback_holder = CovCallbackHolder()
 
         # If we recieve a CoV update we know the subscription is active
         def set_active(*_):
             self._subscription_status = SubscriptionStatus.ACTIVE
 
-        self.callback_holder.add(set_active)
+        self.cov_callback_holder.add(set_active)
 
         self._failed_subscription_callback = failed_subscription_callback
 
@@ -78,10 +85,10 @@ class ObjectSubscription:
         # https://github.com/ChristianTremblay/BAC0/blob/main/BAC0/scripts/Lite.py#L516
         self._subscription_object = COVSubscription(
             address=str(self._subscription_id.socket_address),  # type: ignore
-            objectID=self._subscription_id.object_key.to_tuple(),
+            objectID=self._subscription_id.object_id.to_tuple(),
             lifetime=self._lifetime,
             confirmed=False,
-            callback=self.callback_holder.run_callbacks,
+            callback=self.cov_callback_holder.run_callbacks,
             BAC0App=self._bacnet_client,  # type: ignore
         )
         self._subscription_object.task = asyncio.create_task(self._run())
@@ -94,29 +101,44 @@ class ObjectSubscription:
 
     async def _run(self):
         """
-        Calls subscription object run method with callbacks
+        Starts the subscription
+
+        Calls failed subscription callback if an error occurs
         """
 
+        if self._subscription_object is None:
+            raise SusbcriptionObjectNotIntialisedError(
+                f"Subscription {self._subscription_id} started before "
+                f"its COVSubscription has been created"
+            )
         try:
-            if self._subscription_object is not None:
-                await self._subscription_object.run()
+            await self._subscription_object.run()
         except BaseException:
+            logger.exception("Exception in starting subscription: ")
             self._on_failed_subscription(True)
 
     async def _decorate_resubscribe(self):
         """
-        Implements callbacks into resubscription method
+        Decorates resubscription method so that failed subscription
+        callback is called if an error occurs
         """
 
         if self._subscription_object is None:
+            logger.error(
+                f"Cant decorate subscription as subcription "
+                f"object has not been initialised. "
+                f"subscription: "
+                f"{self._subscription_id}"
+            )
             return
 
+        # scm: subscription context manager
         scm_key = (
             self._subscription_object.address,
             self._subscription_object.process_identifier,
         )
 
-        # poll app dictionary until it assigns scm
+        # poll app cov dictionary until it assigns scm
         while scm_key not in self._bacnet_client.this_application.app._cov_contexts:  # noqa: SLF001
             await asyncio.sleep(0.1)
 
@@ -138,6 +160,7 @@ class ObjectSubscription:
                 try:
                     await refresh_subscription(*args)
                 except BaseException:
+                    logger.exception("Exception in refreshing subscription: ")
                     self._on_failed_subscription(False)
 
             return decorated_refresh_subscription
@@ -153,17 +176,15 @@ class ObjectSubscription:
 
     def _on_failed_subscription(self, first_attempt: bool):
         """
-        Method to be called when subscription or resubscription fails
+        Called when subscription or resubscription fails
 
         first_attempt: True on subscription and False on resubscription
         """
-        if first_attempt:
-            print("subscription failed")
-        else:
-            print("resubscription failed")
+        logger.warning(
+            f"{'Subscription' if first_attempt else 'Resubscription'} failed: "
+            f"{self._subscription_id}"
+        )
         self._subscription_status = SubscriptionStatus.INACTIVE
-        print("IP: ", self._subscription_id.socket_address)
-        print("Object: ", self._subscription_id.object_key)
         if self._failed_subscription_callback is not None:
             self._failed_subscription_callback(first_attempt)
 

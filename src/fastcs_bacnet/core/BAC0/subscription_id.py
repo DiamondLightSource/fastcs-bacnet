@@ -5,31 +5,37 @@ from dataclasses import astuple, dataclass
 @dataclass(frozen=True)
 class IPv4SocketAddress:
     """
-    Dataclass for storing IPv4 socket addresses
+    Dataclass for storing IPv4 socket addresses for a Bacnet device
+
     This is the combination of a 4 byte IP address
-    and the port it uses
+    and the port it uses. Also stores the device instance number of
+    the device the address correlates to
+
     ip_address: Address given as a string
         (e.g. "198.162.0.1")
         No support for addresses as ints
     port: Just port number as an int
+    device_instance: instance number for the device this IP represents
     """
 
     ip_address: str
     port: int
+    device_instance: int
 
     def __str__(self):
-        return self.ip_address + ":" + str(self.port)
+        return f"{self.ip_address} : {self.port}"
 
 
 @dataclass(frozen=True)
 class ObjectIdentifier:
     """
-    Combination of object type and instance to indentify
-    a specific object in a device
+    Dataclass for referencing a bacnet object on a specific device
+
+    This is the combination of the object's type and instance number
+
     object_type: self explanatory
         (e.g. "analog-output")
     object_instance: Instance number for that object
-        usually increment from 0 for each device
     """
 
     object_type: str
@@ -42,26 +48,33 @@ class ObjectIdentifier:
 @dataclass(frozen=True)
 class SubscriptionID:
     """
-    dataclass for identifying a specific bacnet object to subscribe to
+    Dataclass for identifying a specific bacnet object on a specific device
+
+    This is a combination of an IPv4SocketAddress to identify the device and an
+    ObjectIdentifier to identify the object on that device
+
     socket_address: IPv4SocketAddress dataclass object
         IP of device in combination with the port it is using for
         bacnet communication (usually 47808)
-    object_key: To identify the object of the device you want to
+    object_id: To identify the object of the device you want to
         subscribe to
     """
 
     socket_address: IPv4SocketAddress
-    object_key: ObjectIdentifier
+    object_id: ObjectIdentifier
 
 
 def sort_subscriptions(
     subscription_ids: set[SubscriptionID],
 ) -> dict[IPv4SocketAddress, list[SubscriptionID]]:
     """
-    Sorts a list of subscription ids into lists of IPv4SocketAddress (ip-port pairs)
+    Sorts a list of subscription ids into lists of subscriptions grouped
+    by their socket address
+
+    A dictionary is returned that maps IPv4SocketAddress s to all SubscriptionID s
+    that use that socket address
+
     subscription_ids: A list of SubscriptionID objects to sort
-        Each list of common locations is put into a dictionary where
-        the key is the location
     """
 
     # default dict is a subclass of dict

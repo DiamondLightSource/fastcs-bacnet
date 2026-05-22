@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from fastcs.attributes import AttributeIO, AttributeIORef
 
-from fastcs_bacnet.practical.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
 
 background_tasks = set()
 
@@ -10,9 +10,9 @@ background_tasks = set()
 @dataclass
 class BacnetAttributeIORef(AttributeIORef):
     """
-    Dataclass for referencing any subscription
-    Basically just uses subscription id dataclass
-    Update period must be once as this sets the attribute update callback
+    FastCS attribute reference for any bacnet object
+
+    subscription_id: id of the object this is referencing
     """
 
     subscription_id: SubscriptionID
@@ -25,24 +25,24 @@ class BacnetAttributeIORef(AttributeIORef):
 @dataclass(init=False)
 class AnalogAttributeIORef(BacnetAttributeIORef):
     """
-    BacnetAttributeIORef specifically for analog objects
+    FastCS attribute reference for analog bacnet object
     """
 
 
 @dataclass(init=False)
 class BinaryAttributeIORef(BacnetAttributeIORef):
     """
-    BacnetAttributeIORef specifically for binary objects
+    FastCS attribute reference for binary bacnet object
     """
 
 
 class AnalogAttributeIO(AttributeIO[float, AnalogAttributeIORef]):
     """
-    Attribute for analog Bacnet objects
+    FastCS attribute for an analog bacnet object
     """
 
 
 class BinaryAttributeIO(AttributeIO[bool, BinaryAttributeIORef]):
     """
-    Attribute for binary Bacnet objects
+    FastCS attribute for a binary bacnet object
     """
