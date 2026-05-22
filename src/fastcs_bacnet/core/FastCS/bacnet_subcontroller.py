@@ -47,6 +47,8 @@ class BacnetSubController(Controller):
         ip_address: ip address of the device this controls
         subscription_ids: list of subscriptions to make attributes for
             must be objects on the device (same ip and port)
+        pv_names_dict: A mapping from SubscriptionID s (representing objects on devices)
+            to the name of the name its repsective EPICS PV should be given
         port: the port number the device uses for bacnet communication (default 47808)
         """
         super().__init__(
