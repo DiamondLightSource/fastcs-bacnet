@@ -5,19 +5,22 @@ from dataclasses import astuple, dataclass
 @dataclass(frozen=True)
 class IPv4SocketAddress:
     """
-    Dataclass for storing IPv4 socket addresses
+    Dataclass for storing IPv4 socket addresses for a Bacnet device
 
     This is the combination of a 4 byte IP address
-    and the port it uses
+    and the port it uses. Also stores the device instance number of
+    the device the address correlates to
 
     ip_address: Address given as a string
         (e.g. "198.162.0.1")
         No support for addresses as ints
     port: Just port number as an int
+    device_instance: instance number for the device this IP represents
     """
 
     ip_address: str
     port: int
+    device_instance: int
 
     def __str__(self):
         return self.ip_address + ":" + str(self.port)
@@ -33,7 +36,6 @@ class ObjectIdentifier:
     object_type: self explanatory
         (e.g. "analog-output")
     object_instance: Instance number for that object
-        usually increment from 0 for each device
     """
 
     object_type: str
