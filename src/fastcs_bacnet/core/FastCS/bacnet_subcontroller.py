@@ -33,8 +33,8 @@ class BacnetSubController(Controller):
         self,
         bacnet_client: BacnetClient,
         ip_address: str,
-        port: int,
         subscription_ids: list[SubscriptionID],
+        port: int = 47808,
     ):
         """
         Creates attributes for each subscription id given in the list
@@ -44,9 +44,9 @@ class BacnetSubController(Controller):
 
         bacnet_client: NOT a BAC0.lite object but a BacnetClient object
         ip_address: ip address of the device this controls
-        port: the port number the device uses for bacnet communication (default 47808)
         subscription_ids: list of subscriptions to make attributes for
             must be objects on the device (same ip and port)
+        port: the port number the device uses for bacnet communication (default 47808)
         """
         super().__init__(
             ios=[

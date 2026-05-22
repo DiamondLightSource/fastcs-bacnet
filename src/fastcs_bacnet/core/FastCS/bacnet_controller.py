@@ -38,8 +38,8 @@ class BacnetController(Controller):
             device_controller = BacnetSubController(
                 self.bacnet_client,
                 socket_address.ip_address,
-                socket_address.port,
                 device_subscription_ids,
+                port=socket_address.port,
             )
 
             self.add_sub_controller(
