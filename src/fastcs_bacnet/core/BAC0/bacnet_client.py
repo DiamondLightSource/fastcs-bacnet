@@ -1,5 +1,3 @@
-import asyncio
-
 from BAC0 import lite
 
 from fastcs_bacnet.core.BAC0.callback_holder import CovCallback
@@ -19,7 +17,6 @@ class BacnetClient:
     """
 
     _devices: dict[IPv4SocketAddress, DeviceSubscription]
-    _task_pool: set[asyncio.Task]
 
     def __init__(
         self,
@@ -44,11 +41,9 @@ class BacnetClient:
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
-                task = asyncio.create_task(self.add_subscription(subscription_id))
-                self._task_pool.add(task)
-                task.add_done_callback(self._task_pool.discard)
+                self.add_subscription(subscription_id)
 
-    async def add_subscription(
+    def add_subscription(
         self,
         subscription_id: SubscriptionID,
         callback: CovCallback | None = None,

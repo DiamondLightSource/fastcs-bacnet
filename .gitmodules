@@ -1,0 +1,3 @@
+[submodule "src/dls_bms"]
+	path = src/dls_bms
+	url = https://github.com/DiamondLightSource/dls_bms.git

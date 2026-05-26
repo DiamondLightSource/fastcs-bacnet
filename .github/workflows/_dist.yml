@@ -11,6 +11,7 @@ jobs:
         with:
           # Need this to get version number from last tag
           fetch-depth: 0
+          submodules: true
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
@@ -37,4 +38,4 @@ jobs:
 
       - name: Test module --version works using the installed wheel
         # If more than one module in src/ replace with module name to test
-        run: python -m $(ls --hide='*.egg-info' src | head -1) --version
+        run: python -m fastcs_bacnet --version

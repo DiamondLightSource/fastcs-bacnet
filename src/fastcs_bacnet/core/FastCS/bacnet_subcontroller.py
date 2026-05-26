@@ -34,6 +34,7 @@ class BacnetSubController(Controller):
         bacnet_client: BacnetClient,
         ip_address: str,
         subscription_ids: list[SubscriptionID],
+        pv_names_dict: dict[SubscriptionID, str],
         port: int = 47808,
     ):
         """
@@ -46,6 +47,8 @@ class BacnetSubController(Controller):
         ip_address: ip address of the device this controls
         subscription_ids: list of subscriptions to make attributes for
             must be objects on the device (same ip and port)
+        pv_names_dict: A mapping from SubscriptionID s (representing objects on devices)
+            to the name its respective EPICS PV should be given
         port: the port number the device uses for bacnet communication (default 47808)
         """
         super().__init__(
@@ -70,15 +73,10 @@ class BacnetSubController(Controller):
                 )
             object_subscription = bacnet_client.get_subscription(subscription_id)
 
-            object_type_snake_case = subscription_id.object_id.object_type.replace(
-                "-", "_"
-            )
-            attribute_name = (
-                f"{object_type_snake_case}_{subscription_id.object_id.object_instance}"
-            )
+            attribute_name = pv_names_dict[subscription_id]
 
             # TODO: change this to another process once DLS-BMS is integrated
-            if "analog" in attribute_name:
+            if "analog" in subscription_id.object_id.object_type:
                 attr = AttrR(
                     Float(),
                     io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
@@ -86,7 +84,7 @@ class BacnetSubController(Controller):
                 self.add_attribute(attribute_name, attr)
                 set_subscription_callback(object_subscription, attr)
 
-            elif "binary" in attribute_name:
+            elif "binary" in subscription_id.object_id.object_type:
                 attr = AttrR(
                     Bool(),
                     io_ref=BinaryAttributeIORef(subscription_id=subscription_id),
