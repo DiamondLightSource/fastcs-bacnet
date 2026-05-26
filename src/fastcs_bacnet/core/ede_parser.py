@@ -9,7 +9,6 @@ from dls_bms.bms import (
     extractData,
     getBMSConfig,
     getIniFile,
-    openCsvFile,
     openExcelFile,
     skipHeader,
 )
@@ -29,10 +28,9 @@ def parse_ede(
     file_path: str, config_dir: str, header_rows: int = 0
 ) -> dict[SubscriptionID, str]:
     """
-    Creates a mapping of subscriptions to PV names from an EDE or CSV file
-    and config file
+    Creates a mapping of subscriptions to PV names from an EDE and config file
 
-    file_path: Path to the EDE or CSV file as a string
+    file_path: Path to the EDE file as a string
     config_dir: Path to the directory containing the bms config file as a string
         The file will be named bms.ini
     header_rows: Number of row before data starts on the EDE file
@@ -42,10 +40,7 @@ def parse_ede(
 
     config_file = getBMSConfig(getIniFile(config_dir))
 
-    if ".xls" in file_path or ".xlsx" in file_path:
-        ede_file = openExcelFile(file_path)
-    else:
-        ede_file = openCsvFile(file_path)
+    ede_file = openExcelFile(file_path)
 
     reader = csv.reader(ede_file, delimiter=",")
     reader = skipHeader(reader, IFM_FILE_TYPE, headerRows=header_rows)
