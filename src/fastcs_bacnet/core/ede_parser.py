@@ -20,8 +20,8 @@ from fastcs_bacnet.core.BAC0.subscription_id import (
     SubscriptionID,
 )
 
-# The port all BACnet devices use by convention
-# 47808 is BAC in hex, hence why the network sysem is named BACnet
+# The default port all BACnet devices use by convention
+# 47808 is BAC0 in hex
 BACNET_PORT = 47808
 
 
