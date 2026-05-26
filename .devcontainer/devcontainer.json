@@ -44,7 +44,7 @@
         }
     },
     // Create the config folder for the bash-config feature and uv cache
-    "initializeCommand": "mkdir -p ${localEnv:HOME}/.config/terminal-config",
+    "initializeCommand": "mkdir -p ${localEnv:HOME}/.config/terminal-config && git submodule update --init",
     "runArgs": [
         // Allow the container to access the host X11 display and EPICS CA
         "--net=host",
