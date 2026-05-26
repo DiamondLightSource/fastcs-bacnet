@@ -20,6 +20,10 @@ from fastcs_bacnet.core.BAC0.subscription_id import (
     SubscriptionID,
 )
 
+# The port all BACnet devices use by convention
+# 47808 is BAC in hex, hence why the network sysem is named BACnet
+BACNET_PORT = 47808
+
 
 def parse_ede(
     file_path: str, config_dir: str, header_rows: int = 0
@@ -55,7 +59,7 @@ def parse_ede(
         ip = ip_from_row(row)
 
         subscription_id = SubscriptionID(
-            IPv4SocketAddress(ip, 47808, int(device_instance)),
+            IPv4SocketAddress(ip, BACNET_PORT, int(device_instance)),
             ObjectIdentifier(
                 object_type_as_string(object_type_int), int(object_instance_str)
             ),
