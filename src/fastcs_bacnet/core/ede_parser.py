@@ -29,9 +29,10 @@ def parse_ede(
     file_path: str, config_dir: str, header_rows: int = 0
 ) -> dict[SubscriptionID, str]:
     """
-    Creates a mapping of subscriptions to PV names from an EDE and config file
+    Creates a mapping of subscriptions to PV names from an EDE or CSV file
+    and config file
 
-    file_path: Path to the EDE file as a string
+    file_path: Path to the EDE or CSV file as a string
     config_dir: Path to the directory containing the bms config file as a string
         The file will be named bms.ini
     header_rows: Number of row before data starts on the EDE file
