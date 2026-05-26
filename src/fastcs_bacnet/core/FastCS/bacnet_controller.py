@@ -26,7 +26,7 @@ class BacnetController(Controller):
             Will create subcontrollers for each device
             and attributes for each subscription
         pv_names_dict: A mapping from SubscriptionID s (representing objects on devices)
-            to the name of the name its repsective EPICS PV should be given
+            to the name its respective EPICS PV should be given
         """
         super().__init__(ios=[])
 
