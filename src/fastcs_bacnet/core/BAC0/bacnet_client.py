@@ -41,6 +41,7 @@ class BacnetClient:
         self._bacnet_client = bacnet_client
 
         self._devices = {}
+        self._task_pool = set()
 
         if initial_subscriptions is not None:
             for subscription_id in initial_subscriptions:
