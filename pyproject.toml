@@ -54,6 +54,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 dls_bms = ["tests/bms.ini"]
+fastcs_bacnet = ["data/examples/gizmo_EDE.xlsx"]
 
 
 [tool.setuptools_scm]
