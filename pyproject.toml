@@ -49,6 +49,13 @@ GitHub = "https://github.com/DiamondLightSource/fastcs-bacnet"
 email = "oliver.jones@diamond.ac.uk"
 name = "Oli Jones"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+dls_bms = ["tests/bms.ini"]
+
+
 [tool.setuptools_scm]
 version_file = "src/fastcs_bacnet/_version.py"
 
