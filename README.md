@@ -1,5 +1,4 @@
 [![CI](https://github.com/DiamondLightSource/fastcs-bacnet/actions/workflows/ci.yml/badge.svg)](https://github.com/DiamondLightSource/fastcs-bacnet/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/DiamondLightSource/fastcs-bacnet/branch/main/graph/badge.svg)](https://codecov.io/gh/DiamondLightSource/fastcs-bacnet)
 [![PyPI](https://img.shields.io/pypi/v/fastcs-bacnet.svg)](https://pypi.org/project/fastcs-bacnet)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
