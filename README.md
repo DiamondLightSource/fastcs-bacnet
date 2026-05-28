@@ -78,6 +78,20 @@ Releases        | <https://github.com/DiamondLightSource/fastcs-bacnet/releases>
 Services        | <https://gitlab.diamond.ac.uk/controls/containers/accelerator/bms-services#>
 Deployment      | <https://gitlab.diamond.ac.uk/controls/containers/accelerator/bms-deployment#>
 
+To start the IOC with the gizmo EDE file and included bms.ini file:
+
+```
+fastcs-bacnet -r8 ./src/fastcs_bacnet/data/examples/gizmo_EDE.xlsx ./src/dls_bms/tests/
+```
+
+To test the IOC is running correctly
+
+```
+caget FASTCS_BACNET:Subcontroller0:SV-BM-EHAHU-10:GF:GIZ:AO4
+```
+
+NOTE: DONT RUN FROM THE DEVCONTAINER. THIS MUST BE RUN FROM A DEVICE WITH EPICS COMMANDS
+
 This is where you should put some images or code snippets that illustrate
 some relevant examples. If it is a library then you might put some
 introductory code here:
