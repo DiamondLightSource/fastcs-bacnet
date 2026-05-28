@@ -47,6 +47,29 @@ It is very important the following events occur in the correct order for every s
 
 ## Structure
 
+When the program is run 2 trees are created: one for handling BACnet subscriptions and one for updating FastCS PVs. To create the BACnet tree a list of SubscriptionIDs is used. The FastCS tree is created from the BACnet tree.
+
+### SubscriptionID
+
+SubscriptionID is a dataclass used to identify a specific object on a specific BACnet device. It comes in 2 halves: An IPv4SocketAddress to identify a device and an ObjectIdentifier to identify an object on that device.
+IPv4SocketAddress is also a dataclass. It contains fields for an IP address and port number (this is for testing purposes, BACnet devices always use port number 47808 for communication). It also has a field for the device instance number but this is for debugging purposes.
+ObjectIdentifier is also a dataclass with fields for object type and object instance number.
+
+### BACnet Tree
+
+The root node of the BACnet tree is the BacnetClient instance. This recieves a list of SubscriptionIDs in its constructor to create the tree. For each unique device (IPv4SocketAddress) in this list it creates a DeviceSubscription instance. 
+The DeviceSubscription class handles listening for Iam requests from its device and rate limiting requests sent to the device. However, its main purpose is to store all ObjectSubscription instances for the specific device.
+ObjectSubscriptions represent the subscription to a specific object on a BACnet device. They have a CallbackHolder instance to hold any callback procedures to run when an update is recieved. They also allow for setting a callback for when a subscription fails.
+
+These three classes lead to the three level tree structure which stores subscriptions to BACnet objects. A single root BacnetClient instance that stores a DeviceSubscription for each BACnet device subscribed to. These then store an ObjectSubscription instance for each object subscribed to on the BACnet device.
+
+### FastCS Tree
+
+The root node of the FastCS tree is the BacnetController. This takes in a BacnetClient as an argument to construct the tree. This creates a BacnetSubcontroller for each DeviceSubscription connected to the BacnetClient passed in.
+The BacnetSubcontroller creates a BacnetAttributeIORef for each ObjectSubscription in the equivalent DeviceSubscription. it does some descision making here of whether to create an AnalogAttributeIORef or BinaryAttributeIORef depending on the BACnet object its subscribed to. This is also where the subscription callback is set, connecting the object subscription updates to updating the relevant PV.
+
+This process creates a FastCS tree equivalent to the BACnet tree. The BacnetClient maps to the BacnetController, every DeviceSubscription has an equivalent BacnetSubcontroller and every ObjectSubscription has an equivalent BacnetAttributeIORef.
+
 Reads bacnet data to an IOC
 
 This is where you should write a short paragraph that describes what your module does,
