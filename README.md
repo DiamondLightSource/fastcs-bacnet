@@ -91,19 +91,3 @@ caget FASTCS_BACNET:Subcontroller0:SV-BM-EHAHU-10:GF:GIZ:AO4
 ```
 
 NOTE: DONT RUN FROM THE DEVCONTAINER. THIS MUST BE RUN FROM A DEVICE WITH EPICS COMMANDS
-
-This is where you should put some images or code snippets that illustrate
-some relevant examples. If it is a library then you might put some
-introductory code here:
-
-```python
-from fastcs_bacnet import __version__
-
-print(f"Hello fastcs_bacnet {__version__}")
-```
-
-Or if it is a commandline tool then you might put some example commands here:
-
-```
-python -m fastcs_bacnet --version
-```
