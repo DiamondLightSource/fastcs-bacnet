@@ -70,11 +70,6 @@ The BacnetSubcontroller creates a BacnetAttributeIORef for each ObjectSubscripti
 
 This process creates a FastCS tree equivalent to the BACnet tree. The BacnetClient maps to the BacnetController, every DeviceSubscription has an equivalent BacnetSubcontroller and every ObjectSubscription has an equivalent BacnetAttributeIORef.
 
-Reads bacnet data to an IOC
-
-This is where you should write a short paragraph that describes what your module does,
-how it does it, and why people should use it.
-
 Source          | <https://github.com/DiamondLightSource/fastcs-bacnet>
 :---:           | :---:
 PyPI            | `pip install fastcs-bacnet`
