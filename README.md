@@ -4,6 +4,16 @@
 
 # fastcs_bacnet
 
+The purpose of this package is to replace Diamond Light Source's current BMS system.
+
+The purpose of both of these is to monitor certain properties of devices on the BACnet network and write them to an IOC.
+The program uses BAC0 and BacPyPes3 to read data off of the BACnet network and FastCS to create the IOC.
+Deployment and services repositorys for kubernetes can be found in the table below.
+
+## Process
+
+## Structure
+
 Reads bacnet data to an IOC
 
 This is where you should write a short paragraph that describes what your module does,
