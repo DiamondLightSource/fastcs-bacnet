@@ -1,5 +1,3 @@
-import random
-
 import BAC0
 
 from fastcs_bacnet.dummy.BAC0.analog_output_object import AnalogOutputObject
@@ -75,7 +73,6 @@ class Device:
         """
 
         variable_string: str = ""
-        object_variable: DeviceVariable | None = None
 
         # TODO: change to a switch statement
         # this could also potentially be automated in other ways
@@ -85,7 +82,7 @@ class Device:
                 k: kwargs[k] for k in kwargs.keys() if k in {"update_callback"}
             }
             object_variable = ConstantVariable(
-                variable_string, random.random(), **constant_kwargs
+                variable_string, index, **constant_kwargs
             )
         elif variable_class == OscillatingVariable:
             variable_string = "oscillating"
@@ -124,21 +121,30 @@ class Device:
             }
             object_variable = PuppetVariable(variable_string, **puppet_kwargs)
             self.puppet_controller.add_puppet_variable(object_variable)
+        else:
+            raise ValueError(f"Unexpected variable_class '{variable_class}'")
+
         object_name = f"{variable_string}_object_{index}"
         object_description = (
             f"{variable_string} object of device {self._ip_address}:{self._port}"
         )
 
-        if object_variable is not None:
-            new_analog_output_object = AnalogOutputObject(
-                self._bac0_device,
-                object_name,
-                object_description,
-                self._current_analog_output_index,
-                object_variable,
-            )
-            self._device_objects[object_name] = new_analog_output_object
-            self._current_analog_output_index += 1
+        self.create_analog_output_object(
+            object_name, object_description, object_variable
+        )
+
+    def create_analog_output_object(
+        self, object_name: str, object_description: str, object_variable: DeviceVariable
+    ):
+        new_analog_output_object = AnalogOutputObject(
+            self._bac0_device,
+            object_name,
+            object_description,
+            self._current_analog_output_index,
+            object_variable,
+        )
+        self._device_objects[object_name] = new_analog_output_object
+        self._current_analog_output_index += 1
 
     def object_identifier_from_name(self, object_name: str) -> tuple[str, int]:
         """
