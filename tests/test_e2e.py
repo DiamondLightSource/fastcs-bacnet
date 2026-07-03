@@ -62,10 +62,11 @@ async def bacnet_server(
         BACNET_SERVER_DEVICEID,
     )
 
-    for _, pv in subscriptions.items():
-        device.create_analog_output_object(
-            pv, "Placeholder Description", ConstantVariable(pv, 1)
-        )
+    for idx, (subscription, pv) in enumerate(subscriptions.items()):
+        if subscription.object_id.object_type == "analog-output":
+            device.create_analog_output_object(
+                pv, "Placeholder Description", ConstantVariable(pv, idx)
+            )
 
     yield device
 
@@ -75,10 +76,10 @@ async def bacnet_server(
 @pytest.fixture
 async def fastcs_application(
     subscriptions: dict[SubscriptionID, str],
-) -> AsyncGenerator[asyncio.Task]:
+) -> AsyncGenerator[None]:
     """The main application under test"""
     task = asyncio.create_task(fastcs_bacnet(subscriptions))
-    yield task
+    yield
     task.cancel()
     await task
 
@@ -88,8 +89,10 @@ async def force_terminate_task_group():
     raise TerminateTaskGroupError()
 
 
-async def test_experiments(subscriptions, bacnet_server, fastcs_application):
+async def test_experiments(
+    subscriptions: dict[SubscriptionID, str], bacnet_server, fastcs_application
+):
 
-    for pv in subscriptions.values():
+    for idx, pv in enumerate(subscriptions.values()):
         val = await aioca.caget(f"FASTCS_BACNET:Subcontroller0:{pv}")
-        assert val == 1
+        assert val == idx
