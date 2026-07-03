@@ -24,10 +24,6 @@ BACNET_SERVER_PORT = 47809
 BACNET_SERVER_DEVICEID = 456
 
 
-class TerminateTaskGroupError(Exception):
-    """Exception raised to terminate a task group."""
-
-
 @pytest.fixture
 def subscriptions() -> dict[SubscriptionID, str]:
     """A list of subscriptions for our bacnet server to set up
@@ -82,11 +78,6 @@ async def fastcs_application(
     yield
     task.cancel()
     await task
-
-
-async def force_terminate_task_group():
-    """Used to terminate a TaskGroup in an expected manner"""
-    raise TerminateTaskGroupError()
 
 
 async def test_experiments(
