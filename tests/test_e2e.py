@@ -12,6 +12,15 @@ from fastcs_bacnet.core.BAC0.subscription_id import (
     SubscriptionID,
 )
 from fastcs_bacnet.core.fastcs_bacnet import fastcs_bacnet
+from fastcs_bacnet.dummy.BAC0.bacnet_object import (
+    AnalogInputObject,
+    AnalogOutputObject,
+    AnalogValueObject,
+    BacnetObject,
+    BinaryInputObject,
+    BinaryOutputObject,
+    BinaryValueObject,
+)
 from fastcs_bacnet.dummy.BAC0.device import Device
 from fastcs_bacnet.dummy.generic.device_variables.constant_variable import (
     ConstantVariable,
@@ -40,6 +49,22 @@ def test_data() -> list[ObjectData]:
         ObjectData("analog-output", 0, 1.23, "abc-1"),
         ObjectData("analog-output", 1, 2.34, "ao-2"),
         ObjectData("analog-output", 2, 3.45, "analog-output-3"),
+        ObjectData("analog-input", 0, 4.56, "abc-2"),
+        ObjectData("analog-input", 1, 5.67, "ai-2"),
+        ObjectData("analog-input", 2, 6.78, "analog-input-3"),
+        ObjectData("analog-value", 0, 7.89, "abc-3"),
+        ObjectData("analog-value", 1, 8.91, "av-2"),
+        ObjectData("analog-value", 2, 9.10, "analog-value-3"),
+        # Use "True" for all binary objects as the default is 0 aka False.
+        ObjectData("binary-output", 0, True, "abc-4"),
+        ObjectData("binary-output", 1, True, "bo-2"),
+        ObjectData("binary-output", 2, True, "binary-output-3"),
+        ObjectData("binary-input", 0, True, "abc-5"),
+        ObjectData("binary-input", 1, True, "bi-2"),
+        ObjectData("binary-input", 2, True, "binary-input-3"),
+        ObjectData("binary-value", 0, True, "abc-6"),
+        ObjectData("binary-value", 1, True, "bv-2"),
+        ObjectData("binary-value", 2, True, "binary-value-3"),
     ]
 
 
@@ -78,11 +103,34 @@ async def bacnet_server(
         BACNET_SERVER_DEVICEID,
     )
 
+    creation_func: type[BacnetObject]
+
     for data, (subscription, pv) in zip(test_data, subscriptions.items(), strict=True):
-        if subscription.object_id.object_type == "analog-output":
-            device.create_analog_output_object(
-                pv, "Placeholder Description", ConstantVariable(pv, data.expected_value)
-            )
+        match subscription.object_id.object_type:
+            case "analog-output":
+                creation_func = AnalogOutputObject
+            case "analog-input":
+                creation_func = AnalogInputObject
+            case "analog-value":
+                creation_func = AnalogValueObject
+            case "binary-output":
+                creation_func = BinaryOutputObject
+            case "binary-input":
+                creation_func = BinaryInputObject
+            case "binary-value":
+                creation_func = BinaryValueObject
+            case _:
+                pytest.fail(
+                    f"Unrecognised object_type: {subscription.object_id.object_type}"
+                )
+
+        device.create_object(
+            pv,
+            "Placeholder Description",
+            subscription.object_id.object_instance,
+            ConstantVariable(pv, data.expected_value),
+            creation_func,
+        )
 
     yield device
 
@@ -93,7 +141,9 @@ async def bacnet_server(
 async def fastcs_application(
     subscriptions: dict[SubscriptionID, str],
 ) -> AsyncGenerator[None]:
-    """The main application under test"""
+    """The main application under test.
+
+    Runs in a background task"""
     task = asyncio.create_task(fastcs_bacnet(subscriptions))
     yield
     task.cancel()
