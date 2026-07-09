@@ -113,6 +113,8 @@ class ObjectSubscription:
             )
         try:
             await self._subscription_object.run()
+        except asyncio.CancelledError:
+            logger.info(f"Subscription cancelled for {self._subscription_id}")
         except BaseException:
             logger.exception("Exception in starting subscription: ")
             self._on_failed_subscription(True)
