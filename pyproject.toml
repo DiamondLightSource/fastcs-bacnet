@@ -135,6 +135,7 @@ commands = [
     [
         "pytest",
         "--cov=fastcs_bacnet",
+        "--import-mode=importlib",
         "--cov-report",
         "term",
         "--cov-report",
