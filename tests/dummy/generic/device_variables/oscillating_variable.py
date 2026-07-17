@@ -3,7 +3,7 @@ import math
 from collections.abc import Callable
 from datetime import datetime as dt
 
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
+from tests.dummy.generic.device_variables.device_variable import (
     DeviceVariable,
 )
 

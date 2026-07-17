@@ -12,7 +12,7 @@ from fastcs_bacnet.core.BAC0.subscription_id import (
     SubscriptionID,
 )
 from fastcs_bacnet.core.fastcs_bacnet import fastcs_bacnet
-from fastcs_bacnet.dummy.BAC0.bacnet_object import (
+from tests.dummy.BAC0.bacnet_object import (
     AnalogInputObject,
     AnalogOutputObject,
     AnalogValueObject,
@@ -21,8 +21,8 @@ from fastcs_bacnet.dummy.BAC0.bacnet_object import (
     BinaryOutputObject,
     BinaryValueObject,
 )
-from fastcs_bacnet.dummy.BAC0.device import Device
-from fastcs_bacnet.dummy.generic.device_variables.constant_variable import (
+from tests.dummy.BAC0.device import Device
+from tests.dummy.generic.device_variables.constant_variable import (
     ConstantVariable,
 )
 

@@ -11,7 +11,7 @@ from BAC0.core.devices.local.factory import (
     binary_value,
 )
 
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
+from tests.dummy.generic.device_variables.device_variable import DeviceVariable
 
 
 class BacnetObject(ABC):

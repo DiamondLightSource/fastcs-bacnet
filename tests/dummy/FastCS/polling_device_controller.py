@@ -4,9 +4,9 @@ from fastcs.attributes import AttributeIO, AttributeIORef, AttrR, AttrRW, AttrW
 from fastcs.controllers.controller import Controller
 from fastcs.datatypes import Float
 
-from fastcs_bacnet.dummy.generic.device import Device as GenericDevice
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
-from fastcs_bacnet.dummy.generic.device_variables.read_write_variable import (
+from dummy.generic.device import Device as GenericDevice
+from dummy.generic.device_variables.device_variable import DeviceVariable
+from dummy.generic.device_variables.read_write_variable import (
     ReadWriteVariable,
 )
 

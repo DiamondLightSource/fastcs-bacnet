@@ -1,20 +1,20 @@
 import BAC0
 
-from fastcs_bacnet.dummy.BAC0.bacnet_object import AnalogOutputObject, BacnetObject
-from fastcs_bacnet.dummy.generic.device_variables.constant_variable import (
+from tests.dummy.BAC0.bacnet_object import AnalogOutputObject, BacnetObject
+from tests.dummy.generic.device_variables.constant_variable import (
     ConstantVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
-from fastcs_bacnet.dummy.generic.device_variables.oscillating_variable import (
+from tests.dummy.generic.device_variables.device_variable import DeviceVariable
+from tests.dummy.generic.device_variables.oscillating_variable import (
     OscillatingVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_controller import (  # noqa: E501
+from tests.dummy.generic.device_variables.puppet_variable.puppet_controller import (  # noqa: E501
     PuppetController,
 )
-from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_variable import (  # noqa: E501
+from tests.dummy.generic.device_variables.puppet_variable.puppet_variable import (  # noqa: E501
     PuppetVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.random_variable import RandomVariable
+from tests.dummy.generic.device_variables.random_variable import RandomVariable
 
 
 class Device:

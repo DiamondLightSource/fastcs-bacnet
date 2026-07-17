@@ -1,14 +1,14 @@
 import random
 
-from fastcs_bacnet.dummy.generic.device_variables.constant_variable import (
+from dummy.generic.device_variables.constant_variable import (
     ConstantVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
-from fastcs_bacnet.dummy.generic.device_variables.oscillating_variable import (
+from dummy.generic.device_variables.device_variable import DeviceVariable
+from dummy.generic.device_variables.oscillating_variable import (
     OscillatingVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.random_variable import RandomVariable
-from fastcs_bacnet.dummy.generic.device_variables.read_write_variable import (
+from dummy.generic.device_variables.random_variable import RandomVariable
+from dummy.generic.device_variables.read_write_variable import (
     ReadWriteVariable,
 )
 

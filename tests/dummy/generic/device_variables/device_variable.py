@@ -1,7 +1,7 @@
 from abc import ABC
 from collections.abc import Callable
 
-from fastcs_bacnet.dummy.generic.device_variables.callback_holder import CallbackHolder
+from tests.dummy.generic.device_variables.callback_holder import CallbackHolder
 
 
 class DeviceVariable(ABC):
