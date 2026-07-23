@@ -116,7 +116,11 @@ class ObjectSubscription:
         except asyncio.CancelledError:
             logger.info(f"Subscription cancelled for {self._subscription_id}")
         except BaseException:
-            logger.exception("Exception in starting subscription: ")
+            logger.exception(
+                f"Exception in starting subscription for object "
+                f"{self._subscription_id.object_id.object_type},"
+                f"{self._subscription_id.object_id.object_instance}:"
+            )
             self._on_failed_subscription(True)
 
     async def _decorate_resubscribe(self):
