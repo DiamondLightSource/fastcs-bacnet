@@ -86,7 +86,7 @@ wheels = [
 
 [[package]]
 name = "bac0"
-version = "2025.9.15"
+version = "2026.7.25"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiosqlite" },
@@ -95,9 +95,9 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "pytz" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8b/81/1cf98cfa12745c3416455b022901601b349140f550e267a6d58e0229842a/bac0-2025.9.15.tar.gz", hash = "sha256:e86a1dd18094000e3290d09e43597ebf34d68eaca5989e21bd1590abf1a7b38a", size = 97767, upload-time = "2025-09-19T20:01:06.526Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/5a/cebf758e76e06a00b5d0b17486276833aa9879a8184397034ca4eab42374/bac0-2026.7.25.tar.gz", hash = "sha256:4a782b0afc9607aeffd6c97ecb90d0f8a20aadb955ff8380e9dad4e01228b137", size = 99521, upload-time = "2026-07-26T02:44:23.215Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/d2/35bc59646ce9119d1bbe05cdf7c84fd69a02ca720ba178c822e88c9cf985/bac0-2025.9.15-py3-none-any.whl", hash = "sha256:01288b4262b2b63c7ae84d6b5222ab542efbc66359498aece545e7e0276a4702", size = 120284, upload-time = "2025-09-19T20:01:05.207Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/fa/a9de581ccff3f9dda400c2eab92373f7c70dc8111cc61fee9e7643a6c4c6/bac0-2026.7.25-py3-none-any.whl", hash = "sha256:889e4455e53c875b46ca7c15eb8f199a9f3e7596426155415d08a20a8a20308e", size = 121783, upload-time = "2026-07-26T02:44:21.853Z" },
 ]
 
 [[package]]
@@ -647,7 +647,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bac0" },
+    { name = "bac0", specifier = ">=2026.7.25" },
     { name = "configobj" },
     { name = "epicscorelibs" },
     { name = "fastcs", extras = ["epicsca"], specifier = ">=0.14.0" },

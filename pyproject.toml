@@ -12,7 +12,7 @@ classifiers = [
 ]
 description = "Reads bacnet data to an IOC"
 dependencies = [
-    "BAC0",
+    "BAC0>=v2026.07.25",
     "fastcs[epicsca] >= 0.14.0",
     "epicscorelibs",
     "pandas",
