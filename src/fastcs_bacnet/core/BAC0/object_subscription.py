@@ -1,10 +1,11 @@
 import asyncio
 from collections.abc import Callable
 from enum import Enum
+from typing import Any
 
 from BAC0 import lite
 from BAC0.core.functions.CoV import COVSubscription
-from bacpypes3.service.cov import SubscriptionContextManager
+from bacpypes3.service.cov import PropertyIdentifier, SubscriptionContextManager
 from fastcs.logging import logger
 
 from fastcs_bacnet.core.BAC0.callback_holder import CovCallbackHolder
@@ -32,6 +33,7 @@ class ObjectSubscription:
     cov_callback_holder: CovCallbackHolder
     _failed_subscription_callback: Callable[[bool], None] | None
     _decorate_subscription_task: asyncio.Task | None
+    _present_value: Any = None
 
     def __init__(
         self,
@@ -61,7 +63,13 @@ class ObjectSubscription:
         def set_active(*_):
             self._subscription_status = SubscriptionStatus.ACTIVE
 
+        # Keep a local copy of the present value. This is mostly for testing.
+        def set_value(property_identifier: str, property_value: Any):
+            if property_identifier == PropertyIdentifier.presentValue:
+                self._present_value = property_value
+
         self.cov_callback_holder.add(set_active)
+        self.cov_callback_holder.add(set_value)
 
         self._failed_subscription_callback = failed_subscription_callback
 
