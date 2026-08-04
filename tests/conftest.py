@@ -1,5 +1,7 @@
 import asyncio
+import json
 from dataclasses import dataclass
+from pathlib import Path
 
 import BAC0
 import pytest
@@ -40,6 +42,25 @@ def loguru_caplog(caplog):
     handler_id = logger.add(caplog.handler, format="{message}", level="DEBUG")
     yield caplog
     logger.remove(handler_id)
+
+
+@pytest.fixture
+def bac0_config_reduce_apdu_retries(tmp_path: Path) -> Path:
+    """Create BAC0 config file with reduced number of APDU retries"""
+
+    bac0_path = Path(BAC0.__file__).parent
+    default_file = bac0_path / "core/app/device.json"
+
+    with open(default_file) as f:
+        default_cfg = json.load(f)
+
+    default_cfg["application"][0]["number-of-apdu-retries"] = 0
+
+    file = tmp_path / "reduce_apdu.json"
+
+    file.write_text(json.dumps(default_cfg))
+
+    return file
 
 
 @dataclass

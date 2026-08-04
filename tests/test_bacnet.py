@@ -1,5 +1,6 @@
 # Tests for the Bacnet side of the application
 import asyncio
+from pathlib import Path
 
 import pytest
 from BAC0 import start
@@ -22,6 +23,7 @@ from tests.conftest import (
 async def test_subscribing_to_non_existent_device(
     loguru_caplog: LogCaptureFixture,
     unused_tcp_port_factory,
+    bac0_config_reduce_apdu_retries: Path,
 ):
     """Test the behaviour when attempting to subscribe to a device that doesn't exist"""
 
@@ -33,18 +35,15 @@ async def test_subscribing_to_non_existent_device(
         ObjectIdentifier(object_type, object_instance),
     )
 
-    async with start() as bac0:
+    async with start(json_file=bac0_config_reduce_apdu_retries) as bac0:
         bacnet_client = BacnetClient(
             bac0,
             initial_subscriptions=[fake_subscription],
         )
         await bacnet_client.start_subscriptions()
-        # Unfortunate, but there doesn't seem like there's an easy way to bypass the
-        # 10 seconds of bacpypes3 trying to reconnect to the fake device before it logs
-        # any error messages.
-        # Added on 5 seconds as cutting it too close seems to make logs not appear in
-        # the loguru_caplog fixture.
-        await asyncio.sleep(15)
+        # While the timeout does happen a quicker than this, loguru seems to need a
+        # few seconds to collect the log messages
+        await asyncio.sleep(5)
 
     assert (
         "Exception in starting subscription for object analog-output,2"
@@ -58,6 +57,7 @@ async def test_subscribing_to_non_existent_device(
 async def test_responding_to_device_starting(
     loguru_caplog: LogCaptureFixture,
     unused_tcp_port_factory,
+    bac0_config_reduce_apdu_retries: Path,
 ):
     """Test that we can subscribe to a device that starts up after our client -
     i.e. that we can respond to am IAm notification and open subscriptions"""
@@ -85,12 +85,12 @@ async def test_responding_to_device_starting(
         [ObjectData(object_type, object_instance, object_value, "ABC-123")],
     )
 
-    async with start() as bac0:
+    async with start(json_file=bac0_config_reduce_apdu_retries) as bac0:
         bacnet_client = BacnetClient(
             bac0, initial_subscriptions=[subscription], subscription_lifetime=5
         )
         await bacnet_client.start_subscriptions()
-        await asyncio.sleep(12)  # Ensure initial attempt to subscribe fails
+        await asyncio.sleep(5)  # Ensure initial attempt to subscribe fails
 
         # TODO: The creation of this server should emit an IAm message, but as of issue
         # #584 in BAC0 it does not. Re-visit this test when we have a fix for that.
