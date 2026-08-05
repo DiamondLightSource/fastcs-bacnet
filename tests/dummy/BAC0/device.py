@@ -1,22 +1,20 @@
-import random
-
 import BAC0
 
-from fastcs_bacnet.dummy.BAC0.analog_output_object import AnalogOutputObject
-from fastcs_bacnet.dummy.generic.device_variables.constant_variable import (
+from tests.dummy.BAC0.bacnet_object import AnalogOutputObject, BacnetObject
+from tests.dummy.generic.device_variables.constant_variable import (
     ConstantVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
-from fastcs_bacnet.dummy.generic.device_variables.oscillating_variable import (
+from tests.dummy.generic.device_variables.device_variable import DeviceVariable
+from tests.dummy.generic.device_variables.oscillating_variable import (
     OscillatingVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_controller import (  # noqa: E501
+from tests.dummy.generic.device_variables.puppet_variable.puppet_controller import (  # noqa: E501
     PuppetController,
 )
-from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_variable import (  # noqa: E501
+from tests.dummy.generic.device_variables.puppet_variable.puppet_variable import (  # noqa: E501
     PuppetVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.random_variable import RandomVariable
+from tests.dummy.generic.device_variables.random_variable import RandomVariable
 
 
 class Device:
@@ -75,7 +73,6 @@ class Device:
         """
 
         variable_string: str = ""
-        object_variable: DeviceVariable | None = None
 
         # TODO: change to a switch statement
         # this could also potentially be automated in other ways
@@ -85,7 +82,7 @@ class Device:
                 k: kwargs[k] for k in kwargs.keys() if k in {"update_callback"}
             }
             object_variable = ConstantVariable(
-                variable_string, random.random(), **constant_kwargs
+                variable_string, index, **constant_kwargs
             )
         elif variable_class == OscillatingVariable:
             variable_string = "oscillating"
@@ -124,31 +121,53 @@ class Device:
             }
             object_variable = PuppetVariable(variable_string, **puppet_kwargs)
             self.puppet_controller.add_puppet_variable(object_variable)
+        else:
+            raise ValueError(f"Unexpected variable_class '{variable_class}'")
+
         object_name = f"{variable_string}_object_{index}"
         object_description = (
             f"{variable_string} object of device {self._ip_address}:{self._port}"
         )
 
-        if object_variable is not None:
-            new_analog_output_object = AnalogOutputObject(
-                self._bac0_device,
-                object_name,
-                object_description,
-                self._current_analog_output_index,
-                object_variable,
-            )
-            self._device_objects[object_name] = new_analog_output_object
-            self._current_analog_output_index += 1
+        self.create_analog_output_object(
+            object_name,
+            object_description,
+            self._current_analog_output_index,
+            object_variable,
+        )
 
-    def object_identifier_from_name(self, object_name: str) -> tuple[str, int]:
-        """
-        Gets identifying information (type of object and instance) from an object name
-        """
-        # this will need to change as more object types are used
-        return ("analog-output", self._device_objects[object_name].instance)
+        self._current_analog_output_index += 1
 
-    def get_object_from_name(self, object_name: str) -> AnalogOutputObject:
-        return self._device_objects[object_name]
+    def create_analog_output_object(
+        self,
+        object_name: str,
+        object_description: str,
+        object_instance: int,
+        object_variable: DeviceVariable,
+    ):
+        self.create_object(
+            object_name,
+            object_description,
+            object_instance,
+            object_variable,
+            AnalogOutputObject,
+        )
+
+    def create_object(
+        self,
+        object_name: str,
+        object_description: str,
+        object_instance: int,
+        object_variable: DeviceVariable,
+        object_func: type[BacnetObject],
+    ) -> BacnetObject:
+        return object_func(
+            self._bac0_device,
+            object_name,
+            object_description,
+            object_instance,
+            object_variable,
+        )
 
     async def disconnect(self):
         await self._bac0_device.disconnect()

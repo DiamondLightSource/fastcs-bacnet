@@ -5,12 +5,12 @@ from fastcs.controllers.controller import Controller
 from fastcs.datatypes import Float
 from fastcs.util import ONCE
 
-from fastcs_bacnet.dummy.FastCS.polling_device_controller import (
+from dummy.FastCS.polling_device_controller import (
     GenericVariableAttributeIO,
     GenericVariableAttributeIORef,
 )
-from fastcs_bacnet.dummy.generic.device import Device as GenericDevice
-from fastcs_bacnet.dummy.generic.device_variables.read_write_variable import (
+from dummy.generic.device import Device as GenericDevice
+from dummy.generic.device_variables.read_write_variable import (
     ReadWriteVariable,
 )
 

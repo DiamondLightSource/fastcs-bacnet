@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import (
+from tests.dummy.generic.device_variables.device_variable import (
     DeviceVariable,
 )
 

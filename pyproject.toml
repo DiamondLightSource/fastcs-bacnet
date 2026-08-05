@@ -12,7 +12,7 @@ classifiers = [
 ]
 description = "Reads bacnet data to an IOC"
 dependencies = [
-    "BAC0",
+    "BAC0>=v2026.07.25",
     "fastcs[epicsca] >= 0.14.0",
     "epicscorelibs",
     "pandas",
@@ -27,12 +27,14 @@ requires-python = ">=3.12"
 
 [dependency-groups]
 dev = [
+    "aioca",
     "copier",
     "matplotlib",
     "pre-commit",
     "pyright",
     "pytest",
     "pytest-cov",
+    "pytest-asyncio",
     "ruff",
     "tox-uv",
     "types-mock",
@@ -68,12 +70,18 @@ extraPaths = ["./src/dls_bms"]
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
 addopts = """
-    --tb=native -vv
+    --tb=auto -vv
     """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
-filterwarnings = "error"
+filterwarnings = [
+    "error",
+    # BAC0 doesn't properly close several sockets it opens
+    'ignore:unclosed <socket:ResourceWarning',
+    'ignore:unclosed transport:ResourceWarning',
+]
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 patch = ["subprocess"]
@@ -125,6 +133,7 @@ commands = [
     [
         "pytest",
         "--cov=fastcs_bacnet",
+        "--import-mode=importlib",
         "--cov-report",
         "term",
         "--cov-report",

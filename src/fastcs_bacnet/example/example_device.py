@@ -1,6 +1,6 @@
 import asyncio
 
-from fastcs_bacnet.dummy.BAC0.device import Device
+from tests.dummy.BAC0.device import Device
 
 
 def main():

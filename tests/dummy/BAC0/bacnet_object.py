@@ -1,15 +1,20 @@
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+
 import BAC0
-from BAC0.core.devices.local.factory import analog_output
+from BAC0.core.devices.local.factory import (
+    analog_input,
+    analog_output,
+    analog_value,
+    binary_input,
+    binary_output,
+    binary_value,
+)
 
-from fastcs_bacnet.dummy.generic.device_variables.device_variable import DeviceVariable
+from tests.dummy.generic.device_variables.device_variable import DeviceVariable
 
 
-class AnalogOutputObject:
-    """
-    Simulates a bacnet device object
-    Takes a DeviceVariable and mimics its values
-    """
-
+class BacnetObject(ABC):
     def __init__(
         self,
         device: BAC0.lite,
@@ -37,7 +42,9 @@ class AnalogOutputObject:
         self.device_variable = device_variable
         self.instance = instance
 
-        ref = analog_output(name=name, description=description, instance=self.instance)
+        ref = self._get_object_function()(
+            name=name, description=description, instance=self.instance
+        )
         ref.add_objects_to_application(device)
         ref.clear_objects()
 
@@ -53,3 +60,37 @@ class AnalogOutputObject:
         """
         # bad typing from BAC0 library, have to ignore this ruff error
         self.device[self.name].presentValue = new_value  # type: ignore
+
+    @abstractmethod
+    def _get_object_function(self) -> Callable:
+        pass
+
+
+class AnalogOutputObject(BacnetObject):
+    def _get_object_function(self):
+        return analog_output
+
+
+class AnalogInputObject(BacnetObject):
+    def _get_object_function(self):
+        return analog_input
+
+
+class AnalogValueObject(BacnetObject):
+    def _get_object_function(self):
+        return analog_value
+
+
+class BinaryOutputObject(BacnetObject):
+    def _get_object_function(self):
+        return binary_output
+
+
+class BinaryInputObject(BacnetObject):
+    def _get_object_function(self):
+        return binary_input
+
+
+class BinaryValueObject(BacnetObject):
+    def _get_object_function(self):
+        return binary_value

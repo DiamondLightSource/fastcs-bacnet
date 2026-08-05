@@ -1,10 +1,10 @@
 import random
 from datetime import datetime as dt
 
-from fastcs_bacnet.dummy.generic.device_variables.puppet_variable.puppet_variable import (  # noqa: E501
+from tests.dummy.generic.device_variables.puppet_variable.puppet_variable import (
     PuppetVariable,
 )
-from fastcs_bacnet.dummy.generic.device_variables.random_variable import RandomVariable
+from tests.dummy.generic.device_variables.random_variable import RandomVariable
 
 
 class PuppetController:
