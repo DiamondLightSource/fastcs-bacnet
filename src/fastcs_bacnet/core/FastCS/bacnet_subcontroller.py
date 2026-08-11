@@ -75,13 +75,13 @@ class BacnetSubController(Controller):
     def _create_attribute(
         self, subscription_id: SubscriptionID
     ) -> AttrR[float, AnalogAttributeIORef] | AttrR[bool, BinaryAttributeIORef]:
-        if "analog" in subscription_id.object_id.object_type:
+        if subscription_id.object_id.object_type.startswith("analog"):
             attr = AttrR(
                 Float(),
                 io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
             )
 
-        elif "binary" in subscription_id.object_id.object_type:
+        elif subscription_id.object_id.object_type.startswith("binary"):
             attr = AttrR(
                 Bool(),
                 io_ref=BinaryAttributeIORef(subscription_id=subscription_id),
