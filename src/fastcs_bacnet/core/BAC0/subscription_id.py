@@ -1,5 +1,5 @@
 from collections import defaultdict
-from dataclasses import astuple, dataclass
+from dataclasses import astuple, dataclass, field
 
 
 @dataclass(frozen=True)
@@ -91,3 +91,43 @@ def sort_subscriptions(
         location_subscription_list_pairs[socket_address].append(subscription_id)
 
     return location_subscription_list_pairs
+
+
+@dataclass
+class PVNode:
+    """A node of a tree structure, describing any immediate children (each of which is a
+    PV) and any sub-nodes"""
+
+    suffix: dict[str, SubscriptionID] = field(default_factory=dict)
+    children: dict[str, "PVNode"] = field(default_factory=lambda: defaultdict(PVNode))
+
+
+def sort_dict(pv_names_dict: dict[SubscriptionID, str]) -> dict[str, "PVNode"]:
+    """Sort the input structure into a tree, where each layer of the tree is a layer of
+    the EPICS PV naming convention. Each layer represents a colon delimiter."""
+    # Invert dictionary as we want to group info by PV name, not by subscription ID
+    inverted_dict: dict[str, SubscriptionID] = {}
+
+    for subs_id, pv in pv_names_dict.items():
+        if pv in inverted_dict:
+            raise ValueError(f"Duplicate PV name {pv} detected")
+        inverted_dict[pv] = subs_id
+
+    root_node = PVNode()
+
+    for k, v in inverted_dict.items():
+        parts = k.split(":")
+
+        node = root_node
+
+        # The last element is the PV name
+        for part in parts[:-1]:
+            node = node.children[part]
+
+        # In theory this will never be hit, due to the checks done when inverting the
+        # dictionary above, but this protects us if we ever change the input data
+        # structure
+        assert parts[-1] not in node.suffix
+        node.suffix[parts[-1]] = v
+
+    return root_node.children

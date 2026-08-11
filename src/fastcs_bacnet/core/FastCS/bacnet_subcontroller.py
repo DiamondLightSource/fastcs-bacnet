@@ -7,7 +7,7 @@ from fastcs.datatypes import Bool, Float
 
 from fastcs_bacnet.core.BAC0.bacnet_client import BacnetClient
 from fastcs_bacnet.core.BAC0.object_subscription import ObjectSubscription
-from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
+from fastcs_bacnet.core.BAC0.subscription_id import PVNode, SubscriptionID
 from fastcs_bacnet.core.FastCS.bacnet_attributes import (
     AnalogAttributeIO,
     AnalogAttributeIORef,
@@ -16,26 +16,20 @@ from fastcs_bacnet.core.FastCS.bacnet_attributes import (
 )
 
 
-class InvalidSubscriptionIDError(BaseException):
-    pass
-
-
 class InvalidObjectTypeError(BaseException):
     pass
 
 
 class BacnetSubController(Controller):
     """
-    A controller for a single bacnet device (IP-port pair)
+    FastCS controller for Bacnet Devices. Each Controller has attributes representing
+    PVs at this controller level, and subcontrollers for deeper nested PVs.
     """
 
     def __init__(
         self,
         bacnet_client: BacnetClient,
-        ip_address: str,
-        subscription_ids: list[SubscriptionID],
-        pv_names_dict: dict[SubscriptionID, str],
-        port: int = 47808,
+        node: PVNode,
     ):
         """
         Creates attributes for each subscription id given in the list
@@ -58,45 +52,47 @@ class BacnetSubController(Controller):
             ]
         )
 
-        for subscription_id in subscription_ids:
-            if subscription_id.socket_address.ip_address != ip_address:
-                raise InvalidSubscriptionIDError(
-                    f"Subcontroller address does not match subscription address "
-                    f"Subcontroller address: {ip_address} "
-                    f"Subscription address: {subscription_id.socket_address.ip_address}"
-                )
-            if subscription_id.socket_address.port != port:
-                raise InvalidSubscriptionIDError(
-                    f"Subcontroller port does not match subscription port "
-                    f"Subcontroller port: {port} "
-                    f"Subscription port: {subscription_id.socket_address.port}"
-                )
+        self.add_attributes(bacnet_client, node.suffix)
+
+        # Create subcontrollers
+        for device_name, child_node in node.children.items():
+            controller = BacnetSubController(bacnet_client, child_node)
+            self.add_sub_controller(device_name, controller)
+
+    def add_attributes(
+        self, bacnet_client: BacnetClient, pvs: dict[str, SubscriptionID]
+    ) -> None:
+        """Create the PVs associated with this subcontroller"""
+        # Create attribute for each suffix
+        for pv, subscription_id in pvs.items():
             object_subscription = bacnet_client.get_subscription(subscription_id)
 
-            attribute_name = pv_names_dict[subscription_id]
+            attr = self._create_attribute(subscription_id)
 
-            # TODO: change this to another process once DLS-BMS is integrated
-            if "analog" in subscription_id.object_id.object_type:
-                attr = AttrR(
-                    Float(),
-                    io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
-                )
-                self.add_attribute(attribute_name, attr)
-                set_subscription_callback(object_subscription, attr)
+            self.add_attribute(pv, attr)
+            set_subscription_callback(object_subscription, attr)
 
-            elif "binary" in subscription_id.object_id.object_type:
-                attr = AttrR(
-                    Bool(),
-                    io_ref=BinaryAttributeIORef(subscription_id=subscription_id),
-                )
-                self.add_attribute(attribute_name, attr)
-                set_subscription_callback(object_subscription, attr)
+    def _create_attribute(
+        self, subscription_id: SubscriptionID
+    ) -> AttrR[float, AnalogAttributeIORef] | AttrR[bool, BinaryAttributeIORef]:
+        if subscription_id.object_id.object_type.startswith("analog"):
+            attr = AttrR(
+                Float(),
+                io_ref=AnalogAttributeIORef(subscription_id=subscription_id),
+            )
 
-            else:
-                raise InvalidObjectTypeError(
-                    f"Bacnet object type was not recognised by BacnetSubcontroller "
-                    f"object type: {subscription_id.object_id.object_type}"
-                )
+        elif subscription_id.object_id.object_type.startswith("binary"):
+            attr = AttrR(
+                Bool(),
+                io_ref=BinaryAttributeIORef(subscription_id=subscription_id),
+            )
+
+        else:
+            raise InvalidObjectTypeError(
+                f"Bacnet object type was not recognised by BacnetSubcontroller "
+                f"object type: {subscription_id.object_id.object_type}"
+            )
+        return attr
 
 
 def set_subscription_callback(object_subscription: ObjectSubscription, attr: AttrR):
