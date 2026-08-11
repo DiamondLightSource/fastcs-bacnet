@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -111,13 +112,25 @@ bacnet_objects = [
 @pytest.fixture
 def device_data(unused_tcp_port_factory) -> list[DeviceData]:
     device_1 = DeviceData(
-        "Device1", BACNET_SERVER_IP, unused_tcp_port_factory(), 5555, bacnet_objects
+        "Device1",
+        BACNET_SERVER_IP,
+        unused_tcp_port_factory(),
+        5555,
+        copy.deepcopy(bacnet_objects),
     )
     device_2 = DeviceData(
-        "Device2", BACNET_SERVER_IP, unused_tcp_port_factory(), 5678, bacnet_objects
+        "Device2",
+        BACNET_SERVER_IP,
+        unused_tcp_port_factory(),
+        5678,
+        copy.deepcopy(bacnet_objects),
     )
     device_3 = DeviceData(
-        "Device3", BACNET_SERVER_IP, unused_tcp_port_factory(), 8765, bacnet_objects
+        "Device3",
+        BACNET_SERVER_IP,
+        unused_tcp_port_factory(),
+        8765,
+        copy.deepcopy(bacnet_objects),
     )
 
     devices = [device_1, device_2, device_3]

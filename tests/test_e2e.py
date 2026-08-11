@@ -45,9 +45,9 @@ async def test_all_object_creation_subscription(
     """Check that the FastCS application can retrieve all expected PVs from all
     configured Devices"""
 
-    for i, device in enumerate(device_data):
+    for device in device_data:
         for object in device.object_data:
-            val = await aioca.caget(f"FASTCS_BACNET:Subcontroller{i}:{object.pv}")
+            val = await aioca.caget(object.pv)
             assert val == object.expected_value, (
                 f"Did not find expected value for device {device.device_name} "
                 f"object {object}"

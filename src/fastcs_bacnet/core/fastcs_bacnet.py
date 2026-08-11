@@ -3,8 +3,8 @@ from fastcs.launch import FastCS
 from fastcs.transports.epics.ca import EpicsCATransport
 
 from fastcs_bacnet.core.BAC0.bacnet_client import BacnetClient
-from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
-from fastcs_bacnet.core.FastCS.bacnet_controller import BacnetController
+from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID, sort_dict
+from fastcs_bacnet.core.FastCS.bacnet_subcontroller import BacnetSubController
 
 
 async def fastcs_bacnet(pv_names_dict: dict[SubscriptionID, str]):
@@ -19,15 +19,26 @@ async def fastcs_bacnet(pv_names_dict: dict[SubscriptionID, str]):
 
     subscriptions = list(pv_names_dict.keys())
 
-    # Use a context provider so if application errors out or is closed
-    # BAC0 client is shut down correctly
     async with start() as bac0:
         bacnet_client = BacnetClient(bac0, initial_subscriptions=subscriptions)
 
         epics_ca = EpicsCATransport()
-        bacnet_controller = BacnetController(bacnet_client, pv_names_dict)
-        bacnet_controller.set_path(["FASTCS_BACNET"])
 
-        fastcs = FastCS(bacnet_controller, [epics_ca])
+        controllers = []
+
+        sorted_dict = sort_dict(pv_names_dict)
+
+        # Create each top level Controller
+        for key, val in sorted_dict.items():
+            controller = BacnetSubController(bacnet_client, val)
+            controller.set_path([key])
+            controllers.append(controller)
+
+        # Note that this would more properly be some kind of one-time initalisation in
+        # FastCS, but no such hook exists. Fortunately it's safe to start updating
+        # attributes before FastCS has started, so this is not a problem.
+        await bacnet_client.start_subscriptions()
+
+        fastcs = FastCS(controllers, [epics_ca])
 
         await fastcs.serve(interactive=False)
