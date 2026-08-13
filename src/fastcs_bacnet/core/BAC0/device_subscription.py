@@ -160,6 +160,9 @@ class DeviceSubscription:
     def remove_subscription(self, object_id: ObjectIdentifier):
         self._object_subscriptions.pop(object_id)
 
+    def get_subscriptions(self) -> list[ObjectSubscription]:
+        return list(self._object_subscriptions.values())
+
     def get_subscription(self, object_id: ObjectIdentifier) -> ObjectSubscription:
         return self._object_subscriptions[object_id]
 

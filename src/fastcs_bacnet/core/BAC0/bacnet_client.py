@@ -68,6 +68,10 @@ class BacnetClient:
             callback=callback,
         )
 
+    async def start_subscriptions(self):
+        for device in self._devices.values():
+            await device.start_subscriptions()
+
     def get_subscription(self, subscription_id: SubscriptionID) -> ObjectSubscription:
         return self._devices[subscription_id.socket_address].get_subscription(
             subscription_id.object_id
@@ -80,6 +84,5 @@ class BacnetClient:
 
         return subscription_ids
 
-    async def start_subscriptions(self):
-        for device in self._devices.values():
-            await device.start_subscriptions()
+    def get_devices(self) -> list[DeviceSubscription]:
+        return list(self._devices.values())
