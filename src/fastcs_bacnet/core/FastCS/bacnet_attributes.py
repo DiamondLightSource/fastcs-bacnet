@@ -4,8 +4,6 @@ from fastcs.attributes import AttributeIO, AttributeIORef
 
 from fastcs_bacnet.core.BAC0.subscription_id import SubscriptionID
 
-background_tasks = set()
-
 
 @dataclass
 class BacnetAttributeIORef(AttributeIORef):
