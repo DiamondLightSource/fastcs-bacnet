@@ -9,6 +9,7 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 description = "Reads bacnet data to an IOC"
 dependencies = [
@@ -27,9 +28,12 @@ requires-python = ">=3.12"
 
 [dependency-groups]
 dev = [
+<<<<<<< before updating
     "aioca",
     "copier",
     "matplotlib",
+=======
+>>>>>>> after updating
     "pre-commit",
     "pyright",
     "pytest",
