@@ -9,6 +9,7 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 description = "Reads bacnet data to an IOC"
 dependencies = [
@@ -27,9 +28,12 @@ requires-python = ">=3.12"
 
 [dependency-groups]
 dev = [
+<<<<<<< before updating
     "aioca",
     "copier",
     "matplotlib",
+=======
+>>>>>>> after updating
     "pre-commit",
     "pyright",
     "pytest",
@@ -51,6 +55,7 @@ GitHub = "https://github.com/DiamondLightSource/fastcs-bacnet"
 email = "oliver.jones@diamond.ac.uk"
 name = "Oli Jones"
 
+<<<<<<< before updating
 [tool.setuptools.packages.find]
 where = ["src"]
 
@@ -58,6 +63,11 @@ where = ["src"]
 dls_bms = ["tests/bms.ini"]
 fastcs_bacnet = ["data/examples/gizmo_EDE.xlsx"]
 
+=======
+[tool.uv]
+# Minimum uv to fix eMudhra CA cert incident (see discuss.python.org/t/109576)
+required-version = ">=0.13.5"
+>>>>>>> after updating
 
 [tool.setuptools_scm]
 version_file = "src/fastcs_bacnet/_version.py"
