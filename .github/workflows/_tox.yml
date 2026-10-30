@@ -12,12 +12,16 @@ jobs:
 
     steps:
       - name: Checkout
+<<<<<<< before updating
         uses: actions/checkout@v5
         with:
           submodules: true
+=======
+        uses: actions/checkout@v7
+>>>>>>> after updating
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v10.3.2
 
       - name: Run tox
         run: uv run --locked tox -e ${{ inputs.tox }}
