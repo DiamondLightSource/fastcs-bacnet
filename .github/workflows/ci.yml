@@ -7,9 +7,9 @@ on:
     tags:
       - "*"
   pull_request:
+  merge_group:
 
 jobs:
-
   lint:
     uses: ./.github/workflows/_tox.yml
     with:
@@ -18,8 +18,8 @@ jobs:
   test:
     strategy:
       matrix:
-        runs-on: [ "ubuntu-latest" ] # can add windows-latest, macos-latest
-        python-version: [ "3.12", "3.13" ]
+        runs-on: ["ubuntu-latest"] # can add windows-latest, macos-latest
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
       fail-fast: false
     uses: ./.github/workflows/_test.yml
     with:
@@ -40,14 +40,14 @@ jobs:
     uses: ./.github/workflows/_dist.yml
 
   pypi:
-    needs: [ dist, test ]
+    needs: [dist, test]
     if: github.ref_type == 'tag'
     uses: ./.github/workflows/_pypi.yml
     permissions:
       id-token: write
 
   release:
-    needs: [ dist, test ]
+    needs: [dist, test]
     if: github.ref_type == 'tag'
     uses: ./.github/workflows/_release.yml
     permissions:
