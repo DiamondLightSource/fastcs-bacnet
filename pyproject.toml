@@ -83,6 +83,8 @@ filterwarnings = [
     # BAC0 doesn't properly close several sockets it opens
     'ignore:unclosed <socket:ResourceWarning',
     'ignore:unclosed transport:ResourceWarning',
+    # Remove this fastcs filter after next release ( > 0.14.4)
+    "ignore:'asyncio.iscoroutinefunction' is deprecated:DeprecationWarning",
 ]
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
