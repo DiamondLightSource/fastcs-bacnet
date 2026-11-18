@@ -3,6 +3,7 @@ import asyncio
 from collections.abc import AsyncGenerator
 
 import aioca
+import numpy
 import pytest
 
 from fastcs_bacnet.core.BAC0.subscription_id import (
@@ -52,3 +53,28 @@ async def test_all_object_creation_subscription(
                 f"Did not find expected value for device {device.device_name} "
                 f"object {object}"
             )
+
+    # Test the StatisticsController PVs
+    data = [
+        ("STATS:CountActiveDevices", 3),
+        ("STATS:CountInactiveDevices", 0),
+        ("STATS:InactiveSubscriptions", 0),
+        ("STATS:TotalDevices", 3),
+        ("STATS:TotalSubscriptions", 54),
+        ("STATS:ActiveDevices", [5555, 5678, 8765]),
+        ("STATS:InactiveDevices", []),
+        # Note this is last as it can take a few extra moments for the last
+        # few subscriptions to connect / be updated in the StatisticsController
+        ("STATS:ActiveSubscriptions", 54),
+        # Don't check RunningTasks as it is a rather unstable number
+        # ("STATS:RunningTasks", 223),
+    ]
+
+    for pv, expected_value in data:
+        actual_value = await aioca.caget(pv)
+
+        errmsg = f"Statistics PV {pv} was not {expected_value}, was {actual_value}"
+        if isinstance(actual_value, numpy.ndarray):
+            assert numpy.array_equal(actual_value, expected_value), errmsg
+        else:
+            assert actual_value == expected_value, errmsg
