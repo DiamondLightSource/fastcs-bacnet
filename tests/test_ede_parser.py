@@ -67,15 +67,15 @@ def test_parse_ip_mapping_file_errors(tmp_path: Path, content: str, error: str):
 def test_parse_ede_uses_ip_mapping():
     address = IPv4SocketAddress("10.0.0.1", BACNET_PORT, EXAMPLE_DEVICE)
 
-    pv_names = parse_ede(
+    entries = parse_ede(
         str(EDE_FILE),
         BMS_CONFIG_DIR,
         {EXAMPLE_DEVICE: address},
         header_rows=EDE_HEADER_ROWS,
     )
 
-    assert pv_names
-    assert all(sub.socket_address == address for sub in pv_names)
+    assert entries
+    assert all(entry.subscription_id.socket_address == address for entry in entries)
 
 
 def test_parse_ede_unmapped_device():

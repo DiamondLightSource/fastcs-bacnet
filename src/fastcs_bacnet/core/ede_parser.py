@@ -19,6 +19,7 @@ from fastcs_bacnet.core.BAC0.subscription_id import (
     ObjectIdentifier,
     SubscriptionID,
 )
+from fastcs_bacnet.core.pv_mapping import PvMappingEntry, pv_names_dict
 
 # The default port all BACnet devices use by convention
 # 47808 is BAC0 in hex
@@ -90,9 +91,10 @@ def parse_ede(
     config_dir: str,
     ip_mapping: dict[int, IPv4SocketAddress],
     header_rows: int = 0,
-) -> dict[SubscriptionID, str]:
+) -> list[PvMappingEntry]:
     """
-    Creates a mapping of subscriptions to PV names from an EDE and config file
+    Creates a PvMappingEntry for each object in an EDE file, naming its PV
+    according to the config file
 
     file_path: Path to the EDE file as a string
     config_dir: Path to the directory containing the bms config file as a string
@@ -104,7 +106,7 @@ def parse_ede(
     Raises IpMappingError if any device in the EDE file is not in ip_mapping
     """
 
-    pv_names_dict = {}
+    entries: list[PvMappingEntry] = []
     unmapped_devices: set[int] = set()
 
     config_file = getBMSConfig(getIniFile(config_dir))
@@ -119,7 +121,8 @@ def parse_ede(
             extractData(row, IFM_FILE_TYPE)
         )
 
-        object_type_int = optional_fields[0]
+        object_type_int = int(optional_fields[0])
+        object_description = optional_fields[1]
 
         device_id = int(device_instance)
         if device_id not in ip_mapping:
@@ -139,7 +142,15 @@ def parse_ede(
 
         checkPvNameLength(pv_name)
 
-        pv_names_dict[subscription_id] = pv_name
+        entries.append(
+            PvMappingEntry(
+                subscription_id=subscription_id,
+                object_type=object_type_int,
+                object_name=object_name,
+                object_description=object_description,
+                pv_name=pv_name,
+            )
+        )
 
     if unmapped_devices:
         raise IpMappingError(
@@ -147,9 +158,9 @@ def parse_ede(
             "entry in the Device to IP mapping file"
         )
 
-    checkUniquePvNames(list(pv_names_dict.keys()))
+    checkUniquePvNames(list(pv_names_dict(entries).keys()))
 
-    return pv_names_dict
+    return entries
 
 
 def object_type_as_string(object_type: int) -> str:
