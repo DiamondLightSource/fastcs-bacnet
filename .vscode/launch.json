@@ -10,7 +10,6 @@
             "request": "launch",
             "program": "/cache/venv-for/scratch/eyh46967/dev/bacnet/fastcs-bacnet/bin/fastcs-bacnet",
             "args": [
-                "-r 8",
                 "/workspaces/fastcs-bacnet/src/fastcs_bacnet/data/examples/gizmo_EDE.xlsx",
                 "/workspaces/fastcs-bacnet/src/dls_bms/tests/",
                 "/workspaces/fastcs-bacnet/src/fastcs_bacnet/data/examples/device_ip_mapping.csv",
