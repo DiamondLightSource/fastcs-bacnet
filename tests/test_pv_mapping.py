@@ -17,7 +17,7 @@ from fastcs_bacnet.core.pv_mapping import (
     pv_names_dict,
     write_pv_mapping,
 )
-from tests.test_ede_parser import BMS_CONFIG_DIR, EDE_FILE, EDE_HEADER_ROWS
+from tests.test_ede_parser import BMS_CONFIG_DIR, EDE_FILE
 
 IP_MAPPING_FILE = EDE_FILE.parent / "device_ip_mapping.csv"
 
@@ -55,8 +55,6 @@ def read_mapping(path: Path) -> pandas.DataFrame:
 def run_main(*extra_args: str) -> None:
     main(
         [
-            "-r",
-            str(EDE_HEADER_ROWS),
             str(EDE_FILE),
             BMS_CONFIG_DIR,
             str(IP_MAPPING_FILE),

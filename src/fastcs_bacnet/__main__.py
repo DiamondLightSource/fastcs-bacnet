@@ -43,14 +43,6 @@ def main(args: Sequence[str] | None = None) -> None:
     )
 
     parser.add_argument(
-        "-r",
-        "--header_rows",
-        type=int,
-        default=0,
-        help="Number of rows before data in the EDE file",
-    )
-
-    parser.add_argument(
         "--pv-mapping-out",
         type=str,
         default=None,
@@ -92,7 +84,6 @@ def main(args: Sequence[str] | None = None) -> None:
         args_namespace.ede_file_path,
         args_namespace.config_dir,
         ip_mapping,
-        header_rows=args_namespace.header_rows,
     )
 
     if mapping_out is not None:
