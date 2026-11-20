@@ -39,6 +39,42 @@ async def fastcs_application(
     await task
 
 
+async def wait_for_pv_value(
+    pv: str, expected_value: int | list[int], timeout: float = 15.0
+) -> None:
+    """Wait until a PV reports the expected value, failing after timeout.
+
+    The StatisticsController only recalculates its PVs periodically, so a single
+    caget may return a stale value. camonitor delivers the current value on
+    connection and every update after that, so we wait for a matching one."""
+    matched = asyncio.Event()
+    last_value = None
+
+    def on_update(value):
+        nonlocal last_value
+        last_value = value
+        if isinstance(value, numpy.ndarray):
+            is_match = numpy.array_equal(value, expected_value)
+        else:
+            is_match = value == expected_value
+        if is_match:
+            matched.set()
+
+    # FORMAT_TIME is required: libca silently drops monitor updates with a zero
+    # byte payload, which is what an empty waveform of a plain DBR type produces.
+    # Requesting timestamp metadata makes the payload non-empty.
+    subscription = aioca.camonitor(pv, on_update, format=aioca.FORMAT_TIME)
+    try:
+        await asyncio.wait_for(matched.wait(), timeout)
+    except TimeoutError:
+        pytest.fail(
+            f"Statistics PV {pv} was not {expected_value} after {timeout}s, "
+            f"last value was {last_value}"
+        )
+    finally:
+        subscription.close()
+
+
 async def test_all_object_creation_subscription(
     device_data: list[DeviceData],
     fastcs_application: None,
@@ -63,18 +99,10 @@ async def test_all_object_creation_subscription(
         ("STATS:TotalSubscriptions", 54),
         ("STATS:ActiveDevices", [5555, 5678, 8765]),
         ("STATS:InactiveDevices", []),
-        # Note this is last as it can take a few extra moments for the last
-        # few subscriptions to connect / be updated in the StatisticsController
         ("STATS:ActiveSubscriptions", 54),
         # Don't check RunningTasks as it is a rather unstable number
         # ("STATS:RunningTasks", 223),
     ]
 
     for pv, expected_value in data:
-        actual_value = await aioca.caget(pv)
-
-        errmsg = f"Statistics PV {pv} was not {expected_value}, was {actual_value}"
-        if isinstance(actual_value, numpy.ndarray):
-            assert numpy.array_equal(actual_value, expected_value), errmsg
-        else:
-            assert actual_value == expected_value, errmsg
+        await wait_for_pv_value(pv, expected_value)
