@@ -6,7 +6,7 @@ from collections.abc import Sequence
 
 from fastcs.logging import configure_logging
 
-from fastcs_bacnet.core.ede_parser import parse_ede
+from fastcs_bacnet.core.ede_parser import parse_ede, parse_ip_mapping_file
 from fastcs_bacnet.core.fastcs_bacnet import fastcs_bacnet
 
 from . import __version__
@@ -24,13 +24,17 @@ def main(args: Sequence[str] | None = None) -> None:
 
     parser = ArgumentParser(description=description)
     parser.add_argument(
-        "file_path",
+        "ede_file_path",
         type=str,
         help="Filepath to the EDE file",
     )
 
     parser.add_argument(
         "config_dir", type=str, help="Filepath to the directory with the bms.ini file"
+    )
+
+    parser.add_argument(
+        "ip_mapping", type=str, help="Filepath to the Device to IP mapping file"
     )
 
     parser.add_argument(
@@ -47,11 +51,15 @@ def main(args: Sequence[str] | None = None) -> None:
         action="version",
         version=__version__,
     )
+
     args_namespace = parser.parse_args(args)
 
+    ip_mapping = parse_ip_mapping_file(args_namespace.ip_mapping)
+
     pv_names_dict = parse_ede(
-        args_namespace.file_path,
+        args_namespace.ede_file_path,
         args_namespace.config_dir,
+        ip_mapping,
         header_rows=args_namespace.header_rows,
     )
 

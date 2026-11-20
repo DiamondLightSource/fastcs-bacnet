@@ -1,4 +1,5 @@
 import csv
+import ipaddress
 
 from bacpypes3.primitivedata import ObjectType
 from dls_bms.bms import (
@@ -24,8 +25,71 @@ from fastcs_bacnet.core.BAC0.subscription_id import (
 BACNET_PORT = 47808
 
 
+class IpMappingError(ValueError):
+    """Raised when the Device to IP mapping file is invalid or incomplete"""
+
+
+def parse_ip_mapping_file(file_path: str) -> dict[int, IPv4SocketAddress]:
+    """Create a mapping of Device IDs to IP addresses
+
+    file_path: Path to a CSV file with "device" and "ip" columns
+
+    Raises IpMappingError if the file is missing a column, has an invalid
+    Device ID or IP address, or lists the same Device ID more than once.
+    """
+
+    result: dict[int, IPv4SocketAddress] = {}
+    # utf-8-sig removes the byte-order mark that Excel adds to UTF-8 CSV exports
+    with open(file_path, encoding="utf-8-sig", newline="") as csvfile:
+        reader = csv.DictReader(csvfile, skipinitialspace=True)
+        fieldnames = [name.strip() for name in reader.fieldnames or []]
+        missing_columns = {"device", "ip"} - set(fieldnames)
+        if missing_columns:
+            raise IpMappingError(
+                f"{file_path} is missing column(s) {sorted(missing_columns)}, "
+                f"found {fieldnames}"
+            )
+        reader.fieldnames = fieldnames
+
+        for row in reader:
+            location = f"{file_path} line {reader.line_num}"
+            device_str = (row["device"] or "").strip()
+            ip_str = (row["ip"] or "").strip()
+
+            # Skip rows that are blank apart from separators, e.g. ","
+            if not device_str and not ip_str:
+                continue
+
+            try:
+                device = int(device_str)
+            except ValueError as e:
+                raise IpMappingError(
+                    f"{location}: invalid Device ID {device_str!r}"
+                ) from e
+
+            try:
+                ip = str(ipaddress.IPv4Address(ip_str))
+            except ValueError as e:
+                raise IpMappingError(
+                    f"{location}: invalid IPv4 address {ip_str!r} for device {device}"
+                ) from e
+
+            if device in result:
+                raise IpMappingError(
+                    f"{location}: duplicate Device ID {device} (IP {ip}), already "
+                    f"mapped to IP {result[device].ip_address}"
+                )
+
+            result[device] = IPv4SocketAddress(ip, BACNET_PORT, device)
+
+    return result
+
+
 def parse_ede(
-    file_path: str, config_dir: str, header_rows: int = 0
+    file_path: str,
+    config_dir: str,
+    ip_mapping: dict[int, IPv4SocketAddress],
+    header_rows: int = 0,
 ) -> dict[SubscriptionID, str]:
     """
     Creates a mapping of subscriptions to PV names from an EDE and config file
@@ -33,10 +97,15 @@ def parse_ede(
     file_path: Path to the EDE file as a string
     config_dir: Path to the directory containing the bms config file as a string
         The file will be named bms.ini
+    ip_mapping: Dictionary mapping a Device ID to its IPv4 address. Every device
+        in the EDE file must be present.
     header_rows: Number of row before data starts on the EDE file
+
+    Raises IpMappingError if any device in the EDE file is not in ip_mapping
     """
 
     pv_names_dict = {}
+    unmapped_devices: set[int] = set()
 
     config_file = getBMSConfig(getIniFile(config_dir))
 
@@ -52,10 +121,13 @@ def parse_ede(
 
         object_type_int = optional_fields[0]
 
-        ip = ip_from_row(row)
+        device_id = int(device_instance)
+        if device_id not in ip_mapping:
+            unmapped_devices.add(device_id)
+            continue
 
         subscription_id = SubscriptionID(
-            IPv4SocketAddress(ip, BACNET_PORT, int(device_instance)),
+            ip_mapping[device_id],
             ObjectIdentifier(
                 object_type_as_string(object_type_int), int(object_instance_str)
             ),
@@ -69,16 +141,15 @@ def parse_ede(
 
         pv_names_dict[subscription_id] = pv_name
 
+    if unmapped_devices:
+        raise IpMappingError(
+            f"Device(s) {sorted(unmapped_devices)} in EDE file {file_path} have no "
+            "entry in the Device to IP mapping file"
+        )
+
     checkUniquePvNames(list(pv_names_dict.keys()))
 
     return pv_names_dict
-
-
-def ip_from_row(row: list[str]) -> str:
-    """
-    Get IP address from a row of an EDE file
-    """
-    return row[17]
 
 
 def object_type_as_string(object_type: int) -> str:
